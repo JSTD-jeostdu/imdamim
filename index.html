@@ -513,6 +513,50 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .tb-addev summary::-webkit-details-marker{ display:none; }
 .tb-addev[open] summary{ margin-bottom:6px; }
 
+/* ---------- 마음의 소리함 ---------- */
+.tabbar button{ position:relative; }
+.tab-dot{
+  position:absolute; top:10px; left:calc(50% + 10px); width:9px; height:9px; border-radius:50%;
+  background:var(--stamp); box-shadow:0 0 0 2px var(--card);
+}
+.vc-cats{ display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 10px; }
+.vc-cats button{
+  min-height:40px; padding:0 12px; border-radius:999px; border:1.5px solid var(--line); background:#fff;
+  font-size:13.5px; font-weight:600; color:var(--ink-70);
+}
+.vc-cats button[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.vc-help{
+  border:2px solid var(--stamp); background:#FDF1EF; border-radius:var(--r); padding:12px 14px; margin:10px 0;
+  font-size:14px; line-height:1.7; color:var(--text);
+}
+.vc-help b{ color:var(--stamp); }
+.vc-help a{ display:inline-flex; align-items:center; min-height:40px; margin:4px 6px 0 0; padding:0 12px; border-radius:999px;
+  background:var(--stamp); color:#fff; font-weight:700; text-decoration:none; }
+.vc-me{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13.5px; color:var(--ink-70); margin-bottom:6px; }
+.vc-me b{ color:var(--ink); }
+.vc-me button{ border:0; background:transparent; color:var(--ink-45); text-decoration:underline; font-size:12.5px; min-height:36px; }
+.vc-code{ font-size:22px !important; letter-spacing:.3em; text-transform:uppercase; text-align:center; font-weight:700; }
+.vc-item{ border:1px solid var(--line); border-radius:var(--r); background:#fff; padding:12px 14px; }
+.vc-item + .vc-item{ margin-top:8px; }
+.vc-item .hd{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-45); }
+.vc-item .hd b{ color:var(--text); font-size:14px; }
+.vc-item .tx{ margin-top:6px; font-size:14.5px; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+.vc-item .rp{ margin-top:8px; padding:10px 12px; border-radius:12px; background:var(--tint); font-size:14px; white-space:pre-wrap; }
+.vc-item .rp::before{ content:"선생님 답장 · "; font-weight:700; color:var(--ink); }
+.vc-item.urgent{ border:2px solid var(--stamp); background:#FFF7F5; }
+.vc-item.unread{ box-shadow:inset 4px 0 0 var(--ink); }
+.vc-item.click{ cursor:pointer; }
+.vc-badge{ font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:var(--paper); color:var(--ink-70); }
+.vc-badge.urgent{ background:var(--stamp); color:#fff; }
+.vc-badge.st{ background:var(--tint); color:var(--ink); }
+.vc-filter{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+.vc-filter button{ min-height:36px; padding:0 10px; border-radius:999px; border:1px solid var(--line); background:#fff; font-size:12.5px; color:var(--ink-70); }
+.vc-filter button[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.vc-codes{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:6px; margin-top:8px; }
+.vc-codes div{ display:flex; align-items:center; justify-content:space-between; gap:6px; border:1px solid var(--line); border-radius:10px; padding:6px 8px; background:#fff; font-size:13px; }
+.vc-codes code{ font-weight:700; letter-spacing:.08em; color:var(--ink); }
+.vc-codes button{ border:0; background:transparent; color:var(--ink-45); font-size:12px; min-height:32px; text-decoration:underline; }
+
 /* ---------- 학생 화면 하단 탭 ---------- */
 .st-tabbar{ z-index:30; }
 .st-tabbar button{ position:relative; }
@@ -1913,6 +1957,11 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <p class="sub st-empty">아직 올라온 일정이 없습니다.</p>
     </section>
 
+    <!-- ── 마음 (마음의 소리함) ── -->
+    <section class="st-tab hidden" data-st="voice">
+      <div class="card" id="stVoice"></div>
+    </section>
+
     <!-- ── 도구 ── -->
     <section class="st-tab hidden" data-st="tools">
       <div class="card hidden" id="stCardTools">
@@ -1933,6 +1982,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <button data-sttab="today"  aria-selected="true"><span class="ic">🌅</span>오늘</button>
       <button data-sttab="notice" aria-selected="false"><span class="ic">💬</span>알림<i class="st-dot hidden"></i></button>
       <button data-sttab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
+      <button data-sttab="voice"  aria-selected="false" class="hidden"><span class="ic">💌</span>마음</button>
       <button data-sttab="tools"  aria-selected="false"><span class="ic">🧰</span>도구</button>
     </nav>
   </main>
@@ -2357,6 +2407,16 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div id="qrBox"></div>
       </div>
 
+      <!-- 마음의 소리함 -->
+      <div class="card" id="cardVoice">
+        <span class="eyebrow">마음의 소리함</span>
+        <h2>학생 마음 편지</h2>
+        <p class="sub">학생이 학생 화면 「💌 마음」 탭에서 고민·건의·도움 요청·고마움을 담임에게만 보냅니다.
+        학생은 나눠 준 <b>개인 코드</b>로 본인 확인을 하고, 담임은 비밀 답장을 보낼 수 있습니다.</p>
+        <div class="notice">편지는 학생 기기에서 <b>담임만 열 수 있는 자물쇠</b>로 잠가 보냅니다. 서버 관리자·친구·링크를 아는 사람도 읽을 수 없습니다.</div>
+        <div id="voiceBody"></div>
+      </div>
+
       <!-- 진학관리 (담임 전용) -->
       <div class="card" id="cardJinhak">
         <span class="eyebrow">진학관리 · 담임 전용</span>
@@ -2577,6 +2637,14 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div class="btn-row" style="margin-top:12px;">
           <button class="btn primary sm" id="btnSaveNotes">저장</button>
         </div>
+      </div>
+
+      <!-- 읽지 않은 마음 편지 알림 -->
+      <div class="card hidden" id="cardVoiceDash">
+        <span class="eyebrow">마음의 소리함</span>
+        <h2 id="voiceDashHead">읽지 않은 마음 편지</h2>
+        <p class="sub" id="voiceDashSub" style="margin-bottom:10px;"></p>
+        <button class="btn primary sm" id="btnVoiceDash">편지함 열기</button>
       </div>
 
       <!-- 말풍선 공지 (학생 화면에 일방향으로 쌓인다) -->
@@ -2807,7 +2875,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
 
   <!-- 하단 탭바 -->
   <nav class="tabbar">
-    <button data-tab="manage" aria-selected="true"><span class="ic">📋</span>관리</button>
+    <button data-tab="manage" aria-selected="true"><span class="ic">📋</span>관리<i class="tab-dot hidden" id="manageDot"></i></button>
     <button data-tab="seat"   aria-selected="false"><span class="ic">🪑</span>자리 배치</button>
     <button data-tab="home"   aria-selected="false"><span class="ic">🌅</span>조회</button>
     <button data-tab="attend" aria-selected="false"><span class="ic">✅</span>출석</button>
@@ -3992,6 +4060,7 @@ async function startDemo(){
     { id:"b3", at: at(0, 7, 55),   pin:false, text:"국어 수행평가 안내 자료 다시 올려요 → https://example.com/korean-presentation" }
   ];
   fillDemoClass(list.map(s => s.id), todayStr);
+  await vcDemoSetup();   // 마음의 소리함 — 체험용 열쇠·개인 코드·편지 예시
 
   $("#demoBanner").classList.remove("hidden");
   enterApp();
@@ -4113,6 +4182,7 @@ function enterApp(){
   if(state.mode === "demo") $("#demoBanner").classList.remove("hidden");
   renderAll();
   boardResume();   // 교과 출석부가 켜져 있으면 최신 내용을 올리고 교시 체크를 받아 보기 시작
+  vcResume();      // 마음의 소리함이 켜져 있으면 편지 받아 보기 시작
 }
 
 /* ============================================================
@@ -4428,6 +4498,7 @@ function renderAll(){
   renderSidebarPanel();
   renderTools();
   renderBubbles();
+  renderVoicePanel();
   $("#inPw").placeholder = state.data.passwordHash
     ? "설정되어 있습니다 (바꾸려면 새로 입력)"
     : "비우면 누구나 볼 수 있습니다";
@@ -6450,6 +6521,8 @@ function buildPublicDoc(){
     doc.school = { office: state.data.school.office, code: state.data.school.code };
   }
   doc.tools = publicTools();   // 학생용으로 켠 바로가기 (학생 정보 없음)
+  /* 마음의 소리함 — 공개키만 (편지를 잠그는 데만 쓰이고, 여는 열쇠는 담임 기기에만 있다) */
+  if(state.data.voice && state.data.voice.on && state.data.voice.pub) doc.voicePub = state.data.voice.pub;
   if(P.supplies) doc.supplies = state.data.supplies || "";
   if(P.notice)   doc.notice   = state.data.notice   || "";
   if(P.notice)   doc.bubbles  = publicBubbles();   // 말풍선 공지 — 글만 (학생 정보 없음)
@@ -6645,6 +6718,7 @@ function renderStudent(pub, mount){
   renderStudentCal(pub, root);
   renderStudentTools(pub, root);
   renderStudentBubbles(pub, root);
+  renderStudentVoice(pub, root);
   setupStudentTabs(pub, root, !!mount);
 
   const t = pub.updatedAt ? new Date(pub.updatedAt) : null;
@@ -6676,6 +6750,9 @@ async function openStudentRoute(classId){
         db, doc: dbMod.doc, setDoc: dbMod.setDoc, getDoc: dbMod.getDoc,
         deleteDoc: dbMod.deleteDoc, deleteField: dbMod.deleteField
       });
+      /* 마음의 소리함 — 학생 기기가 쓰는 연결 (로그인 없음) */
+      stuFb = { db, doc: dbMod.doc, getDoc: dbMod.getDoc, collection: dbMod.collection,
+                addDoc: dbMod.addDoc, getDocs: dbMod.getDocs, onSnapshot: dbMod.onSnapshot };
       pub = await store.loadPublic(classId);
     }catch(e){ console.error(e); }
   }
@@ -8120,6 +8197,642 @@ async function renderDashCalendarBits(ds){
 }
 
 /* ============================================================
+   마음의 소리함 — 학생 → 담임 (실명, 비밀 답장)
+   ------------------------------------------------------------
+   ★ 학생 개인 코드 (앞으로 모든 학생 기능이 함께 쓴다)
+     · 담임이 학생마다 6자리 코드를 만들어 쪽지로 나눠 준다.
+     · 서버에는 코드가 아니라 확인값 sh = SHA-256(반ID|코드) 만 stuKeys/{sh} 로 올린다.
+       코드를 아는 학생만 그 문서를 찾을 수 있다(목록 보기 금지).
+   ★ 암호
+     · 담임 기기가 RSA-OAEP 열쇠쌍을 만든다. 공개키는 학생 화면 문서에, 개인키는
+       이름 보호 열쇠(번호만 모드는 소리함 암호)로 잠가 반 문서에 둔다.
+     · 학생 기기는 편지마다 새 AES 열쇠로 내용을 잠그고 그 열쇠만 공개키로 잠근다(c).
+       학생 본인 사본(m)과 담임 답장(reply)은 학생 코드에서 만든 열쇠로 잠근다.
+   ★ 체험 모드는 같은 코드를 메모리 저장소로 돌린다.
+   ============================================================ */
+let stuFb = null;   // 학생 화면(로그인 없음)의 서버 연결
+const VC_CATS  = ["고민·상담", "학급 건의", "도움 요청·신고", "고마움·칭찬"];
+const VC_DAILY = 3;
+const VC_MAX   = 500;
+const VC_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // 0/O, 1/I 처럼 헷갈리는 글자 뺌
+/* 도움이 필요해 보이는 낱말 — 판단이 아니라 「먼저 확인해 달라」는 표시용 */
+const VC_CRISIS = /죽고\s*싶|죽을\s*래|자살|자해|사라지고\s*싶|살기\s*싫|목숨|뛰어내리|손목|때려|때리|맞았|폭행|폭력|괴롭|왕따|따돌|협박|돈\s*(을\s*)?뺏|빼앗|성추행|성폭력|몰카|스토킹/;
+const K_ME = "imdi_me_";   // + 반ID → { code }  학생 기기에만
+const vc = { priv:null, vk:null, newSalt:null, letters:{}, unsubs:[], filter:"all",
+             mem:{ stu:{}, items:{}, watch:{} } };
+
+/* ---------- 연결 (서버 / 체험 메모리) ---------- */
+function vcFb(){ return fbRefs || stuFb; }
+function vcCol(classId, sh){ const f = vcFb(); return f.collection(f.db, "voices", classId, "by", sh, "items"); }
+function vcMemNotify(sh){
+  const cb = vc.mem.watch[sh];
+  if(cb) cb((vc.mem.items[sh] || []).map(x => Object.assign({}, x)));
+}
+const vb = {
+  async putStu(sh, sid, no){
+    if(state.mode === "demo"){ vc.mem.stu[sh] = { classId: state.classId, sid, no }; return; }
+    await fbRefs.setDoc(fbRefs.doc(fbRefs.db, "stuKeys", sh), { classId: state.classId, sid, no });
+  },
+  async delStu(sh){
+    if(state.mode === "demo"){ delete vc.mem.stu[sh]; return; }
+    await fbRefs.deleteDoc(fbRefs.doc(fbRefs.db, "stuKeys", sh)).catch(() => {});
+  },
+  async getStu(sh){
+    if(state.mode === "demo") return vc.mem.stu[sh] || null;
+    const f = vcFb();
+    const s = await f.getDoc(f.doc(f.db, "stuKeys", sh));
+    return s.exists() ? s.data() : null;
+  },
+  async add(classId, sh, body){
+    if(state.mode === "demo"){
+      const id = "m" + Math.random().toString(36).slice(2, 10);
+      (vc.mem.items[sh] || (vc.mem.items[sh] = [])).push(Object.assign({ id }, body));
+      vcMemNotify(sh);
+      return id;
+    }
+    return (await vcFb().addDoc(vcCol(classId, sh), body)).id;
+  },
+  async list(classId, sh){
+    if(state.mode === "demo") return (vc.mem.items[sh] || []).map(x => Object.assign({}, x));
+    const s = await vcFb().getDocs(vcCol(classId, sh));
+    return s.docs.map(d => Object.assign({ id: d.id }, d.data()));
+  },
+  watch(classId, sh, cb){
+    if(state.mode === "demo"){ vc.mem.watch[sh] = cb; vcMemNotify(sh); return () => { delete vc.mem.watch[sh]; }; }
+    return fbRefs.onSnapshot(vcCol(classId, sh), s => cb(s.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+                             e => console.warn("소리함 받기 실패", e));
+  },
+  async update(classId, sh, id, patch){
+    if(state.mode === "demo"){
+      const it = (vc.mem.items[sh] || []).find(x => x.id === id);
+      if(it) Object.assign(it, patch);
+      vcMemNotify(sh);
+      return;
+    }
+    await fbRefs.updateDoc(fbRefs.doc(fbRefs.db, "voices", classId, "by", sh, "items", id), patch);
+  },
+  async del(classId, sh, id){
+    if(state.mode === "demo"){ vc.mem.items[sh] = (vc.mem.items[sh] || []).filter(x => x.id !== id); vcMemNotify(sh); return; }
+    await fbRefs.deleteDoc(fbRefs.doc(fbRefs.db, "voices", classId, "by", sh, "items", id));
+  }
+};
+
+/* ---------- 열쇠·잠그기 ---------- */
+function vcSh(classId, code){ return sha256("imdamim-stu|" + classId + "|" + String(code).toUpperCase()); }
+const vcKsCache = {};
+async function vcKs(classId, code){
+  const k = classId + "|" + String(code).toUpperCase();
+  if(vcKsCache[k]) return vcKsCache[k];
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(String(code).toUpperCase()), "PBKDF2", false, ["deriveKey"]);
+  return (vcKsCache[k] = await crypto.subtle.deriveKey(
+    { name:"PBKDF2", salt: new TextEncoder().encode("imdamim-reply|" + classId), iterations: 100000, hash:"SHA-256" },
+    km, { name:"AES-GCM", length:256 }, false, ["encrypt","decrypt"]));
+}
+function vcNewCode(){
+  const a = new Uint32Array(6);
+  crypto.getRandomValues(a);
+  return Array.from(a, n => VC_CODE_CHARS[n % VC_CODE_CHARS.length]).join("");
+}
+/* 공개키로 잠그기 — 편지마다 새 AES 열쇠로 내용을 잠그고, 그 열쇠만 RSA 로 잠근다 */
+async function vcSealFor(pubB64, obj){
+  const pub = await crypto.subtle.importKey("spki", crypt.fromB64(pubB64), { name:"RSA-OAEP", hash:"SHA-256" }, false, ["encrypt"]);
+  const k = await crypto.subtle.generateKey({ name:"AES-GCM", length:256 }, true, ["encrypt","decrypt"]);
+  const wrapped = await crypto.subtle.encrypt({ name:"RSA-OAEP" }, pub, await crypto.subtle.exportKey("raw", k));
+  return crypt.toB64(wrapped) + "." + await sealJson(k, obj);
+}
+async function vcOpen(priv, blob){
+  const [w, rest] = String(blob).split(".");
+  const raw = await crypto.subtle.decrypt({ name:"RSA-OAEP" }, priv, crypt.fromB64(w));
+  return openJson(await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]), rest);
+}
+async function vcWrap(key, bytes){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  return crypt.toB64(iv) + ":" + crypt.toB64(await crypto.subtle.encrypt({ name:"AES-GCM", iv }, key, bytes));
+}
+async function vcUnwrap(key, blob){
+  const [ivB, ctB] = String(blob).split(":");
+  return crypto.subtle.decrypt({ name:"AES-GCM", iv: crypt.fromB64(ivB) }, key, crypt.fromB64(ctB));
+}
+async function vcUnwrapPriv(key, blob){
+  return crypto.subtle.importKey("pkcs8", await vcUnwrap(key, blob), { name:"RSA-OAEP", hash:"SHA-256" }, false, ["decrypt"]);
+}
+
+/* 담임 쪽 열쇠 — 이름 보호 열쇠, 번호만 모드는 소리함 암호 */
+async function vcTeacherKey(){
+  if(vc.vk) return vc.vk;
+  if(state.nameMode !== "number" || state.mode === "demo"){
+    if(!crypt.key){ toast("관리 탭에서 이름 보호 암호를 먼저 풀어 주세요."); return null; }
+    return (vc.vk = crypt.key);
+  }
+  const v = state.data.voice || {};
+  const salt = v.salt || crypt.toB64(crypto.getRandomValues(new Uint8Array(16)));
+  const pass = await askText("소리함 암호",
+    v.salt ? "마음의 소리함 암호를 넣어 주세요." : "편지를 여는 열쇠를 잠글 암호를 정해 주세요. 잊으면 지난 편지를 열 수 없습니다.",
+    "", "password");
+  if(!pass) return null;
+  const key = await crypt.derive(pass, salt);
+  if(v.priv){
+    try{ await vcUnwrapPriv(key, v.priv); }catch(e){ toast("암호가 맞지 않습니다."); return null; }
+  }
+  vc.newSalt = v.salt ? null : salt;
+  return (vc.vk = key);
+}
+
+/* ---------- 담임: 켜기 · 개인 코드 ---------- */
+async function vcTurnOn(){
+  if(state.mode === "local"){ toast("학생 화면으로 받는 기능이라 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다."); return; }
+  if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+  const vk = await vcTeacherKey();
+  if(!vk) return;
+  const old = state.data.voice;
+  let v;
+  if(old && old.pub && old.priv){
+    v = Object.assign({}, old, { on: true });   // 예전 열쇠를 그대로 써야 지난 편지가 열린다
+  }else{
+    const kp = await crypto.subtle.generateKey(
+      { name:"RSA-OAEP", modulusLength:2048, publicExponent:new Uint8Array([1,0,1]), hash:"SHA-256" }, true, ["encrypt","decrypt"]);
+    v = { on: true,
+          pub: crypt.toB64(await crypto.subtle.exportKey("spki", kp.publicKey)),
+          priv: await vcWrap(vk, await crypto.subtle.exportKey("pkcs8", kp.privateKey)) };
+    if(vc.newSalt) v.salt = vc.newSalt;
+  }
+  await store.save("voice", v);
+  vc.priv = await vcUnwrapPriv(vk, v.priv);
+  await autoSync();
+  await vcIssueCodes(false);
+  await vcResume();
+  toast("마음의 소리함을 열었습니다. 「코드 쪽지 인쇄」로 학생들에게 나눠 주세요.");
+}
+async function vcIssueOne(s, vk){
+  const old = (state.data.stuSh || {})[s.id];
+  if(old) await vb.delStu(old);
+  const code = vcNewCode();
+  const sh = await vcSh(state.classId, code);
+  await vb.putStu(sh, s.id, s.no);
+  await store.save(`stuCodes.${s.id}`, await vcWrap(vk, new TextEncoder().encode(code)));
+  await store.save(`stuSh.${s.id}`, sh);
+  return code;
+}
+async function vcIssueCodes(all){
+  const vk = await vcTeacherKey();
+  if(!vk) return 0;
+  let n = 0;
+  for(const s of (state.data.students || [])){
+    if(!all && (state.data.stuSh || {})[s.id]) continue;
+    await vcIssueOne(s, vk);
+    n++;
+  }
+  return n;
+}
+async function vcCodes(){
+  const vk = await vcTeacherKey();
+  if(!vk) return null;
+  const out = {};
+  for(const [sid, blob] of Object.entries(state.data.stuCodes || {})){
+    try{ out[sid] = new TextDecoder().decode(await vcUnwrap(vk, blob)); }catch(e){}
+  }
+  return out;
+}
+
+/* ---------- 담임: 편지 받기 ---------- */
+function vcStop(){ vc.unsubs.forEach(u => { try{ u(); }catch(e){} }); vc.unsubs = []; }
+async function vcResume(){
+  vcStop();
+  vc.letters = {};
+  const v = state.data && state.data.voice;
+  if(!v || !v.on || !(state.mode === "cloud" || state.mode === "demo")){ renderVoicePanel(); vcBadges(); return; }
+  if(!vc.priv){
+    /* 잠금이 이미 풀려 있으면 조용히 연다 (암호를 묻지 않는다) */
+    const key = vc.vk || (state.nameMode !== "number" || state.mode === "demo" ? crypt.key : null);
+    if(key){ try{ vc.priv = await vcUnwrapPriv(key, v.priv); vc.vk = key; }catch(e){} }
+  }
+  renderVoicePanel();
+  if(!vc.priv){ vcBadges(); return; }
+  for(const [sid, sh] of Object.entries(state.data.stuSh || {})){
+    vc.unsubs.push(vb.watch(state.classId, sh, async items => {
+      const out = [];
+      for(const it of items){
+        try{
+          const p = await vcOpen(vc.priv, it.c);
+          const text = String(p.text || "").slice(0, VC_MAX);
+          out.push({ id: it.id, sh, sid, at: it.at, cat: VC_CATS.includes(p.cat) ? p.cat : "고민·상담", text,
+                     urgent: VC_CRISIS.test(text), read: !!it.read, replyBlob: it.reply || null, replyAt: it.replyAt || null });
+        }catch(e){ /* 다른 열쇠로 잠긴 것은 건너뛴다 */ }
+      }
+      vc.letters[sh] = out;
+      renderVoicePanel();
+      vcBadges();
+    }));
+  }
+}
+/* 도움 필요·안 읽은 것 먼저, 그다음 최근 순 */
+function vcAll(){
+  return Object.values(vc.letters).flat().sort((a, b) =>
+    (b.urgent && !b.read) - (a.urgent && !a.read) || (!b.read) - (!a.read) || b.at.localeCompare(a.at));
+}
+function vcBadges(){
+  const card = $("#cardVoiceDash");
+  if(!card) return;
+  const unread = vcAll().filter(x => !x.read);
+  const urg = unread.filter(x => x.urgent);
+  card.classList.toggle("hidden", !unread.length);
+  card.style.border = urg.length ? "2px solid var(--stamp)" : "";
+  $("#voiceDashHead").textContent = `읽지 않은 마음 편지 ${unread.length}개`;
+  $("#voiceDashSub").textContent = urg.length
+    ? `그중 ${urg.length}개에 도움이 필요해 보이는 낱말이 있습니다. 먼저 확인해 주세요.`
+    : "관리 탭 「마음의 소리함」에서 읽고 답장할 수 있습니다.";
+  $("#manageDot").classList.toggle("hidden", !unread.length);
+}
+$("#btnVoiceDash").addEventListener("click", () => {
+  switchTab("manage");
+  setTimeout(() => $("#cardVoice").scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+});
+
+/* ---------- 담임: 관리 탭 카드 ---------- */
+function vcItemHtml(x){
+  const s = studentById(x.sid);
+  const t = x.text || "";
+  return `<div class="vc-item click ${x.urgent ? "urgent" : ""} ${x.read ? "" : "unread"}" data-vcopen="${escapeHtml(x.sh)}|${escapeHtml(x.id)}">
+    <div class="hd">${x.urgent ? `<span class="vc-badge urgent">도움 필요</span>` : ""}<span class="vc-badge">${escapeHtml(x.cat)}</span>
+      <b>${s ? `${s.no}번 ${escapeHtml(nameOf(s))}` : "(지난 학생)"}</b><span>${dayHead(ymd(new Date(x.at)))} ${bubbleTime(x.at)}</span>
+      ${x.read ? "" : `<span class="vc-badge st">새 편지</span>`}${x.replyBlob ? `<span class="vc-badge st">답장함</span>` : ""}</div>
+    <div class="tx">${escapeHtml(t.slice(0, 80))}${t.length > 80 ? "…" : ""}</div></div>`;
+}
+function renderVoicePanel(){
+  const box = $("#voiceBody");
+  if(!box || !state.data) return;
+  const v = state.data.voice;
+  if(state.mode === "local"){
+    box.innerHTML = `<p class="sub">학생이 학생 화면으로 보내는 기능이라 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다.</p>`;
+    return;
+  }
+  if(!v || !v.on){
+    box.innerHTML = `<button class="btn primary" data-vc="on">💌 마음의 소리함 열기</button>
+      <p class="sub" style="margin-top:8px;">열면 학생 개인 코드도 함께 만들어집니다.${state.mode === "cloud" && !state.data.published ? " 먼저 학생 화면을 반영해 주세요." : ""}</p>`;
+    return;
+  }
+  if(!vc.priv){
+    box.innerHTML = `<div class="notice">편지를 열려면 ${state.nameMode === "number" ? "소리함 암호를 넣어야" : "이름 보호 암호를 풀어야"} 합니다.</div>
+      <button class="btn primary sm" data-vc="unlock">편지함 열기</button>`;
+    return;
+  }
+  const sh = state.data.stuSh || {};
+  const students = state.data.students || [];
+  const issued = students.filter(s => sh[s.id]).length;
+  const all = vcAll();
+  const f = vc.filter;
+  const shown = all.filter(x => f === "all" || (f === "unread" ? !x.read : f === "urgent" ? x.urgent : x.cat === f));
+  const filters = [["all","전체"],["unread",`읽지 않음 ${all.filter(x => !x.read).length}`],["urgent","도움 필요"], ...VC_CATS.map(c => [c, c])]
+    .map(([k, l]) => `<button data-vcf="${escapeHtml(k)}" aria-pressed="${f === k}">${escapeHtml(l)}</button>`).join("");
+  box.innerHTML = `
+    <div class="btn-row" style="margin:6px 0; align-items:center;">
+      <span class="sub" style="margin:0;">개인 코드 ${issued}/${students.length}명</span>
+      ${issued < students.length ? `<button class="btn sm" data-vc="issue">남은 학생 코드 만들기</button>` : ""}
+      <button class="btn sm" data-vc="print">🖨 코드 쪽지 인쇄</button>
+      <button class="btn sm ghost" data-vc="codes">코드 보기·다시 만들기</button>
+    </div>
+    <div id="vcCodes"></div>
+    <div class="vc-filter">${filters}</div>
+    <div>${shown.length ? shown.map(vcItemHtml).join("") : `<p class="sub">편지가 없습니다.</p>`}</div>
+    <div class="btn-row" style="margin-top:12px;"><button class="btn danger sm" data-vc="off">소리함 닫기</button></div>`;
+}
+
+async function vcShowCodes(){
+  const codes = await vcCodes();
+  if(!codes) return;
+  const list = (state.data.students || []).slice().sort((a, b) => a.no - b.no);
+  $("#vcCodes").innerHTML = `
+    ${state.mode === "demo" ? `<div class="notice">체험해 보기: 관리 탭 「학생 화면 → 미리보기」를 열고 💌 마음 탭에서 아래 코드 중 하나를 넣어 보세요.</div>` : ""}
+    <div class="vc-codes">${list.map(s => `<div><span>${s.no}번 ${escapeHtml(nameOf(s))}</span><code>${escapeHtml(codes[s.id] || "—")}</code>
+      <button data-vcre="${s.id}">다시 만들기</button></div>`).join("")}</div>`;
+}
+
+/* 오려서 나눠 줄 쪽지 — 학생 화면 QR 포함 */
+async function vcPrintSlips(){
+  const codes = await vcCodes();
+  if(!codes) return;
+  const url = studentUrl();
+  const qr = await new Promise(res => {
+    if(typeof QRCode === "undefined") return res("");
+    QRCode.toDataURL(url, { width: 220, margin: 1, color: { dark:"#0F4C81", light:"#ffffff" } }, (e, d) => res(e ? "" : d));
+  });
+  const cls = escapeHtml(state.data.className || "");
+  const slips = (state.data.students || []).slice().sort((a, b) => a.no - b.no).filter(s => codes[s.id]).map(s => `
+    <div class="slip">
+      <div class="t">IM-DAM-IM · 아임담임 <span>${cls}</span></div>
+      <div class="who">${s.no}번 ${escapeHtml(nameOf(s))}</div>
+      <div class="code">${escapeHtml(codes[s.id])}</div>
+      <div class="how">학생 화면 → 💌 마음 탭 → 코드 입력<br>코드는 나만 알고 있기. 잃어버리면 선생님께!</div>
+      ${qr ? `<img src="${qr}" alt="">` : ""}
+    </div>`).join("");
+  const doc = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>개인 코드 쪽지</title><style>
+    @page{ size:A4; margin:10mm; }
+    body{ margin:0; font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif; color:#15263B; }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:0; }
+    .slip{ border:1px dashed #9AA8B8; padding:5mm 6mm; position:relative; min-height:44mm; break-inside:avoid; }
+    .slip .t{ font-size:9pt; color:#0F4C81; font-weight:700; } .slip .t span{ color:#7F93AB; margin-left:4px; }
+    .slip .who{ font-size:13pt; font-weight:700; margin-top:2mm; }
+    .slip .code{ font-size:24pt; font-weight:800; letter-spacing:.25em; color:#0F4C81; margin:2mm 0; }
+    .slip .how{ font-size:8.5pt; color:#3F5F82; line-height:1.5; }
+    .slip img{ position:absolute; right:5mm; top:5mm; width:22mm; height:22mm; }
+  </style></head><body><div class="grid">${slips}</div></body></html>`;
+  const fr = document.createElement("iframe");
+  fr.style.cssText = "position:fixed; width:0; height:0; border:0; right:0; bottom:0;";
+  document.body.appendChild(fr);
+  fr.srcdoc = doc;
+  fr.onload = () => { try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){ toast("인쇄 창을 열지 못했습니다."); }
+                      setTimeout(() => fr.remove(), 60000); };
+}
+
+async function vcOpenLetter(sh, id){
+  const x = (vc.letters[sh] || []).find(l => l.id === id);
+  if(!x) return;
+  if(!x.read){
+    try{ await vb.update(state.classId, sh, id, { read: true }); }catch(e){ console.warn(e); }
+    x.read = true;
+    vcBadges();
+    renderVoicePanel();
+  }
+  const s = studentById(x.sid);
+  const codeChanged = (state.data.stuSh || {})[x.sid] !== sh;
+  let replyText = "";
+  if(x.replyBlob && !codeChanged){
+    const codes = await vcCodes();
+    const code = codes && codes[x.sid];
+    if(code){ try{ replyText = (await openJson(await vcKs(state.classId, code), x.replyBlob)).text || ""; }catch(e){} }
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "modal";
+  wrap.style.zIndex = 70;
+  wrap.innerHTML = `
+    <div class="box" role="dialog" aria-modal="true" style="max-width:480px; max-height:92vh; overflow:auto;">
+      <h3>${s ? `${s.no}번 ${escapeHtml(nameOf(s))}` : "(지난 학생)"} · ${escapeHtml(x.cat)}</h3>
+      <p style="margin:0 0 8px;">${dayHead(ymd(new Date(x.at)))} ${bubbleTime(x.at)}</p>
+      ${x.urgent ? `<div class="vc-help" style="margin-top:0;"><b>도움이 필요해 보이는 낱말이 있습니다.</b><br>
+        혼자 판단하지 마시고 학교 절차(상담교사·관리자·학교폭력 담당)에 따라 확인해 주세요. 낱말로 찾은 표시라 실제 상황과 다를 수 있습니다.</div>` : ""}
+      <div class="vc-item" style="margin-bottom:12px;"><div class="tx" style="margin:0;">${escapeHtml(x.text)}</div></div>
+      ${codeChanged ? `<div class="notice">이 학생 코드를 다시 만들어서, 이 편지에는 답장을 보낼 수 없습니다.</div>` : `
+      <label class="field" for="vcReply">비밀 답장 <span style="font-weight:400; color:var(--ink-45);">(이 학생만 볼 수 있습니다)</span></label>
+      <textarea id="vcReply" maxlength="500" style="min-height:100px; font-family:inherit;" placeholder="예: 이야기해 줘서 고마워. 내일 점심시간에 잠깐 이야기할까?">${escapeHtml(replyText)}</textarea>`}
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn danger sm" data-vl="del">지우기</button>
+        <button class="btn ghost" data-vl="close" style="margin-left:auto;">닫기</button>
+        ${codeChanged ? "" : `<button class="btn primary" data-vl="reply">${x.replyBlob ? "답장 고치기" : "답장 보내기"}</button>`}
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  wrap.addEventListener("click", async e => {
+    const b = e.target.closest("[data-vl]");
+    if(!b) return;
+    const a = b.dataset.vl;
+    if(a === "close"){ wrap.remove(); return; }
+    if(a === "del"){
+      if(!(await confirmBox({ title: "편지를 지울까요?", body: "학생의 「내가 보낸 편지」에서도 사라집니다.", ok: "지우기" }))) return;
+      await vb.del(state.classId, sh, id);
+      wrap.remove();
+      toast("지웠습니다.");
+      return;
+    }
+    if(a === "reply"){
+      const text = $("#vcReply", wrap).value.trim().slice(0, 500);
+      if(!text){ toast("답장 내용을 적어 주세요."); return; }
+      const codes = await vcCodes();
+      const code = codes && codes[x.sid];
+      if(!code){ toast("이 학생 코드를 찾지 못했습니다."); return; }
+      await vb.update(state.classId, sh, id, { reply: await sealJson(await vcKs(state.classId, code), { text }), replyAt: new Date().toISOString() });
+      wrap.remove();
+      toast("비밀 답장을 보냈습니다.");
+    }
+  });
+}
+
+$("#voiceBody").addEventListener("click", async e => {
+  const f = e.target.closest("[data-vcf]");
+  if(f){ vc.filter = f.dataset.vcf; renderVoicePanel(); return; }
+  const o = e.target.closest("[data-vcopen]");
+  if(o){ const [sh, id] = o.dataset.vcopen.split("|"); vcOpenLetter(sh, id); return; }
+  const re = e.target.closest("[data-vcre]");
+  if(re){
+    const s = studentById(re.dataset.vcre);
+    if(!(await confirmBox({ title: `${s.no}번 코드를 다시 만들까요?`, body: "예전 코드는 바로 쓸 수 없게 됩니다. 지난 편지에는 답장할 수 없게 됩니다.", ok: "다시 만들기" }))) return;
+    const vk = await vcTeacherKey(); if(!vk) return;
+    const code = await vcIssueOne(s, vk);
+    await vcResume();
+    await vcShowCodes();
+    toast(`${s.no}번 새 코드: ${code}`);
+    return;
+  }
+  const b = e.target.closest("[data-vc]");
+  if(!b) return;
+  const a = b.dataset.vc;
+  if(a === "on") return vcTurnOn();
+  if(a === "unlock"){ if(await vcTeacherKey()) await vcResume(); return; }
+  if(a === "issue"){ const n = await vcIssueCodes(false); await vcResume(); if(n) toast(`${n}명 개인 코드를 만들었습니다.`); return; }
+  if(a === "codes") return vcShowCodes();
+  if(a === "print") return vcPrintSlips();
+  if(a === "off"){
+    if(!(await confirmBox({ title: "소리함을 닫을까요?", body: "학생 화면에서 💌 마음 탭이 사라집니다. 받은 편지와 개인 코드는 그대로 남고, 다시 열 수 있습니다.", ok: "닫기" }))) return;
+    await store.save("voice", Object.assign({}, state.data.voice, { on: false }));
+    await autoSync();
+    await vcResume();
+  }
+});
+
+/* ---------- 학생 화면: 💌 마음 탭 ---------- */
+const stv = { classId:null, pub:null, root:null, me:null, sh:null, ks:null, cat: VC_CATS[0] };
+
+function renderStudentVoice(pub, root){
+  const btn = root.querySelector('[data-sttab="voice"]');
+  const on = !!pub.voicePub;
+  btn.classList.toggle("hidden", !on);
+  if(!on) return;
+  Object.assign(stv, { classId: pub.classId, pub: pub.voicePub, root });
+  stvRender();
+}
+function stvBox(){ return stv.root.querySelector("#stVoice"); }
+
+async function stvRender(){
+  const box = stvBox();
+  const saved = LS.get(K_ME + stv.classId);
+  if(!saved || !saved.code){
+    stv.me = null;
+    box.innerHTML = `
+      <span class="eyebrow">마음의 소리함</span>
+      <h2>선생님께 마음 전하기</h2>
+      <p class="sub">고민, 우리 반에 바라는 점, 도움이 필요한 일, 고마운 마음을 담임 선생님께만 보낼 수 있어요.
+      선생님께 받은 <b>개인 코드</b>를 넣어 주세요. 이 기기에서는 한 번만 넣으면 돼요.</p>
+      <input type="text" class="vc-code" id="stvCode" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="코드 6자리">
+      <div class="btn-row" style="margin-top:10px;"><button class="btn primary" id="stvEnter">확인</button></div>
+      <p class="sub" id="stvMsg" style="margin-top:8px;"></p>`;
+    box.querySelector("#stvEnter").onclick = stvEnter;
+    box.querySelector("#stvCode").onkeydown = e => { if(e.key === "Enter") stvEnter(); };
+    return;
+  }
+  /* 코드 확인 (기기에 기억해 둔 코드가 그새 다시 만들어졌을 수도 있다) */
+  if(!stv.me || stv.me.code !== saved.code){
+    const sh = await vcSh(stv.classId, saved.code);
+    let stu = null;
+    try{ stu = await vb.getStu(sh); }catch(e){}
+    if(!stu || stu.classId !== stv.classId){
+      LS.del(K_ME + stv.classId);
+      stv.me = null;
+      await stvRender();
+      const m = stvBox().querySelector("#stvMsg");
+      if(m) m.textContent = "코드가 바뀌었어요. 선생님께 새 코드를 받아 넣어 주세요.";
+      return;
+    }
+    stv.me = { code: saved.code, no: stu.no, sid: stu.sid };
+    stv.sh = sh;
+    stv.ks = await vcKs(stv.classId, saved.code);
+  }
+  box.innerHTML = `
+    <span class="eyebrow">마음의 소리함</span>
+    <div class="vc-me"><span><b>${escapeHtml(String(stv.me.no || ""))}번</b>으로 들어와 있어요.</span><button id="stvOut">내가 아니에요 (코드 지우기)</button></div>
+    <h2>선생님께 마음 전하기</h2>
+    <div class="vc-cats" id="stvCats">${VC_CATS.map(c => `<button data-cat="${c}" aria-pressed="${stv.cat === c}">${c}</button>`).join("")}</div>
+    <textarea id="stvText" maxlength="${VC_MAX}" style="min-height:130px; font-family:inherit;" placeholder="선생님만 읽을 수 있어요. 편하게 적어 주세요."></textarea>
+    <div id="stvHelp"></div>
+    <div class="btn-row" style="margin-top:8px; align-items:center;">
+      <span class="sub" id="stvLeft" style="margin:0;"></span>
+      <button class="btn primary" id="stvSend" style="margin-left:auto;">보내기</button>
+    </div>
+    <p class="sub" style="margin-top:8px;">내 이름이 함께 전해져요. 담임 선생님 말고는 아무도(친구, 다른 선생님, 서버 관리자도) 읽을 수 없게 잠가서 보내요.</p>
+    <h2 style="margin-top:18px;">내가 보낸 편지</h2>
+    <div id="stvList"><p class="sub">불러오는 중…</p></div>
+    <div class="btn-row" style="margin-top:8px;"><button class="btn sm ghost" id="stvReload">새로고침</button></div>`;
+  box.querySelector("#stvOut").onclick = () => { LS.del(K_ME + stv.classId); stv.me = null; stvRender(); };
+  box.querySelector("#stvCats").onclick = e => {
+    const b = e.target.closest("[data-cat]");
+    if(!b) return;
+    stv.cat = b.dataset.cat;
+    box.querySelectorAll("#stvCats button").forEach(x => x.setAttribute("aria-pressed", x.dataset.cat === stv.cat));
+  };
+  box.querySelector("#stvText").oninput = e => stvHelp(VC_CRISIS.test(e.target.value));
+  box.querySelector("#stvSend").onclick = stvSend;
+  box.querySelector("#stvReload").onclick = stvLoad;
+  await stvLoad();
+}
+
+/* 위기 낱말이 보이면 보내기 전에 바로 연락할 곳을 안내 */
+function stvHelp(on, sent){
+  const el = stvBox().querySelector("#stvHelp");
+  if(!el) return;
+  el.innerHTML = on ? `<div class="vc-help"><b>${sent ? "선생님께 잘 전했어요." : "혼자 견디지 않아도 돼요."}</b>
+    지금 많이 힘들다면 바로 이야기할 수 있는 곳이 있어요.<br>
+    <a href="tel:1388">📞 1388 청소년상담</a><a href="tel:109">📞 109 자살예방상담</a><a href="tel:117">📞 117 학교폭력 신고</a>
+    <br>문자 상담은 #1388, 위급하면 112·119로 연락하세요.</div>` : "";
+}
+
+async function stvEnter(){
+  const box = stvBox();
+  const code = box.querySelector("#stvCode").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const msg = box.querySelector("#stvMsg");
+  if(code.length !== 6){ msg.textContent = "코드 6자리를 넣어 주세요."; return; }
+  msg.textContent = "확인하는 중…";
+  let stu = null;
+  try{ stu = await vb.getStu(await vcSh(stv.classId, code)); }catch(e){}
+  if(!stu || stu.classId !== stv.classId){ msg.textContent = "코드가 맞지 않아요. 다시 확인해 주세요."; return; }
+  LS.set(K_ME + stv.classId, { code });
+  stvRender();
+}
+
+async function stvLoad(){
+  const el = stvBox().querySelector("#stvList");
+  if(!el || !stv.me) return [];
+  let items = [];
+  try{ items = await vb.list(stv.classId, stv.sh); }catch(e){ el.innerHTML = `<p class="sub">불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>`; return []; }
+  const rows = [];
+  for(const it of items.sort((a, b) => b.at.localeCompare(a.at))){
+    let mine = null, reply = "";
+    try{ mine = await openJson(stv.ks, it.m); }catch(e){ continue; }
+    if(it.reply){ try{ reply = (await openJson(stv.ks, it.reply)).text || ""; }catch(e){} }
+    rows.push({ at: it.at, cat: mine.cat, text: mine.text, read: !!it.read, reply });
+  }
+  const today = ymd(today_());
+  const sentToday = rows.filter(r => ymd(new Date(r.at)) === today).length;
+  const left = Math.max(0, VC_DAILY - sentToday);
+  const lf = stvBox().querySelector("#stvLeft");
+  if(lf) lf.textContent = `오늘 보낼 수 있는 편지 ${left}/${VC_DAILY}`;
+  const sb = stvBox().querySelector("#stvSend");
+  if(sb) sb.disabled = left === 0;
+  el.innerHTML = rows.length ? rows.map(r => `
+    <div class="vc-item">
+      <div class="hd"><span class="vc-badge">${escapeHtml(r.cat || "")}</span><span>${dayHead(ymd(new Date(r.at)))} ${bubbleTime(r.at)}</span>
+        <span class="vc-badge st">${r.reply ? "답장이 왔어요" : r.read ? "선생님이 읽었어요" : "보냈어요"}</span></div>
+      <div class="tx">${escapeHtml(r.text || "")}</div>
+      ${r.reply ? `<div class="rp">${escapeHtml(r.reply)}</div>` : ""}
+    </div>`).join("") : `<p class="sub">아직 보낸 편지가 없어요.</p>`;
+  return rows;
+}
+function today_(){ return today(); }
+
+async function stvSend(){
+  const box = stvBox();
+  const text = box.querySelector("#stvText").value.trim().slice(0, VC_MAX);
+  if(!text){ toast("보낼 내용을 적어 주세요."); return; }
+  const btn = box.querySelector("#stvSend");
+  btn.disabled = true;
+  const rows = await stvLoad();
+  if(rows.filter(r => ymd(new Date(r.at)) === ymd(today())).length >= VC_DAILY){
+    toast(`편지는 하루 ${VC_DAILY}개까지 보낼 수 있어요.`);
+    return;
+  }
+  const urgent = VC_CRISIS.test(text);
+  try{
+    const at = new Date().toISOString();
+    await vb.add(stv.classId, stv.sh, {
+      c: await vcSealFor(stv.pub, { cat: stv.cat, text, sid: stv.me.sid }),
+      m: await sealJson(stv.ks, { cat: stv.cat, text }),
+      at
+    });
+  }catch(e){
+    console.error(e);
+    toast("보내지 못했어요. 인터넷 연결을 확인해 주세요.");
+    btn.disabled = false;
+    return;
+  }
+  box.querySelector("#stvText").value = "";
+  toast("선생님께 보냈어요 💌");
+  await stvLoad();
+  stvHelp(urgent, true);
+}
+
+/* ---------- 체험 모드 — 열쇠·코드·편지 예시를 메모리에 만든다 ---------- */
+async function vcDemoSetup(){
+  vc.mem = { stu:{}, items:{}, watch:{} };
+  vc.priv = null; vc.vk = crypt.key;
+  const kp = await crypto.subtle.generateKey(
+    { name:"RSA-OAEP", modulusLength:2048, publicExponent:new Uint8Array([1,0,1]), hash:"SHA-256" }, true, ["encrypt","decrypt"]);
+  const v = { on: true,
+              pub: crypt.toB64(await crypto.subtle.exportKey("spki", kp.publicKey)),
+              priv: await vcWrap(crypt.key, await crypto.subtle.exportKey("pkcs8", kp.privateKey)) };
+  state.data.voice = v;
+  state.data.stuCodes = {}; state.data.stuSh = {};
+  const codes = {};
+  for(const s of state.data.students){
+    const code = vcNewCode();
+    const sh = await vcSh(state.classId, code);
+    vc.mem.stu[sh] = { classId: state.classId, sid: s.id, no: s.no };
+    state.data.stuCodes[s.id] = await vcWrap(crypt.key, new TextEncoder().encode(code));
+    state.data.stuSh[s.id] = sh;
+    codes[s.id] = code;
+  }
+  const at = (dd, hh, mm) => { const d = new Date(); d.setDate(d.getDate() + dd); d.setHours(hh, mm, 0, 0); return d.toISOString(); };
+  const send = async (sid, cat, text, when, extra) => {
+    const ks = await vcKs(state.classId, codes[sid]);
+    const sh = state.data.stuSh[sid];
+    (vc.mem.items[sh] || (vc.mem.items[sh] = [])).push(Object.assign({
+      id: "demo" + sid, at: when,
+      c: await vcSealFor(v.pub, { cat, text, sid }),
+      m: await sealJson(ks, { cat, text })
+    }, extra ? { read: true, reply: await sealJson(ks, { text: extra }), replyAt: when } : {}));
+  };
+  await send("s07", "학급 건의", "청소 당번을 번호순 말고 자리 줄 기준으로 돌리면 더 빨리 끝날 것 같아요!", at(-1, 16, 10));
+  await send("s13", "도움 요청·신고", "쉬는 시간마다 몇몇 친구들이 제 별명을 부르면서 괴롭혀요. 어떻게 해야 할지 모르겠어요.", at(0, 7, 40));
+  await send("s20", "고마움·칭찬", "지난주에 진로 상담해 주셔서 감사해요. 목표가 생겼어요!", at(-2, 13, 0), "고마워! 목표 응원할게. 필요하면 언제든 또 이야기하자 😊");
+}
+
+/* ============================================================
    말풍선 공지 — 담임 → 학생 일방향
    ------------------------------------------------------------
    · state.data.bubbles = [{ id, text, at, pin }]  (최근 100개만 보관)
@@ -8225,7 +8938,8 @@ function setupStudentTabs(pub, root, isPreview){
   q(".st-dot").classList.toggle("hidden", !(latest && latest > seen));
 
   const show = tab => {
-    if(tab === "tools" && noTools) tab = "today";
+    const tb = q(`[data-sttab="${tab}"]`);
+    if(!tb || tb.classList.contains("hidden")) tab = "today";   // 꺼진 탭(도구·마음)이면 오늘로
     root.querySelectorAll(".st-tab").forEach(s => s.classList.toggle("hidden", s.dataset.st !== tab));
     root.querySelectorAll("[data-sttab]").forEach(b => b.setAttribute("aria-selected", b.dataset.sttab === tab ? "true" : "false"));
     if(tab === "notice"){

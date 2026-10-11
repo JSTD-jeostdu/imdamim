@@ -129,6 +129,34 @@ service cloud.firestore {
       }
     }
 
+    // ---------- 학생 개인 코드 확인값 ----------
+    // 문서 ID(sh)는 학생 개인 코드에서 만든 값이다. 코드를 아는 학생만 ID를 알 수 있으므로 get 만 연다.
+    // 안에는 반 ID와 학생 칸 ID(s05 같은 것)만 있다 — 이름 없음.
+    match /stuKeys/{sh} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if signedIn() && request.resource.data.classId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.classId == request.auth.uid;
+    }
+
+    // ---------- 마음의 소리함 ----------
+    // voices/{반ID}/by/{학생 확인값}/items/{편지}
+    // · 학생은 자기 코드로 만든 경로에만 "보내기"를 할 수 있다(그 확인값이 우리 반 것인지 확인).
+    // · 내용(c)은 담임 공개키로, 학생 사본(m)·답장(reply)은 학생 코드로 잠겨 있어 서버에서는 읽을 수 없다.
+    // · 담임은 읽음 표시·답장만 덧붙일 수 있고, 지울 수 있다.
+    match /voices/{classId}/by/{sh}/items/{itemId} {
+      allow read: if true;
+      allow create: if exists(/databases/$(database)/documents/stuKeys/$(sh))
+                    && get(/databases/$(database)/documents/stuKeys/$(sh)).data.classId == classId
+                    && request.resource.data.keys().hasOnly(['c', 'm', 'at'])
+                    && request.resource.data.c is string && request.resource.data.c.size() < 8000
+                    && request.resource.data.m is string && request.resource.data.m.size() < 4000
+                    && request.resource.data.at is string && request.resource.data.at.size() < 40;
+      allow update: if isMine(classId)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reply', 'replyAt', 'read']);
+      allow delete: if isMine(classId);
+    }
+
     // ---------- 그 외 전부 차단 ----------
     match /{document=**} {
       allow read, write: if false;
