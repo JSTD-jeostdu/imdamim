@@ -1,0 +1,85 @@
+rules_version = '2';
+
+// ============================================================
+// IM-DAM-IM — Firestore 보안 규칙
+//
+// 핵심 원칙
+//  1) 교사 데이터(classes, attendance, seatHistory)는 소유 교사만 접근한다.
+//  2) 학생 열람용(public)은 누구나 읽을 수 있으므로,
+//     애초에 이름·출결이 들어가지 않는 문서만 여기에 둔다.
+//  3) 반 비밀번호는 보안 장치가 아니다. 실제 보호는 이 규칙이 담당한다.
+//
+// 이 앱은 반 문서 ID를 교사의 계정 ID(uid)로 쓴다.
+// 따라서 "문서 ID == 내 uid" 만으로 소유 판정이 성립하며,
+// 문서가 아직 없는 첫 로그인에서도 안전하게 통과한다.
+// (문서가 없을 때 resource.data 를 읽으면 평가가 실패해 접근이 거부된다)
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 로그인 여부
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // 내 반인지 — 문서가 없어도 판정할 수 있다
+    function isMine(classId) {
+      return signedIn() && classId == request.auth.uid;
+    }
+
+    // ---------- 교사 전용: 반 문서 ----------
+    match /classes/{classId} {
+
+      // 문서가 없는 첫 로그인도 통과해야 한다
+      allow read: if isMine(classId);
+
+      // 생성 시 소유자를 본인으로 강제한다
+      allow create: if isMine(classId)
+                    && request.resource.data.ownerUid == request.auth.uid;
+
+      // 수정 시에도 소유자 필드는 본인이어야 한다
+      allow update: if isMine(classId)
+                    && request.resource.data.ownerUid == request.auth.uid;
+
+      allow delete: if isMine(classId);
+    }
+
+    // ---------- 교사 전용: 출결 ----------
+    // 문서 ID 형식: {classId}_{YYYY-MM-DD}
+    match /attendance/{docId} {
+
+      // docId 앞부분에서 classId 를 꺼낸다
+      function classIdOf() {
+        return docId.split('_')[0];
+      }
+
+      allow read, write: if isMine(classIdOf());
+    }
+
+    // ---------- 교사 전용: 자리 배치 이력 ----------
+    // 문서 ID 형식: {classId}_{YYYY-MM-DD}. attendance와 동일한 패턴이다.
+    // 이 문서는 saveSeatSnapshot() 한 곳에서만 쓰기 때문에 통째로 덮어써도 안전하다.
+    match /seatHistory/{docId} {
+
+      function classIdOf() {
+        return docId.split('_')[0];
+      }
+
+      allow read, write: if isMine(classIdOf());
+    }
+
+    // ---------- 학생 열람용 ----------
+    // 누구나 읽을 수 있다. 따라서 이 문서에는
+    // 학생 이름·좌석·출결·교사 메모를 절대 넣지 않는다.
+    match /public/{classId} {
+      allow read: if true;
+      allow write: if isMine(classId);
+    }
+
+    // ---------- 그 외 전부 차단 ----------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
