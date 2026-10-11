@@ -94,6 +94,19 @@ service cloud.firestore {
                     && request.resource.data.ownerUid == request.auth.uid;
       allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
 
+      // 교과 선생님이 올리는 우리 반 일정(수행평가 등) — 체크와 같은 방식: 추가만, 지우기는 담임만
+      match /events/{eventId} {
+        allow read: if true;
+        allow create: if exists(/databases/$(database)/documents/boards/$(boardId))
+                      && request.resource.data.keys().hasOnly(['c', 'at'])
+                      && request.resource.data.c is string
+                      && request.resource.data.c.size() < 4000
+                      && request.resource.data.at is string
+                      && request.resource.data.at.size() < 40;
+        allow update: if false;
+        allow delete: if signedIn() && boardOwner() == request.auth.uid;
+      }
+
       // 날짜별 아침 출결·시간표 — 담임만 쓴다
       match /days/{date} {
         allow get: if true;

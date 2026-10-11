@@ -451,6 +451,68 @@ body.sidebar #demoBanner{ font-size:11.5px; padding:5px 10px; }
 .sheet-pick .hist{ font-size:13px; color:var(--ink-70); margin:0 0 10px; }
 .sheet-pick .hist div{ padding:4px 0; border-bottom:1px dashed var(--line); }
 
+/* ---------- 월 달력 (일정 탭·학생 화면·교과 출석부 공통) ---------- */
+.mcal-head{ display:flex; align-items:center; gap:8px; margin:4px 0 10px; }
+.mcal-head h2{ flex:1; text-align:center; margin:0; font-size:18px; }
+.mcal-head button{
+  min-width:44px; min-height:44px; border:1px solid var(--line); background:var(--card);
+  border-radius:var(--r); color:var(--ink-70); font-size:14px;
+}
+.mcal{ display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:3px; }
+.mcal .dow{ text-align:center; font-size:11.5px; font-weight:600; color:var(--ink-45); padding:2px 0 4px; }
+.mcal .dow.sun{ color:var(--stamp); }
+.mcal .dow.sat{ color:var(--ink); }
+.mcal button.day{
+  min-height:68px; border:1px solid var(--line); border-radius:10px; background:#fff;
+  display:flex; flex-direction:column; align-items:stretch; gap:2px; padding:4px 3px; text-align:left; overflow:hidden;
+  color:var(--text);
+}
+.mcal button.day .n{ font-size:12.5px; font-weight:700; padding-left:2px; }
+.mcal button.day.sun .n, .mcal button.day.off .n{ color:var(--stamp); }
+.mcal button.day.sat .n{ color:var(--ink); }
+.mcal button.day.other{ opacity:.35; }
+.mcal button.day.today{ border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink); }
+.mcal button.day[aria-selected="true"]{ background:var(--tint); border-color:var(--ink); }
+.mcal .ev{
+  display:block; font-size:10.5px; line-height:1.35; padding:1px 4px; border-radius:5px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600;
+}
+.mcal .more{ font-size:10px; color:var(--ink-45); padding-left:3px; }
+.mcal-legend{ display:flex; flex-wrap:wrap; gap:6px 10px; margin-top:10px; font-size:12px; color:var(--ink-70); }
+.mcal-legend span{ display:inline-flex; align-items:center; gap:4px; }
+.mcal-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+@media (max-width:480px){
+  .mcal{ gap:2px; }
+  .mcal button.day{ min-height:56px; padding:3px 2px; border-radius:8px; }
+  .mcal .ev{ font-size:9.5px; padding:0 3px; }
+}
+
+/* 일정 종류별 색 */
+.c-perf  { background:var(--tint);  color:var(--ink); }
+.c-exam  { background:#FBEDEA;      color:var(--stamp); }
+.c-trip  { background:#E5F3EF;      color:var(--seal); }
+.c-event { background:#FDF3D6;      color:#8A6D12; }
+.c-adm   { background:#E9E6F5;      color:#4B3F86; }
+.c-etc   { background:#EEF1F5;      color:var(--ink-70); }
+.c-school{ background:#F2F4F7;      color:var(--ink-45); }
+.c-rec   { background:#fff;         color:var(--ink-70); border:1px dashed var(--line); }
+i.c-rec  { border:1px dashed var(--ink-45); }
+
+/* 고른 날 목록의 한 줄 */
+.evrow{ display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:var(--r); background:#fff; padding:10px 12px; }
+.evrow .chip{ flex:none; font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:999px; margin-top:1px; }
+.evrow .body{ flex:1; min-width:0; }
+.evrow .body b{ display:block; font-size:15px; }
+.evrow .meta{ display:block; font-size:12.5px; color:var(--ink-45); margin-top:2px; }
+.evrow .note{ display:block; font-size:13px; color:var(--text); margin-top:4px; }
+.evrow a.link{ display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:13px; font-weight:600; color:var(--ink); }
+.evrow .del{ border:0; background:transparent; color:var(--ink-45); min-width:40px; min-height:40px; font-size:18px; flex:none; }
+.prep{ border:1px solid var(--highlight); background:#FFF9E6; border-radius:var(--r); padding:10px 12px; font-size:14px; }
+.prep b{ color:var(--ink); }
+.tb-addev summary{ list-style:none; display:inline-flex; cursor:pointer; }
+.tb-addev summary::-webkit-details-marker{ display:none; }
+.tb-addev[open] summary{ margin-bottom:6px; }
+
 /* ---------- 명렬 랜덤 뽑기 (전체 화면) ---------- */
 #picker{
   position:fixed; inset:0; z-index:60; background:var(--ink); color:#fff;
@@ -1625,6 +1687,33 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       </div>
 
       <div class="card">
+        <span class="eyebrow">우리 반 일정</span>
+        <div class="mcal-head">
+          <button id="tbCalPrev" aria-label="이전 달">◀</button>
+          <h2 id="tbCalTitle"></h2>
+          <button id="tbCalNext" aria-label="다음 달">▶</button>
+        </div>
+        <div class="mcal" id="tbCalGrid"></div>
+        <div class="items" id="tbCalDay" style="margin-top:10px;"></div>
+        <details class="tb-addev" style="margin-top:12px;">
+          <summary class="btn sm">＋ 우리 반에 수행평가·일정 올리기</summary>
+          <div class="row2">
+            <div><label class="field" for="tbEvDate">날짜</label><input type="date" id="tbEvDate"></div>
+            <div><label class="field" for="tbEvCat">종류</label>
+              <select id="tbEvCat"><option>수행평가</option><option>지필평가</option><option>체험학습</option><option>학교 행사</option><option>기타</option></select></div>
+          </div>
+          <label class="field" for="tbEvTitle">일정 이름</label>
+          <input type="text" id="tbEvTitle" maxlength="30" placeholder="예: 수학 수행평가 (서술형)" autocomplete="off">
+          <label class="field" for="tbEvLink">자료 링크 (선택)</label>
+          <input type="text" id="tbEvLink" inputmode="url" placeholder="https://" autocomplete="off">
+          <label class="field" for="tbEvNote">준비물·메모 (선택)</label>
+          <input type="text" id="tbEvNote" maxlength="60" placeholder="예: 공학용 계산기, 교과서" autocomplete="off">
+          <div class="btn-row" style="margin-top:10px;"><button class="btn primary sm" id="tbEvAdd">올리기</button></div>
+          <p class="sub" style="margin-top:8px;">올린 일정은 담임 선생님 달력과 학생 화면에 함께 뜹니다. 교과명·성함이 함께 기록됩니다.</p>
+        </details>
+      </div>
+
+      <div class="card">
         <span class="eyebrow">교시별 흐름</span>
         <h2>학생을 눌러 내 교시에 체크</h2>
         <p class="sub" id="tbFlowSub">학생을 누르면 고른 교시에 도착·결과·조퇴를 남길 수 있습니다.</p>
@@ -1673,6 +1762,17 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <span class="eyebrow">D-Day</span>
       <h2>다가오는 일정</h2>
       <div class="items" id="stDday"></div>
+    </div>
+
+    <div class="card hidden" id="stCardCal">
+      <span class="eyebrow">일정</span>
+      <div class="mcal-head">
+        <button id="stCalPrev" aria-label="이전 달">◀</button>
+        <h2 id="stCalTitle"></h2>
+        <button id="stCalNext" aria-label="다음 달">▶</button>
+      </div>
+      <div class="mcal" id="stCalGrid"></div>
+      <div class="items" id="stCalDay" style="margin-top:10px;"></div>
     </div>
 
     <div class="card" id="stCardMeal">
@@ -1980,87 +2080,6 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div class="btn-row" style="margin-top:12px;">
           <button class="btn primary sm" id="btnSaveTT">시간표 저장</button>
         </div>
-      </div>
-
-      <!-- 반복 일정 -->
-      <div class="card">
-        <span class="eyebrow">반복 일정</span>
-        <h2>매주 · 격주 · 매월 일정</h2>
-        <p class="sub">스포츠클럽, 동아리처럼 규칙적으로 돌아오는 일정을 넣어두세요.</p>
-
-        <label class="field" for="inRecTitle">일정 이름</label>
-        <input type="text" id="inRecTitle" placeholder="예: 스포츠클럽" autocomplete="off">
-
-        <div style="display:flex; gap:8px;">
-          <div style="flex:1.2;">
-            <label class="field" for="selRecFreq">반복</label>
-            <select id="selRecFreq">
-              <option value="weekly">매주</option>
-              <option value="biweekly">격주</option>
-              <option value="monthly">매월 N번째</option>
-            </select>
-          </div>
-          <div style="flex:1;" id="wrapRecNth" class="hidden">
-            <label class="field" for="selRecNth">몇 번째</label>
-            <select id="selRecNth">
-              <option value="1">첫째 주</option>
-              <option value="2">둘째 주</option>
-              <option value="3">셋째 주</option>
-              <option value="4">넷째 주</option>
-              <option value="5">다섯째 주</option>
-            </select>
-          </div>
-          <div style="flex:1;">
-            <label class="field" for="selRecDay">요일</label>
-            <select id="selRecDay">
-              <option value="1">월</option><option value="2">화</option>
-              <option value="3">수</option><option value="4">목</option>
-              <option value="5">금</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="wrapRecAnchor" class="hidden">
-          <label class="field" for="inRecAnchor">이 날짜가 들어 있는 주부터 시작</label>
-          <input type="date" id="inRecAnchor">
-        </div>
-
-        <div class="btn-row" style="margin-top:12px;">
-          <button class="btn primary sm" id="btnAddRec">일정 추가</button>
-        </div>
-
-        <div class="items" id="recList" style="margin-top:14px;"></div>
-      </div>
-
-      <!-- D-Day -->
-      <div class="card">
-        <span class="eyebrow">D-Day</span>
-        <h2>다가오는 일정</h2>
-        <p class="sub">수행평가, 지필평가, 체험학습, 고입 일정을 넣으면 남은 날짜가 자동으로 계산됩니다.</p>
-
-        <label class="field" for="inDdTitle">일정 이름</label>
-        <input type="text" id="inDdTitle" placeholder="예: 국어 수행평가" autocomplete="off">
-
-        <div style="display:flex; gap:8px;">
-          <div style="flex:1;">
-            <label class="field" for="inDdDate">날짜</label>
-            <input type="date" id="inDdDate">
-          </div>
-          <div style="flex:1;">
-            <label class="field" for="selDdCat">종류</label>
-            <select id="selDdCat">
-              <option>수행평가</option><option>지필평가</option>
-              <option>체험학습</option><option>학교 행사</option>
-              <option>고입 일정</option><option>기타</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="btn-row" style="margin-top:12px;">
-          <button class="btn primary sm" id="btnAddDd">일정 추가</button>
-        </div>
-
-        <div class="items" id="ddList" style="margin-top:14px;"></div>
       </div>
 
       <!-- 당번 -->
@@ -2479,6 +2498,129 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       </div>
     </section>
 
+    <!-- ─────────── 탭 5: 일정 ─────────── -->
+    <section id="tab-cal" class="hidden">
+
+      <div class="card">
+        <span class="eyebrow">학사일정 · 우리 반 일정</span>
+        <div class="mcal-head">
+          <button id="calPrev" aria-label="이전 달">◀</button>
+          <h2 id="calTitle"></h2>
+          <button id="calNext" aria-label="다음 달">▶</button>
+        </div>
+        <div class="mcal" id="calGrid"></div>
+        <div class="mcal-legend" id="calLegend"></div>
+        <p class="sub" id="calSchoolNote" style="margin-top:8px;"></p>
+      </div>
+
+      <div class="card" id="calDayCard">
+        <span class="eyebrow">고른 날</span>
+        <h2 id="calDayHead"></h2>
+        <div class="items" id="calDayList"></div>
+        <div class="btn-row" style="margin-top:12px;"><button class="btn sm" id="calAddHere">이 날에 일정 추가</button></div>
+      </div>
+
+      <div class="card hidden" id="calPendingCard">
+        <span class="eyebrow">교과 선생님이 올린 일정</span>
+        <h2>새로 들어온 일정</h2>
+        <p class="sub">교과 출석부에서 교과 선생님이 올린 일정은 우리 반 일정에 바로 들어갑니다. 필요 없으면 아래 목록에서 지우세요.</p>
+        <div class="items" id="calPendingList"></div>
+      </div>
+      <!-- 반복 일정 -->
+      <div class="card">
+        <span class="eyebrow">반복 일정</span>
+        <h2>매주 · 격주 · 매월 일정</h2>
+        <p class="sub">스포츠클럽, 동아리처럼 규칙적으로 돌아오는 일정을 넣어두세요.</p>
+
+        <label class="field" for="inRecTitle">일정 이름</label>
+        <input type="text" id="inRecTitle" placeholder="예: 스포츠클럽" autocomplete="off">
+
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1.2;">
+            <label class="field" for="selRecFreq">반복</label>
+            <select id="selRecFreq">
+              <option value="weekly">매주</option>
+              <option value="biweekly">격주</option>
+              <option value="monthly">매월 N번째</option>
+            </select>
+          </div>
+          <div style="flex:1;" id="wrapRecNth" class="hidden">
+            <label class="field" for="selRecNth">몇 번째</label>
+            <select id="selRecNth">
+              <option value="1">첫째 주</option>
+              <option value="2">둘째 주</option>
+              <option value="3">셋째 주</option>
+              <option value="4">넷째 주</option>
+              <option value="5">다섯째 주</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label class="field" for="selRecDay">요일</label>
+            <select id="selRecDay">
+              <option value="1">월</option><option value="2">화</option>
+              <option value="3">수</option><option value="4">목</option>
+              <option value="5">금</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="wrapRecAnchor" class="hidden">
+          <label class="field" for="inRecAnchor">이 날짜가 들어 있는 주부터 시작</label>
+          <input type="date" id="inRecAnchor">
+        </div>
+
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn primary sm" id="btnAddRec">일정 추가</button>
+        </div>
+
+        <div class="items" id="recList" style="margin-top:14px;"></div>
+      </div>
+
+      <!-- D-Day -->
+      <div class="card">
+        <span class="eyebrow">우리 반 일정</span>
+        <h2>일정 추가 · 다가오는 일정</h2>
+        <p class="sub">수행평가, 지필평가, 체험학습, 고입 일정을 넣으면 남은 날짜가 자동으로 계산됩니다.</p>
+
+        <label class="field" for="inDdTitle">일정 이름</label>
+        <input type="text" id="inDdTitle" placeholder="예: 국어 수행평가" autocomplete="off">
+
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1;">
+            <label class="field" for="inDdDate">날짜</label>
+            <input type="date" id="inDdDate">
+          </div>
+          <div style="flex:1;">
+            <label class="field" for="selDdCat">종류</label>
+            <select id="selDdCat">
+              <option>수행평가</option><option>지필평가</option>
+              <option>체험학습</option><option>학교 행사</option>
+              <option>고입 일정</option><option>기타</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1;">
+            <label class="field" for="inDdSubject">교과 <span style="font-weight:400; color:var(--ink-45);">(선택)</span></label>
+            <input type="text" id="inDdSubject" placeholder="예: 국어" maxlength="12" autocomplete="off">
+          </div>
+          <div style="flex:1.6;">
+            <label class="field" for="inDdLink">자료 링크 <span style="font-weight:400; color:var(--ink-45);">(선택)</span></label>
+            <input type="text" id="inDdLink" placeholder="https://" inputmode="url" autocomplete="off">
+          </div>
+        </div>
+        <label class="field" for="inDdNote">준비물·메모 <span style="font-weight:400; color:var(--ink-45);">(선택 — 전날 조회 화면에 「내일 준비」로 뜹니다)</span></label>
+        <input type="text" id="inDdNote" placeholder="예: 감상문 A4 1장, 발표 자료" maxlength="60" autocomplete="off">
+
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn primary sm" id="btnAddDd">일정 추가</button>
+        </div>
+
+        <div class="items" id="ddList" style="margin-top:14px;"></div>
+      </div>
+
+    </section>
   </main>
 
   <footer class="appfoot">
@@ -2492,6 +2634,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
     <button data-tab="seat"   aria-selected="false"><span class="ic">🪑</span>자리 배치</button>
     <button data-tab="home"   aria-selected="false"><span class="ic">🌅</span>조회</button>
     <button data-tab="attend" aria-selected="false"><span class="ic">✅</span>출석</button>
+    <button data-tab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
   </nav>
 </div>
 
@@ -3643,10 +3786,15 @@ async function startDemo(){
   };
   const todayStr = ymd(today());
   state.data.ddays = [
-    { id:"d1", title:"국어 수행평가 (모둠 발표)", date: addDays(todayStr, 3),  cat:"수행평가" },
-    { id:"d2", title:"과학 수행평가 (실험 보고서)", date: addDays(todayStr, 8),  cat:"수행평가" },
-    { id:"d3", title:"체육대회",                 date: addDays(todayStr, 12), cat:"학교 행사" },
-    { id:"d4", title:"2학기 기말고사",            date: addDays(todayStr, 30), cat:"지필평가" }
+    { id:"d1", title:"수행평가 (모둠 발표)", date: addDays(todayStr, 3),  cat:"수행평가", subject:"국어",
+      note:"모둠별 5분 발표, 발표 자료 준비", link:"https://example.com/korean-presentation" },
+    { id:"d2", title:"수행평가 (실험 보고서)", date: addDays(todayStr, 8),  cat:"수행평가", subject:"과학",
+      note:"실험 보고서 초안, 필기구" },
+    { id:"d3", title:"체육대회",              date: addDays(todayStr, 12), cat:"학교 행사", note:"반티·운동화" },
+    { id:"d4", title:"2학기 기말고사",         date: addDays(todayStr, 30), cat:"지필평가" },
+    { id:"d5", title:"고입 원서 접수 시작",     date: addDays(todayStr, 24), cat:"고입 일정" },
+    { id:"t_demo1", title:"수행평가 (서술형)", date: addDays(todayStr, 6), cat:"수행평가", subject:"수학",
+      note:"공학용 계산기 불가, 교과서 지참", src:"t", by:"김수학" }
   ];
   state.data.recurring = [
     { id:"r1", title:"스포츠클럽", freq:"weekly", day:2, nth:1, anchor:null, skips:[] },
@@ -3735,6 +3883,7 @@ function fillDemoClass(ids, todayStr){
 
   /* 교과 출석부 — 가장 최근 평일에 교과 선생님들이 남긴 가상 교시 기록 */
   board.demo = {};
+  board.demoEvents = [];   // 체험 중 교과 선생님 화면에서 올린 일정
   const last = shiftSchoolDay(todayStr, -1);
   const rec = (ds, hh, o) => Object.assign({ id: "demo" + hh + o.sid, at: `${ds}T${hh}:00:00.000Z` }, o);
   board.demo[last] = [
@@ -4120,16 +4269,17 @@ function switchTab(tab){
   state.pickedStudent = null;
   state.seatDate = null;    // 탭에 새로 들어올 때마다 오늘로 되돌린다
   state.dashDate = null;
-  ["manage","seat","home","attend"].forEach(t => {
+  ["manage","seat","home","attend","cal"].forEach(t => {
     $("#tab-" + t).classList.toggle("hidden", t !== tab);
   });
   $$(".tabbar button").forEach(b =>
     b.setAttribute("aria-selected", b.dataset.tab === tab ? "true" : "false"));
   $("#hdrTitle").textContent =
-    ({ manage:"관리", seat:"자리 배치", home:"조회", attend:"출석" })[tab];
+    ({ manage:"관리", seat:"자리 배치", home:"조회", attend:"출석", cal:"일정" })[tab];
   if(tab === "seat")   renderSeats();
   if(tab === "home")   renderDash();
   if(tab === "attend") openAttendance();
+  if(tab === "cal")    renderCalTab();
   window.scrollTo({ top:0 });
 }
 
@@ -4683,6 +4833,7 @@ function renderRecList(){
       <span class="ttl">${escapeHtml(r.title)}</span>
       <button class="del" data-recdel="${r.id}" aria-label="삭제">×</button>
     </div>`).join("");
+  refreshCal();   // 같은 탭의 달력에도 반복 일정이 바로 보이게
 }
 
 /* ============================================================
@@ -4710,12 +4861,14 @@ function renderDdList(){
   }
   box.innerHTML = list.map(x => {
     const b = ddayBadge(ddayNum(x.date));
+    const meta = [x.date, x.cat, x.subject, x.src === "t" && x.by ? `${x.by} 선생님` : ""].filter(Boolean).join(" · ");
     return `<div class="item">
       <span class="dd ${b.cls}">${b.txt}</span>
-      <span class="ttl">${escapeHtml(x.title)}<br>
-        <span style="font-size:12px; color:var(--ink-45); font-family:var(--font-mono);">${x.date} · ${escapeHtml(x.cat)}</span>
+      <span class="ttl">${escapeHtml(x.title)}${safeUrl(x.link) ? " 🔗" : ""}<br>
+        <span style="font-size:12px; color:var(--ink-45); font-family:var(--font-mono);">${escapeHtml(meta)}</span>
+        ${x.note ? `<br><span style="font-size:12.5px; color:var(--ink-70);">📌 ${escapeHtml(x.note)}</span>` : ""}
       </span>
-      <button class="del" data-dddel="${x.id}" aria-label="삭제">×</button>
+      <button class="del" data-dddel="${escapeHtml(x.id)}" aria-label="삭제">×</button>
     </div>`;
   }).join("");
 }
@@ -4938,6 +5091,7 @@ function renderDash(){
       recs.map(r => `<div class="item"><span class="tag">${recLabel(r)}</span><span class="ttl">${escapeHtml(r.title)}</span></div>`).join("") +
       todayDd.map(x => `<div class="item"><span class="dd today">TODAY</span><span class="ttl">${escapeHtml(x.title)}</span></div>`).join("");
   }
+  renderDashCalendarBits(ds);   // 오늘의 학교 학사일정 · 내일 준비물
 
   /* --- 다가오는 D-Day (지난 것은 숨김, 최대 6개) — 항상 실제 오늘 기준 --- */
   const up = sortedDdays().filter(x => ddayNum(x.date) >= 0).slice(0, 6);
@@ -5489,10 +5643,20 @@ $("#btnAddDd").addEventListener("click", async () => {
   if(!title){ toast("일정 이름을 입력해 주세요."); return; }
   if(!date){ toast("날짜를 골라 주세요."); return; }
 
-  const item = { id: "d" + Date.now().toString(36), title, date, cat: $("#selDdCat").value };
+  const rawLink = $("#inDdLink").value.trim();
+  if(rawLink && !safeUrl(rawLink)){ toast("자료 링크는 http:// 또는 https:// 로 시작해야 합니다."); return; }
+  const item = {
+    id: "d" + Date.now().toString(36), title, date, cat: $("#selDdCat").value,
+    subject: $("#inDdSubject").value.trim().slice(0, 12),
+    link: safeUrl(rawLink),
+    note: $("#inDdNote").value.trim().slice(0, 60)
+  };
   await store.save("ddays", [...(state.data.ddays || []), item]);
-  $("#inDdTitle").value = "";
+  $("#inDdTitle").value = ""; $("#inDdSubject").value = ""; $("#inDdLink").value = ""; $("#inDdNote").value = "";
+  const d = parseYmd(date);
+  homeCal.y = d.getFullYear(); homeCal.m = d.getMonth(); homeCal.sel = date;
   renderDdList();
+  refreshCal();
   renderDash();
   await autoSync();
   toast("일정을 추가했습니다.");
@@ -5501,10 +5665,7 @@ $("#btnAddDd").addEventListener("click", async () => {
 $("#ddList").addEventListener("click", async e => {
   const b = e.target.closest("[data-dddel]");
   if(!b) return;
-  await store.save("ddays", (state.data.ddays || []).filter(x => x.id !== b.dataset.dddel));
-  renderDdList();
-  renderDash();
-  await autoSync();
+  await deleteClassEvent(b.dataset.dddel);
 });
 
 /* --- 당번 --- */
@@ -6087,7 +6248,16 @@ function buildPublicDoc(){
       .map(r => ({ title:r.title, freq:r.freq, day:r.day, nth:r.nth, anchor:r.anchor, skips:r.skips || [] }));
   }
   if(P.dday){
-    doc.ddays = (state.data.ddays || []).map(x => ({ title:x.title, date:x.date, cat:x.cat }));
+    /* 일정은 담임·교과 선생님이 학생에게 알리려고 넣은 것이라 자료 링크·준비물까지 올린다 (학생 이름·출결은 없음) */
+    doc.ddays = (state.data.ddays || []).map(x => ({
+      title: x.title, date: x.date, cat: x.cat,
+      subject: x.subject || "", link: safeUrl(x.link), note: x.note || ""
+    }));
+  }
+  if((P.dday || P.schedule) && state.data.school){
+    /* 달력에 학교 학사일정을 띄우려고 학교 코드만 넘긴다. 학생 브라우저가 나이스에서 직접 불러온다 */
+    doc.school = { office: state.data.school.office, code: state.data.school.code };
+    doc.grade  = parseGradeClass(state.data.className).grade || "";
   }
   if(P.meal && state.data.school){
     /* 급식 내용이 아니라 학교 코드만 넘긴다. 학생 브라우저가 직접 불러온다. */
@@ -6282,6 +6452,9 @@ function renderStudent(pub, mount){
         }</span></div>`).join("");
     }
   }
+
+  /* --- 달력 --- */
+  renderStudentCal(pub, root);
 
   const t = pub.updatedAt ? new Date(pub.updatedAt) : null;
   $s("#stFoot").textContent = t
@@ -6585,7 +6758,7 @@ const BOARD_DAYS_BACK = 200;     // 학기 전체 — 오늘부터 거꾸로 이
 const CHECK_LABEL = { arrive:"도착", absentClass:"결과", early:"조퇴", out:"결과" };
 const CHECK_SHORT = { arrive:"도", absentClass:"결", early:"조", out:"결" };
 
-const board = { id:null, key:null, unsubs:[], checks:{}, timers:{}, metaTimer:null, demo:{} };
+const board = { id:null, key:null, unsubs:[], checks:{}, timers:{}, metaTimer:null, demo:{}, demoEvents:[] };
 
 /* ---------- 열쇠·잠그기 ---------- */
 async function boardDerive(classId, pin){
@@ -6617,7 +6790,15 @@ function boardMetaPayload(){
     className: state.data.className || "",
     periods: state.data.periods || CONFIG.periodsPerDay,
     timetable: state.data.timetable || {},
-    students: (state.data.students || []).map(s => ({ id: s.id, no: s.no, name: nameOf(s) }))
+    students: (state.data.students || []).map(s => ({ id: s.id, no: s.no, name: nameOf(s) })),
+    /* 우리 반 달력 — 교과 선생님도 수행평가·행사가 겹치지 않게 본다 */
+    events: (state.data.ddays || []).map(x => ({
+      id: x.id, title: x.title, date: x.date, cat: x.cat, subject: x.subject || "",
+      link: safeUrl(x.link), note: x.note || "", src: x.src || "", by: x.by || ""
+    })),
+    recurring: state.data.recurring || [],
+    school: state.data.school ? { office: state.data.school.office, code: state.data.school.code, name: state.data.school.name } : null,
+    grade: parseGradeClass(state.data.className).grade || ""
   };
 }
 function boardDayPayload(ds){
@@ -6657,7 +6838,7 @@ function boardNamesReady(){
 
 /* ---------- 담임: 바뀐 것 올리기 (연달아 바뀌면 한 번으로 모은다) ---------- */
 function boardNotifySave(path){
-  if(/^(students|timetable|periods|className)(\.|$)/.test(path)) boardQueueMeta();
+  if(/^(students|timetable|periods|className|ddays|recurring|school)(\.|$)/.test(path)) boardQueueMeta();
   const m = path.match(/^(overrides|ovAt)\.(\d{4}-\d{2}-\d{2})$/);
   if(m) boardQueueDay(m[2]);
   if(path === "timetable" || path === "periods") boardQueueDay(ymd(today()));
@@ -6743,6 +6924,7 @@ async function boardResume(){
       boardPublishMeta();
       boardPublishDay(ymd(today()));
       boardWatch(ymd(today()));
+      boardWatchEvents();   // 교과 선생님이 올리는 일정
     }
   }
   renderBoardPanel();
@@ -7027,6 +7209,9 @@ $("#boardBody").addEventListener("click", async e => {
         for(const d of snap.docs) await fbRefs.deleteDoc(d.ref);
         await fbRefs.deleteDoc(fbRefs.doc(fbRefs.db, "boards", old.id, "days", ds)).catch(() => {});
       });
+      /* 교과 선생님이 올린 일정은 이미 우리 반 일정(ddays)에 들어와 있으므로 옛것은 지우기만 한다 */
+      await importTeacherEvents(await decodeChecks(old.key, (await fbRefs.getDocs(eventsCol(fbRefs.db, old.id))).docs));
+      for(const d of (await fbRefs.getDocs(eventsCol(fbRefs.db, old.id))).docs) await fbRefs.deleteDoc(d.ref);
       await fbRefs.deleteDoc(fbRefs.doc(fbRefs.db, "boards", old.id));
     }catch(err){
       console.error(err);
@@ -7075,7 +7260,7 @@ function askText(title, body, value){
 /* ============================================================
    교과 선생님 화면 (#/t/{반ID}) — 체험 모드에서는 담임 앱 안에서 미리보기
    ============================================================ */
-const tb = { classId:null, id:null, key:null, fb:null, meta:null, day:null, checks:[], date:null, period:null, unsubs:[], demo:false, all:false };
+const tb = { classId:null, id:null, key:null, fb:null, meta:null, day:null, checks:[], events:[], date:null, period:null, unsubs:[], demo:false, all:false };
 
 /* 체크할 수 있는 날 — 실제로는 오늘만, 체험 모드는 둘러보기 편하도록 어느 날이든 */
 function tbWritable(){ return tb.demo || tb.date === ymd(today()); }
@@ -7144,6 +7329,11 @@ async function tbOpen(){
     if(!s.exists()) return;
     try{ tb.meta = await openJson(tb.key, s.data().meta); renderTeacher(); }catch(e){}
   });
+  /* 교과 선생님들이 올린 일정 — 담임 화면에 반영되기 전 것도 바로 보이게 */
+  tb.evUnsub = tb.fb.onSnapshot(tb.fb.collection(tb.fb.db, "boards", tb.id, "events"), async s => {
+    tb.events = await decodeChecks(tb.key, s.docs);
+    tbRenderCal();
+  }, e => console.warn(e));
   $("#tbGate").classList.add("hidden");
   $("#tbMain").classList.remove("hidden");
   await tbSetDate(ymd(today()));
@@ -7219,6 +7409,7 @@ function renderTeacher(){
   $("#tbFlow").innerHTML =
     flowTableHtml({ students, att, marks, n, sel: tb.period, all: tb.all }) +
     `<div class="btn-row" style="margin-top:10px;"><button class="btn sm ghost" id="tbAll">${tb.all ? "기록 있는 학생만 보기" : "전체 학생 보기"}</button></div>`;
+  tbRenderCal();
 }
 
 /* 교시 고르기 — 교과명이 비어 있으면 시간표의 과목으로 채운다 */
@@ -7333,6 +7524,7 @@ $("#tbFlow").addEventListener("click", async e => {
 /* 체험 모드 — 담임 앱 안에서 교과 선생님 화면을 연다 (서버 없이 메모리로) */
 $("#btnTeacherPreview").addEventListener("click", async () => {
   tb.demo = true; tb.classId = "demo"; tb.period = null; tb.all = false;
+  tb.events = board.demoEvents;
   showOnly("screen-teacher");
   document.body.style.paddingBottom = "0";
   $("#tbBack").classList.remove("hidden");
@@ -7354,6 +7546,385 @@ $("#tbBack").addEventListener("click", () => {
   renderAtt();
   renderDash();
 });
+
+/* ============================================================
+   학사일정 · 우리 반 일정 (월 달력)
+   ------------------------------------------------------------
+   · 학교 학사일정은 나이스 공개 자료에서 학교·달마다 불러온다(급식과 같은 학교 설정 사용).
+     우리 반 학년에 해당하는 행사만 보여 준다.
+   · 우리 반 일정 = ddays (담임이 넣은 것 + 교과 선생님이 교과 출석부로 올린 것 src:"t")
+   · 같은 그리기 함수를 담임 「일정」 탭 · 학생 화면 · 교과 출석부가 함께 쓴다.
+   ============================================================ */
+const EV_CATS   = ["수행평가","지필평가","체험학습","학교 행사","고입 일정","기타"];
+const CAT_CLASS = { "수행평가":"c-perf", "지필평가":"c-exam", "체험학습":"c-trip", "학교 행사":"c-event",
+                    "고입 일정":"c-adm", "기타":"c-etc", "학사일정":"c-school", "반복":"c-rec" };
+const catCls = c => CAT_CLASS[c] || "c-etc";
+/* 「국어 수행평가」처럼 제목이 이미 과목으로 시작하면 과목을 또 붙이지 않는다 */
+const evLabel = x => (x.subject && !String(x.title).startsWith(x.subject)) ? `${x.subject} ${x.title}` : x.title;
+
+/* 자료 링크는 http(s) 주소만 받는다 — 다른 형식은 눌렀을 때 위험할 수 있다 */
+function safeUrl(u){
+  const s = String(u || "").trim();
+  return /^https?:\/\/[^\s"'<>]+$/i.test(s) ? s : "";
+}
+
+/* 나이스 학사일정 — 학교·달마다 한 번만 */
+const schoolCalCache = {};
+async function fetchSchoolSchedule(school, y, m){
+  if(!school || !school.code || !school.office) return [];
+  const key = `${school.code}_${y}_${m}`;
+  if(schoolCalCache[key]) return schoolCalCache[key];
+  const mm = String(m + 1).padStart(2, "0");
+  const last = new Date(y, m + 1, 0).getDate();
+  try{
+    const url = `${NEIS}/SchoolSchedule?Type=json&pSize=300`
+      + `&ATPT_OFCDC_SC_CODE=${encodeURIComponent(school.office)}`
+      + `&SD_SCHUL_CODE=${encodeURIComponent(school.code)}`
+      + `&AA_FROM_YMD=${y}${mm}01&AA_TO_YMD=${y}${mm}${last}`;
+    const j = await (await fetch(url)).json();
+    const rows = j.SchoolSchedule ? (j.SchoolSchedule[1].row || []) : [];
+    const seen = new Set();
+    schoolCalCache[key] = rows.filter(r => r.EVENT_NM && r.EVENT_NM.trim() !== "토요휴업일").map(r => ({
+      date: `${r.AA_YMD.slice(0, 4)}-${r.AA_YMD.slice(4, 6)}-${r.AA_YMD.slice(6, 8)}`,
+      title: r.EVENT_NM.trim(),
+      off: /공휴일|휴업일/.test(r.SBTR_DD_SC_NM || ""),
+      grades: ["ONE","TW","THREE","FR","FIV","SIX"].map(k => r[k + "_GRADE_EVENT_YN"] === "Y")
+    })).filter(e => { const k = e.date + e.title; if(seen.has(k)) return false; seen.add(k); return true; });
+    return schoolCalCache[key];
+  }catch(e){
+    console.warn("학사일정 불러오기 실패", e);
+    return [];   // 실패는 기억하지 않는다 — 다음에 다시 시도
+  }
+}
+
+/* 체험 모드 — 학교를 고르지 않아도 달력이 비지 않도록 오늘 기준 가상 학사일정 */
+function demoSchoolEvents(y, m){
+  const t = ymd(today());
+  const list = [
+    { date: addDays(t, -3), title: "학부모 상담 주간", off: false },
+    { date: addDays(t, 2),  title: "진로의 날",       off: false },
+    { date: addDays(t, 9),  title: "개교기념일",       off: true  },
+    { date: addDays(t, 16), title: "학교 축제",        off: false }
+  ];
+  return list.filter(e => { const d = parseYmd(e.date); return d.getFullYear() === y && d.getMonth() === m; });
+}
+
+/* 한 달치 일정을 날짜별로 모은다
+   src = { events, recurring, school, grade, demo } */
+async function collectMonth(src, y, m){
+  const map = {};
+  const put = (ds, it) => (map[ds] || (map[ds] = [])).push(it);
+  const g = Number(src.grade) || 0;
+  const school = src.demo ? demoSchoolEvents(y, m) : await fetchSchoolSchedule(src.school, y, m);
+  school.forEach(e => {
+    if(g && e.grades && e.grades.some(Boolean) && !e.grades[g - 1]) return;   // 다른 학년 행사는 뺀다
+    put(e.date, { kind:"school", title: e.title, cat:"학사일정", off: e.off });
+  });
+  (src.events || []).forEach(x => {
+    const d = parseYmd(x.date);
+    if(d.getFullYear() === y && d.getMonth() === m) put(x.date, Object.assign({ kind:"class" }, x));
+  });
+  const last = new Date(y, m + 1, 0).getDate();
+  for(let day = 1; day <= last; day++){
+    const d = new Date(y, m, day);
+    (src.recurring || []).forEach(r => { if(occursOn(r, d)) put(ymd(d), { kind:"rec", title: r.title, cat:"반복" }); });
+  }
+  /* 한 날 안에서는 우리 반 일정 → 학사일정 → 반복 순 */
+  const order = { class:0, school:1, rec:2 };
+  Object.values(map).forEach(a => a.sort((p, q) => order[p.kind] - order[q.kind]));
+  return map;
+}
+
+function calGridHtml(y, m, map, sel){
+  const todayStr = ymd(today());
+  let h = ["일","월","화","수","목","금","토"].map((w, i) =>
+    `<div class="dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("");
+  const first = new Date(y, m, 1).getDay();
+  for(let i = 0; i < first; i++) h += `<div></div>`;
+  const last = new Date(y, m + 1, 0).getDate();
+  for(let day = 1; day <= last; day++){
+    const d  = new Date(y, m, day);
+    const ds = ymd(d);
+    const items = map[ds] || [];
+    const off = items.some(x => x.kind === "school" && x.off);
+    const cls = [d.getDay() === 0 ? "sun" : d.getDay() === 6 ? "sat" : "", off ? "off" : "", ds === todayStr ? "today" : ""].join(" ");
+    const shown = items.slice(0, 2).map(x =>
+      `<span class="ev ${catCls(x.cat)}">${escapeHtml(x.kind === "class" ? evLabel(x) : x.title)}</span>`).join("");
+    const more = items.length > 2 ? `<span class="more">+${items.length - 2}</span>` : "";
+    h += `<button class="day ${cls}" data-date="${ds}" aria-selected="${ds === sel}" aria-label="${m + 1}월 ${day}일 일정 ${items.length}개">
+      <span class="n">${day}</span>${shown}${more}</button>`;
+  }
+  return h;
+}
+
+function calLegendHtml(){
+  return ["수행평가","지필평가","체험학습","학교 행사","고입 일정","학사일정","반복"]
+    .map(c => `<span><i class="${catCls(c)}"></i>${c}</span>`).join("");
+}
+
+/* 고른 날의 일정 목록. canDel(it) 이 참이면 지우기 버튼 */
+function calDayHtml(items, canDel){
+  if(!items || !items.length) return `<p class="sub">일정이 없습니다.</p>`;
+  return items.map(x => {
+    const link = x.kind === "class" ? safeUrl(x.link) : "";
+    const meta = [x.subject, x.kind === "class" && x.src === "t" && x.by ? `${x.by} 선생님이 올림` : "",
+                  x.kind === "school" ? (x.off ? "학교 학사일정 · 쉬는 날" : "학교 학사일정") : "",
+                  x.kind === "rec" ? "반복 일정" : ""].filter(Boolean).join(" · ");
+    return `<div class="evrow">
+      <span class="chip ${catCls(x.cat)}">${escapeHtml(x.cat)}</span>
+      <div class="body"><b>${escapeHtml(x.title)}</b>
+        ${meta ? `<span class="meta">${escapeHtml(meta)}</span>` : ""}
+        ${x.note ? `<span class="note">📌 ${escapeHtml(x.note)}</span>` : ""}
+        ${link ? `<a class="link" href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">🔗 자료 열기</a>` : ""}
+      </div>
+      ${canDel && canDel(x) ? `<button class="del" data-evdel="${escapeHtml(x.id)}" aria-label="지우기">×</button>` : ""}
+    </div>`;
+  }).join("");
+}
+function dayHead(ds){
+  const d = parseYmd(ds);
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_LABEL[d.getDay()]})`;
+}
+
+/* 달력 하나를 그리는 공통 틀 — 담임·학생·교과 화면이 각자 상태와 요소만 넘긴다 */
+async function drawCalendar(st, el, src, canDel){
+  const my = ++st.req;
+  el.title.textContent = `${st.y}년 ${st.m + 1}월`;
+  const map = await collectMonth(src, st.y, st.m);
+  if(my !== st.req) return;   // 그 사이 다른 달로 넘겼으면 버린다
+  st.map = map;
+  el.grid.innerHTML = calGridHtml(st.y, st.m, map, st.sel);
+  if(el.day) el.day.innerHTML = (el.dayHead ? "" : `<p class="sub" style="margin:0 0 6px;"><b>${dayHead(st.sel)}</b></p>`) + calDayHtml(map[st.sel], canDel);
+  if(el.dayHead) el.dayHead.textContent = dayHead(st.sel);
+}
+function calState(){
+  const d = today();
+  return { y: d.getFullYear(), m: d.getMonth(), sel: ymd(d), req: 0, map: {} };
+}
+/* ◀ ▶ · 날짜 누르기 — onclick 을 덮어써서 여러 번 그려도 겹쳐 붙지 않게 한다 */
+function wireCalendar(st, el, redraw){
+  el.prev.onclick = () => { st.m--; if(st.m < 0){ st.m = 11; st.y--; } st.sel = ymd(new Date(st.y, st.m, 1)); redraw(); };
+  el.next.onclick = () => { st.m++; if(st.m > 11){ st.m = 0; st.y++; } st.sel = ymd(new Date(st.y, st.m, 1)); redraw(); };
+  el.grid.onclick = e => {
+    const b = e.target.closest("[data-date]");
+    if(!b) return;
+    st.sel = b.dataset.date;
+    $$("button.day", el.grid).forEach(x => x.setAttribute("aria-selected", x.dataset.date === st.sel));
+    if(el.dayHead) el.dayHead.textContent = dayHead(st.sel);
+    if(el.day) el.day.innerHTML = (el.dayHead ? "" : `<p class="sub" style="margin:0 0 6px;"><b>${dayHead(st.sel)}</b></p>`) + calDayHtml(st.map[st.sel], el.canDel);
+  };
+}
+
+/* ---------- 담임: 「일정」 탭 ---------- */
+const homeCal = calState();
+function homeCalEls(){
+  return { prev: $("#calPrev"), next: $("#calNext"), title: $("#calTitle"), grid: $("#calGrid"),
+           day: $("#calDayList"), dayHead: $("#calDayHead"), canDel: x => x.kind === "class" };
+}
+function homeCalSrc(){
+  return {
+    events: state.data.ddays || [], recurring: state.data.recurring || [],
+    school: state.data.school, grade: parseGradeClass(state.data.className).grade,
+    demo: state.mode === "demo"
+  };
+}
+async function renderCalTab(){
+  if(!state.data) return;
+  const el = homeCalEls();
+  wireCalendar(homeCal, el, renderCalTab);
+  $("#calLegend").innerHTML = calLegendHtml();
+  const sc = state.data.school;
+  const g  = parseGradeClass(state.data.className).grade;
+  $("#calSchoolNote").textContent = state.mode === "demo"
+    ? "체험용 가상 학사일정이 함께 보입니다. 실제로는 관리 탭에서 고른 학교의 학사일정을 나이스에서 불러옵니다."
+    : sc ? `${sc.name} 학사일정을 나이스에서 불러옵니다${g ? ` (${g}학년 행사만)` : ""}.`
+         : "관리 탭에서 급식 학교를 고르면 학교 학사일정이 함께 뜹니다.";
+  const pend = (state.data.ddays || []).filter(x => x.src === "t" && x.date >= ymd(today()))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  $("#calPendingCard").classList.toggle("hidden", !pend.length);
+  $("#calPendingList").innerHTML = pend.map(x => `<div class="evrow">
+      <span class="chip ${catCls(x.cat)}">${escapeHtml(x.cat)}</span>
+      <div class="body"><b>${escapeHtml(x.title)}</b><span class="meta">${x.date} · ${escapeHtml([x.subject, x.by ? x.by + " 선생님" : ""].filter(Boolean).join(" · "))}</span></div>
+      <button class="del" data-evdel="${escapeHtml(x.id)}" aria-label="지우기">×</button></div>`).join("");
+  await drawCalendar(homeCal, el, homeCalSrc(), el.canDel);
+}
+function refreshCal(){
+  if(!$("#tab-cal").classList.contains("hidden")) renderCalTab();
+}
+
+/* 우리 반 일정 지우기 — 교과 선생님이 올린 것은 다시 들어오지 않게 기억해 둔다 */
+async function deleteClassEvent(id){
+  const it = (state.data.ddays || []).find(x => x.id === id);
+  if(!it) return;
+  if(it.src === "t") await store.save(`evGone.${id}`, true);
+  await store.save("ddays", (state.data.ddays || []).filter(x => x.id !== id));
+  renderDdList(); renderDash(); refreshCal();
+  await autoSync();
+  toast("일정을 지웠습니다.");
+}
+$("#calDayList").addEventListener("click", e => { const b = e.target.closest("[data-evdel]"); if(b) deleteClassEvent(b.dataset.evdel); });
+$("#calPendingList").addEventListener("click", e => { const b = e.target.closest("[data-evdel]"); if(b) deleteClassEvent(b.dataset.evdel); });
+$("#calAddHere").addEventListener("click", () => {
+  $("#inDdDate").value = homeCal.sel;
+  $("#inDdTitle").scrollIntoView({ behavior: "smooth", block: "center" });
+  $("#inDdTitle").focus();
+});
+
+/* ---------- 교과 선생님이 올린 일정 받아들이기 (담임 기기) ---------- */
+function validEvent(e){
+  return e && e.type === "event"
+    && /^\d{4}-\d{2}-\d{2}$/.test(e.date || "")
+    && typeof e.title === "string" && e.title.trim() && e.title.length <= 40
+    && EV_CATS.includes(e.cat);
+}
+async function importTeacherEvents(list){
+  if(!state.data) return;
+  const cancelled = new Set(list.filter(e => e && e.type === "cancel").map(e => e.ref));
+  const gone = state.data.evGone || {};
+  let dd = (state.data.ddays || []).slice();
+  const added = [];
+  let removed = 0;
+  list.forEach(e => {
+    if(!validEvent(e)) return;
+    const id = "t_" + e.id;
+    if(cancelled.has(e.id)){
+      const n = dd.length; dd = dd.filter(x => x.id !== id); removed += n - dd.length;
+      return;
+    }
+    if(gone[id] || dd.some(x => x.id === id)) return;
+    const item = {
+      id, title: e.title.trim().slice(0, 30), date: e.date, cat: e.cat,
+      subject: String(e.subject || "").trim().slice(0, 12),
+      link: safeUrl(e.link), note: String(e.note || "").trim().slice(0, 60),
+      src: "t", by: String(e.teacher || "").trim().slice(0, 12)
+    };
+    dd.push(item);
+    added.push(item);
+  });
+  if(!added.length && !removed) return;
+  await store.save("ddays", dd);
+  renderDdList(); renderDash(); refreshCal();
+  autoSync();
+  if(added.length){
+    const a = added[added.length - 1];
+    toast(`${a.by || "교과"} 선생님이 「${a.title}」(${a.date.slice(5).replace("-", "/")}) 일정을 올렸습니다.`);
+  }
+}
+function eventsCol(db, id){ return fbRefs.collection(db, "boards", id, "events"); }
+function boardWatchEvents(){
+  if(!boardReady()) return;
+  board.unsubs.push(fbRefs.onSnapshot(eventsCol(fbRefs.db, board.id), async snap => {
+    importTeacherEvents(await decodeChecks(board.key, snap.docs));
+  }, e => console.warn("교과 일정 받기 실패", e)));
+}
+
+/* ---------- 학생 화면 달력 ---------- */
+const stuCal = calState();
+function renderStudentCal(pub, root){
+  const $s = sel => root.querySelector(sel);
+  const show = pub.show || {};
+  const on = !!(show.dday || show.schedule);
+  $s("#stCardCal").classList.toggle("hidden", !on);
+  if(!on) return;
+  const el = { prev: $s("#stCalPrev"), next: $s("#stCalNext"), title: $s("#stCalTitle"), grid: $s("#stCalGrid"), day: $s("#stCalDay") };
+  const src = { events: show.dday ? (pub.ddays || []) : [], recurring: show.schedule ? (pub.recurring || []) : [],
+                school: pub.school, grade: pub.grade, demo: false };
+  const redraw = () => drawCalendar(stuCal, el, src, null);
+  wireCalendar(stuCal, el, redraw);
+  redraw();
+}
+
+/* ---------- 교과 출석부 달력 ---------- */
+const tbCal = calState();
+function tbCalSrc(){
+  const meta = tb.meta || {};
+  const known = new Set((meta.events || []).map(x => x.id));
+  const cancelled = new Set((tb.events || []).filter(e => e && e.type === "cancel").map(e => e.ref));
+  /* 담임 화면에 아직 반영되지 않은 내 일정도 함께 보여 준다 */
+  const pending = (tb.events || []).filter(e => validEvent(e) && !cancelled.has(e.id) && !known.has("t_" + e.id))
+    .map(e => ({ id: "t_" + e.id, title: e.title, date: e.date, cat: e.cat, subject: e.subject, link: e.link, note: e.note,
+                 src: "t", by: e.teacher, pending: true }));
+  return {
+    events: (meta.events || []).filter(x => !(x.src === "t" && cancelled.has(x.id.slice(2)))).concat(pending),
+    recurring: meta.recurring || [], school: meta.school, grade: meta.grade, demo: tb.demo
+  };
+}
+function tbRenderCal(){
+  if(!tb.meta) return;
+  const me = $("#tbName").value.trim();
+  const el = { prev: $("#tbCalPrev"), next: $("#tbCalNext"), title: $("#tbCalTitle"), grid: $("#tbCalGrid"), day: $("#tbCalDay"),
+               canDel: x => x.kind === "class" && x.src === "t" && me && x.by === me };
+  wireCalendar(tbCal, el, tbRenderCal);
+  if(!$("#tbEvDate").value) $("#tbEvDate").value = ymd(today());
+  drawCalendar(tbCal, el, tbCalSrc(), el.canDel);
+}
+async function tbAddEvent(payload){
+  payload.at = new Date().toISOString();
+  if(tb.demo){
+    payload.id = "m" + Math.random().toString(36).slice(2, 10);
+    board.demoEvents.push(payload);
+    await importTeacherEvents(board.demoEvents);
+    tb.meta = boardMetaPayload();
+    tb.events = board.demoEvents;
+    tbRenderCal();
+    return true;
+  }
+  try{
+    await tb.fb.addDoc(tb.fb.collection(tb.fb.db, "boards", tb.id, "events"), { c: await sealJson(tb.key, payload), at: payload.at });
+    return true;
+  }catch(e){ console.error(e); toast("올리지 못했습니다. 인터넷 연결을 확인해 주세요."); return false; }
+}
+$("#tbEvAdd").addEventListener("click", async () => {
+  const who = tbWho(); if(!who) return;
+  const date = $("#tbEvDate").value, title = $("#tbEvTitle").value.trim();
+  const rawLink = $("#tbEvLink").value.trim();
+  if(!date){ toast("날짜를 골라 주세요."); return; }
+  if(!title){ toast("일정 이름을 적어 주세요."); $("#tbEvTitle").focus(); return; }
+  if(rawLink && !safeUrl(rawLink)){ toast("자료 링크는 http:// 또는 https:// 로 시작해야 합니다."); return; }
+  const ok = await tbAddEvent({ type:"event", date, title: title.slice(0, 30), cat: $("#tbEvCat").value,
+    subject: who.subject.slice(0, 12), link: safeUrl(rawLink), note: $("#tbEvNote").value.trim().slice(0, 60), teacher: who.name });
+  if(!ok) return;
+  $("#tbEvTitle").value = ""; $("#tbEvLink").value = ""; $("#tbEvNote").value = "";
+  const d = parseYmd(date);
+  tbCal.y = d.getFullYear(); tbCal.m = d.getMonth(); tbCal.sel = date;
+  tbRenderCal();
+  toast("우리 반 일정에 올렸습니다.");
+});
+/* 내가 올린 일정 취소 — 고치지 않고 취소 기록을 덧붙인다 */
+$("#tbCalDay").addEventListener("click", async e => {
+  const b = e.target.closest("[data-evdel]");
+  if(!b) return;
+  const ok = await confirmBox({ title: "올린 일정을 취소할까요?", body: "담임 선생님 달력과 학생 화면에서도 빠집니다.", ok: "취소하기", cancel: "그대로 두기" });
+  if(!ok) return;
+  await tbAddEvent({ type:"cancel", ref: b.dataset.evdel.replace(/^t_/, ""), teacher: $("#tbName").value.trim() });
+  tbRenderCal();
+});
+
+/* ---------- 조회 탭: 오늘 학사일정 · 내일 준비 ---------- */
+let dashSchoolReq = 0;
+async function renderDashCalendarBits(ds){
+  const box = $("#dashToday");
+  if(!box || !state.data) return;
+  const my = ++dashSchoolReq;
+  /* 다음 등교일에 준비물·메모가 있는 일정 */
+  const next = shiftSchoolDay(ds, 1);
+  const prep = sortedDdays().filter(x => x.date === next && x.note);
+  const d = parseYmd(ds);
+  const school = state.mode === "demo" ? demoSchoolEvents(d.getFullYear(), d.getMonth())
+               : await fetchSchoolSchedule(state.data.school, d.getFullYear(), d.getMonth());
+  if(my !== dashSchoolReq) return;
+  const g = Number(parseGradeClass(state.data.className).grade) || 0;
+  const todays = school.filter(e => e.date === ds && !(g && e.grades && e.grades.some(Boolean) && !e.grades[g - 1]));
+  if(!todays.length && !prep.length) return;
+  const empty = box.querySelector(":scope > p.sub");
+  if(empty) empty.remove();
+  box.insertAdjacentHTML("afterbegin", todays.map(e =>
+    `<div class="item"><span class="tag ${catCls("학사일정")}">학사일정</span><span class="ttl">${escapeHtml(e.title)}${e.off ? " (쉬는 날)" : ""}</span></div>`).join(""));
+  if(prep.length){
+    box.insertAdjacentHTML("beforeend", `<div class="prep"><b>내일 준비</b> (${dayHead(next)})<br>${
+      prep.map(x => `${escapeHtml(evLabel(x))} — ${escapeHtml(x.note)}`).join("<br>")}</div>`);
+  }
+}
 
 /* ============================================================
    웨일 사이드바 작게 보기 — ?sidebar=1 로 열면 켜지고, 같은 창에서는 계속 유지
