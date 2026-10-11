@@ -165,12 +165,17 @@ service cloud.firestore {
         return get(/databases/$(database)/documents/stuKeys/$(k)).data;
       }
       allow read: if signedIn() && (request.auth.uid == uid || isMine(classId));
-      allow create, update: if signedIn() && request.auth.uid == uid
-                            && request.resource.data.keys().hasOnly(['k', 'sid', 'at'])
-                            && request.resource.data.k is string
-                            && exists(/databases/$(database)/documents/stuKeys/$(request.resource.data.k))
-                            && stuDoc(request.resource.data.k).classId == classId
-                            && stuDoc(request.resource.data.k).sid == request.resource.data.sid;
+      // 학생: 개인 코드 확인값(k)으로 / 교과 선생님: 교과 출석부 ID(bid)로 — 둘 다 암호를 알아야 알 수 있는 값
+      allow create, update: if signedIn() && request.auth.uid == uid && (
+                              ( request.resource.data.keys().hasOnly(['k', 'sid', 'at'])
+                                && request.resource.data.k is string
+                                && exists(/databases/$(database)/documents/stuKeys/$(request.resource.data.k))
+                                && stuDoc(request.resource.data.k).classId == classId
+                                && stuDoc(request.resource.data.k).sid == request.resource.data.sid )
+                           || ( request.resource.data.keys().hasOnly(['bid', 'at'])
+                                && request.resource.data.bid is string
+                                && exists(/databases/$(database)/documents/boards/$(request.resource.data.bid))
+                                && get(/databases/$(database)/documents/boards/$(request.resource.data.bid)).data.ownerUid == classId ) );
       allow delete: if signedIn() && (request.auth.uid == uid || isMine(classId));
     }
 
@@ -195,6 +200,69 @@ service cloud.firestore {
                             && request.resource.data.c.size() < 200000
                             && request.resource.data.at is string;
       allow delete: if isMine(classId) || isStudentOf();
+    }
+
+    // ---------- 우리 반 이름 목록 (반 열쇠로 잠김) ----------
+    match /classDir/{classId} {
+      allow read: if true;
+      allow write: if isMine(classId);
+    }
+
+    // ---------- 우리 반 담벼락 ----------
+    // 우리 반으로 등록된 기기(학생·교과 선생님)와 담임만 읽고 쓴다. 내용(c)은 반 열쇠로 잠겨 있다.
+    match /walls/{classId}/posts/{postId} {
+      function mem() {
+        return get(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid)).data;
+      }
+      function isMember() {
+        return signedIn()
+          && exists(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid))
+          && ( ('k' in mem() && exists(/databases/$(database)/documents/stuKeys/$(mem().k)))
+            || ('bid' in mem() && exists(/databases/$(database)/documents/boards/$(mem().bid))) );
+      }
+      function canUse() { return isMine(classId) || isMember(); }
+      function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+      function onlyMyKey(field) {
+        return changed().hasOnly([field])
+          && request.resource.data[field].diff(resource.data[field]).affectedKeys().hasOnly([request.auth.uid]);
+      }
+
+      allow read: if canUse();
+      allow create: if canUse()
+        && request.resource.data.keys().hasOnly(['c', 'au', 'aid', 'at', 'st', 'rx', 'vt', 'rp', 'nc', 'hc'])
+        && request.resource.data.au == request.auth.uid
+        && request.resource.data.c is string && request.resource.data.c.size() < 900000
+        && request.resource.data.st in ['ok', 'held']
+        && request.resource.data.rx == {} && request.resource.data.vt == {} && request.resource.data.rp == {}
+        && request.resource.data.nc == 0 && request.resource.data.hc == 0;
+      allow update: if isMine(classId)
+        // 글쓴이 — 내용 고치기 (담임이 가린 글은 못 고침)
+        || ( resource.data.au == request.auth.uid && resource.data.st != 'hidden'
+             && changed().hasOnly(['c', 'ed', 'st']) && request.resource.data.st in ['ok', 'held'] )
+        // 우리 반 — 공감·투표·신고는 자기 칸만
+        || ( isMember() && onlyMyKey('rx') )
+        || ( isMember() && onlyMyKey('vt') )
+        || ( isMember() && onlyMyKey('rp') && request.resource.data.rp[request.auth.uid] == true )
+        // 댓글 수·보류 댓글 수는 하나씩만
+        || ( isMember() && changed().hasOnly(['nc']) && request.resource.data.nc == resource.data.nc + 1 )
+        || ( isMember() && changed().hasOnly(['nc', 'hc'])
+             && request.resource.data.nc == resource.data.nc + 1 && request.resource.data.hc == resource.data.hc + 1 )
+        || ( isMember() && changed().hasOnly(['nc']) && request.resource.data.nc == resource.data.nc - 1 );
+      allow delete: if isMine(classId) || resource.data.au == request.auth.uid;
+
+      match /cm/{commentId} {
+        allow read: if canUse();
+        allow create: if canUse()
+          && request.resource.data.keys().hasOnly(['c', 'au', 'aid', 'at', 'st'])
+          && request.resource.data.au == request.auth.uid
+          && request.resource.data.c is string && request.resource.data.c.size() < 20000
+          && request.resource.data.st in ['ok', 'held'];
+        allow update: if isMine(classId)
+          || ( resource.data.au == request.auth.uid && resource.data.st != 'hidden'
+               && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['c', 'ed', 'st'])
+               && request.resource.data.st in ['ok', 'held'] );
+        allow delete: if isMine(classId) || resource.data.au == request.auth.uid;
+      }
     }
 
     // ---------- 그 외 전부 차단 ----------

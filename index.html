@@ -575,6 +575,67 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 #picker .pk-pf{ display:flex; justify-content:center; margin-bottom:8px; }
 #picker .pk-pf .pf{ box-shadow:0 0 0 4px #fff, 0 4px 14px rgba(0,0,0,.2); }
 
+/* ---------- 우리 반 담벼락 ---------- */
+.wl-compose{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:14px; margin:12px 0; }
+.wl-compose .top{ display:flex; gap:10px; align-items:flex-start; }
+.wl-compose textarea{ flex:1; min-height:70px; font-family:inherit; font-size:15px; }
+.wl-compose .tools{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:10px; }
+.wl-compose .tools .sp{ margin-left:auto; }
+.wl-thumbs{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.wl-thumbs div{ position:relative; }
+.wl-thumbs img{ width:64px; height:64px; object-fit:cover; border-radius:10px; }
+.wl-thumbs button{ position:absolute; top:-6px; right:-6px; width:24px; height:24px; border-radius:50%; border:0; background:var(--ink); color:#fff; font-size:13px; }
+.wl-poll-edit{ margin-top:8px; display:grid; gap:6px; }
+.wl-poll-edit input{ min-height:40px; font-size:15px; }
+.wl-note{ font-size:12.5px; color:var(--ink-45); margin-top:8px; }
+.wl-post{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:14px; margin:0 0 12px; }
+.wl-post.held, .wl-cm.held{ border:2px dashed #C9A227; background:#FFFCF2; }
+.wl-post.hid, .wl-cm.hid{ opacity:.6; border-style:dashed; }
+.wl-head{ display:flex; align-items:center; gap:10px; }
+.wl-head .who{ flex:1; min-width:0; }
+.wl-head .who b{ display:block; font-size:15px; }
+.wl-head .who span{ font-size:12px; color:var(--ink-45); }
+.wl-head .more{ border:0; background:transparent; font-size:20px; color:var(--ink-45); min-width:40px; min-height:40px; }
+.wl-flag{ display:inline-block; font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:#FDF3D6; color:#8A6D12; margin-top:6px; }
+.wl-flag.red{ background:#FBEDEA; color:var(--stamp); }
+.wl-text{ margin:10px 0 0; font-size:15.5px; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+.wl-imgs{ display:grid; gap:4px; margin-top:10px; border-radius:12px; overflow:hidden; }
+.wl-imgs.n1{ grid-template-columns:1fr; } .wl-imgs.n2{ grid-template-columns:1fr 1fr; }
+.wl-imgs.n3{ grid-template-columns:2fr 1fr; } .wl-imgs.n3 img:first-child{ grid-row:span 2; }
+.wl-imgs.n4{ grid-template-columns:1fr 1fr; }
+.wl-imgs img{ width:100%; height:100%; max-height:420px; object-fit:cover; display:block; cursor:zoom-in; aspect-ratio:1 / 1; }
+.wl-imgs.n1 img{ aspect-ratio:auto; }
+.wl-poll{ margin-top:10px; display:grid; gap:6px; }
+.wl-poll .q{ font-weight:700; font-size:15px; }
+.wl-poll button{
+  position:relative; text-align:left; min-height:44px; border:1.5px solid var(--line); border-radius:12px; background:#fff;
+  padding:0 12px; font-size:14.5px; overflow:hidden; color:var(--text);
+}
+.wl-poll button .pbar{ position:absolute; inset:0 auto 0 0; background:var(--tint); z-index:0; }
+.wl-poll button span{ position:relative; z-index:1; }
+.wl-poll button .cnt{ float:right; color:var(--ink-45); font-size:13px; }
+.wl-poll button[aria-pressed="true"]{ border-color:var(--ink); font-weight:700; }
+.wl-poll .tot{ font-size:12px; color:var(--ink-45); }
+.wl-rx{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
+.wl-rx button{ min-height:36px; padding:0 10px; border-radius:999px; border:1px solid var(--line); background:#fff; font-size:15px; }
+.wl-rx button[aria-pressed="true"]{ border-color:var(--ink); background:var(--tint); }
+.wl-rx button small{ font-size:12px; color:var(--ink-70); margin-left:2px; }
+.wl-rx .cmt{ margin-left:auto; font-size:13px; color:var(--ink-70); }
+.wl-cms{ margin-top:8px; display:grid; gap:6px; }
+.wl-cm{ display:flex; gap:8px; align-items:flex-start; background:var(--paper); border-radius:12px; padding:8px 10px; border:1px solid transparent; }
+.wl-cm .bd{ flex:1; min-width:0; font-size:14px; }
+.wl-cm .bd b{ font-size:13px; margin-right:6px; }
+.wl-cm .bd span.t{ font-size:11.5px; color:var(--ink-45); }
+.wl-cm .bd p{ margin:2px 0 0; white-space:pre-wrap; word-break:break-word; }
+.wl-cm .x{ border:0; background:transparent; color:var(--ink-45); font-size:16px; min-width:32px; min-height:32px; }
+.wl-cmform{ display:flex; gap:6px; margin-top:6px; }
+.wl-cmform input{ flex:1; min-height:40px; font-size:15px; }
+.wl-menu{ display:grid; gap:6px; }
+.wl-menu button{ min-height:46px; }
+.wl-light{ position:fixed; inset:0; z-index:90; background:rgba(0,0,0,.88); display:flex; align-items:center; justify-content:center; padding:16px; }
+.wl-light img{ max-width:100%; max-height:100%; border-radius:8px; }
+.wl-quiet{ background:#F2F4F7; border-radius:var(--r); padding:10px 12px; font-size:13.5px; color:var(--ink-70); }
+
 /* ---------- 학생 화면 하단 탭 ---------- */
 .st-tabbar{ z-index:30; }
 .st-tabbar button{ position:relative; }
@@ -1878,6 +1939,10 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <p class="sub" id="tbFlowSub">학생을 누르면 고른 교시에 도착·결과·조퇴를 남길 수 있습니다.</p>
         <div id="tbFlow"></div>
       </div>
+      <div class="card hidden" id="tbWallCard">
+        <span class="eyebrow">우리 반 담벼락</span>
+        <div id="tbWall"></div>
+      </div>
       <p class="footnote">이 화면의 기록은 담임 선생님 확인용이며 공식 학적 자료가 아닙니다.</p>
     </div>
   </div>
@@ -1975,6 +2040,11 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <p class="sub st-empty">아직 올라온 일정이 없습니다.</p>
     </section>
 
+    <!-- ── 담벼락 ── -->
+    <section class="st-tab hidden" data-st="wall">
+      <div id="stWall"></div>
+    </section>
+
     <!-- ── 마음 (마음의 소리함) ── -->
     <section class="st-tab hidden" data-st="voice">
       <div class="card" id="stVoice"></div>
@@ -2005,6 +2075,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <button data-sttab="today"  aria-selected="true"><span class="ic">🌅</span>오늘</button>
       <button data-sttab="notice" aria-selected="false"><span class="ic">💬</span>알림<i class="st-dot hidden"></i></button>
       <button data-sttab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
+      <button data-sttab="wall"   aria-selected="false" class="hidden"><span class="ic">📰</span>담벼락</button>
       <button data-sttab="voice"  aria-selected="false" class="hidden"><span class="ic">💌</span>마음</button>
       <button data-sttab="me"     aria-selected="false" class="hidden"><span class="ic">🙂</span>나</button>
       <button data-sttab="tools"  aria-selected="false"><span class="ic">🧰</span>도구</button>
@@ -2680,6 +2751,14 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <button class="btn primary sm" id="btnVoiceDash">편지함 열기</button>
       </div>
 
+      <!-- 담벼락 확인할 글 알림 -->
+      <div class="card hidden" id="cardWallDash" style="border:2px solid #C9A227;">
+        <span class="eyebrow">우리 반 담벼락</span>
+        <h2>확인할 글이 있습니다</h2>
+        <p class="sub" id="wallDashSub" style="margin-bottom:10px;"></p>
+        <button class="btn primary sm" id="btnWallDash">담벼락 열기</button>
+      </div>
+
       <!-- 말풍선 공지 (학생 화면에 일방향으로 쌓인다) -->
       <div class="card" id="cardBubble">
         <span class="eyebrow">말풍선 공지</span>
@@ -2774,6 +2853,17 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
           <button class="btn sm" id="btnCopyMsg">문구 복사</button>
         </div>
       </div>
+    </section>
+
+    <!-- ─────────── 탭 6: 담벼락 ─────────── -->
+    <section id="tab-wall" class="hidden">
+      <div class="card" id="wallSetCard">
+        <span class="eyebrow">우리 반 담벼락</span>
+        <h2>학급 안에서만 보는 피드</h2>
+        <p class="sub">학생·담임·교과 선생님이 글·사진·투표를 올리고 공감·댓글을 나눕니다. 모든 내용은 반 열쇠로 잠겨 우리 반만 볼 수 있습니다.</p>
+        <div id="wallSet"></div>
+      </div>
+      <div id="wallHome"></div>
     </section>
 
     <!-- ─────────── 탭 5: 일정 ─────────── -->
@@ -2913,6 +3003,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
     <button data-tab="home"   aria-selected="false"><span class="ic">🌅</span>조회</button>
     <button data-tab="attend" aria-selected="false"><span class="ic">✅</span>출석</button>
     <button data-tab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
+    <button data-tab="wall"   aria-selected="false"><span class="ic">📰</span>담벼락<i class="tab-dot hidden" id="wallDot"></i></button>
   </nav>
 </div>
 
@@ -3807,7 +3898,8 @@ async function initFirebaseAuth(){
     onSnapshot: dbMod.onSnapshot,
     collection: dbMod.collection,     // 교과 출석부 — 교시 체크 목록
     getDocs: dbMod.getDocs,
-    addDoc: dbMod.addDoc
+    addDoc: dbMod.addDoc,
+    query: dbMod.query, orderBy: dbMod.orderBy, limit: dbMod.limit   // 담벼락 — 최신 글부터
   };
   store.setFirebase(fbRefs);
 
@@ -4094,6 +4186,7 @@ async function startDemo(){
   ];
   fillDemoClass(list.map(s => s.id), todayStr);
   await vcDemoSetup();   // 마음의 소리함 — 체험용 열쇠·개인 코드·편지 예시
+  await wallDemoSetup(); // 담벼락 — 예시 글
 
   $("#demoBanner").classList.remove("hidden");
   enterApp();
@@ -4215,7 +4308,7 @@ function enterApp(){
   if(state.mode === "demo") $("#demoBanner").classList.remove("hidden");
   renderAll();
   boardResume();   // 교과 출석부가 켜져 있으면 최신 내용을 올리고 교시 체크를 받아 보기 시작
-  vcResume().then(pfResume);   // 마음의 소리함 편지 · 학생 프로필 받아 보기 시작
+  vcResume().then(pfResume).then(wallResume);   // 마음의 소리함 편지 · 학생 프로필 · 담벼락 받아 보기 시작
 }
 
 /* ============================================================
@@ -4561,17 +4654,18 @@ function switchTab(tab){
   state.pickedStudent = null;
   state.seatDate = null;    // 탭에 새로 들어올 때마다 오늘로 되돌린다
   state.dashDate = null;
-  ["manage","seat","home","attend","cal"].forEach(t => {
+  ["manage","seat","home","attend","cal","wall"].forEach(t => {
     $("#tab-" + t).classList.toggle("hidden", t !== tab);
   });
   $$(".tabbar button").forEach(b =>
     b.setAttribute("aria-selected", b.dataset.tab === tab ? "true" : "false"));
   $("#hdrTitle").textContent =
-    ({ manage:"관리", seat:"자리 배치", home:"조회", attend:"출석", cal:"일정" })[tab];
+    ({ manage:"관리", seat:"자리 배치", home:"조회", attend:"출석", cal:"일정", wall:"담벼락" })[tab];
   if(tab === "seat")   renderSeats();
   if(tab === "home")   renderDash();
   if(tab === "attend") openAttendance();
   if(tab === "cal")    renderCalTab();
+  if(tab === "wall")   renderWallTab();
   window.scrollTo({ top:0 });
 }
 
@@ -6562,6 +6656,8 @@ function buildPublicDoc(){
   if(state.data.voice && state.data.voice.on && state.data.voice.pub) doc.voicePub = state.data.voice.pub;
   /* 개인 코드를 나눠 준 반이면 학생 화면에 「🙂 나」 탭을 연다 (코드·명단은 넣지 않는다) */
   doc.codes = Object.keys(state.data.stuSh || {}).length > 0;
+  /* 담벼락 — 열려 있으면 학생 쓰기 쉬는 시간만 (글은 반 열쇠로 잠긴 채 따로 있다) */
+  doc.wall = state.data.wall && state.data.wall.on ? { qFrom: state.data.wall.qFrom ?? 22, qTo: state.data.wall.qTo ?? 7 } : null;
   if(P.supplies) doc.supplies = state.data.supplies || "";
   if(P.notice)   doc.notice   = state.data.notice   || "";
   if(P.notice)   doc.bubbles  = publicBubbles();   // 말풍선 공지 — 글만 (학생 정보 없음)
@@ -6759,6 +6855,7 @@ function renderStudent(pub, mount){
   renderStudentBubbles(pub, root);
   renderStudentVoice(pub, root);
   renderStudentMe(pub, root);
+  renderStudentWall(pub, root);
   setupStudentTabs(pub, root, !!mount);
 
   const t = pub.updatedAt ? new Date(pub.updatedAt) : null;
@@ -6792,7 +6889,8 @@ async function openStudentRoute(classId){
       });
       /* 마음의 소리함 — 학생 기기가 쓰는 연결 (로그인 없음) */
       stuFb = { app, db, doc: dbMod.doc, getDoc: dbMod.getDoc, setDoc: dbMod.setDoc, deleteDoc: dbMod.deleteDoc,
-                collection: dbMod.collection, addDoc: dbMod.addDoc, getDocs: dbMod.getDocs, onSnapshot: dbMod.onSnapshot };
+                collection: dbMod.collection, addDoc: dbMod.addDoc, getDocs: dbMod.getDocs, onSnapshot: dbMod.onSnapshot,
+                updateDoc: dbMod.updateDoc, deleteField: dbMod.deleteField, query: dbMod.query, orderBy: dbMod.orderBy, limit: dbMod.limit };
       pub = await store.loadPublic(classId);
     }catch(e){ console.error(e); }
   }
@@ -7109,7 +7207,8 @@ function boardMetaPayload(){
     school: state.data.school ? { office: state.data.school.office, code: state.data.school.code, name: state.data.school.name } : null,
     grade: parseGradeClass(state.data.className).grade || "",
     /* 반 열쇠 — 교과 선생님도 학생 프로필(랜덤 뽑기 사진)을 볼 수 있게. 이 문서 자체가 출석부 열쇠로 잠겨 있다 */
-    ck: pf.ckRaw ? crypt.toB64(pf.ckRaw) : ""
+    ck: pf.ckRaw ? crypt.toB64(pf.ckRaw) : "",
+    wallOn: !!(state.data.wall && state.data.wall.on)
   };
 }
 function boardDayPayload(ds){
@@ -7150,6 +7249,7 @@ function boardNamesReady(){
 /* ---------- 담임: 바뀐 것 올리기 (연달아 바뀌면 한 번으로 모은다) ---------- */
 function boardNotifySave(path){
   if(/^(students|timetable|periods|className|ddays|recurring|school)(\.|$)/.test(path)) boardQueueMeta();
+  if(/^students(\.|$)/.test(path)){ clearTimeout(dirPublish._t); dirPublish._t = setTimeout(dirPublish, 1500); }   // 담벼락 이름 목록
   const m = path.match(/^(overrides|ovAt)\.(\d{4}-\d{2}-\d{2})$/);
   if(m) boardQueueDay(m[2]);
   if(path === "timetable" || path === "periods") boardQueueDay(ymd(today()));
@@ -7605,7 +7705,9 @@ async function openTeacherRoute(classId){
     const app = initializeApp(CONFIG.firebase);
     tb.fb = {
       db: dbMod.getFirestore(app), doc: dbMod.doc, getDoc: dbMod.getDoc,
-      collection: dbMod.collection, addDoc: dbMod.addDoc, onSnapshot: dbMod.onSnapshot
+      collection: dbMod.collection, addDoc: dbMod.addDoc, onSnapshot: dbMod.onSnapshot,
+      app, setDoc: dbMod.setDoc, updateDoc: dbMod.updateDoc, deleteDoc: dbMod.deleteDoc, deleteField: dbMod.deleteField,
+      query: dbMod.query, orderBy: dbMod.orderBy, limit: dbMod.limit
     };
   }catch(e){
     console.error(e);
@@ -7648,6 +7750,7 @@ async function tbOpen(){
   if(!snap.exists()) return false;
   tb.meta = await openJson(tb.key, snap.data().meta);
   tbPfWatch();
+  tbWallMount();
   /* 명단·기본 시간표가 바뀌면 바로 다시 그린다 */
   tb.metaUnsub = tb.fb.onSnapshot(ref, async s => {
     if(!s.exists()) return;
@@ -7850,6 +7953,7 @@ $("#btnTeacherPreview").addEventListener("click", async () => {
   tb.demo = true; tb.classId = "demo"; tb.period = null; tb.all = false;
   tb.events = board.demoEvents;
   tb.pf = pf.data;
+  setTimeout(tbWallMount, 0);
   showOnly("screen-teacher");
   document.body.style.paddingBottom = "0";
   $("#tbBack").classList.remove("hidden");
@@ -8949,6 +9053,7 @@ function stForget(classId){
 function stRerenderAll(){
   if(stv.root) stvRender();
   if(stm.root) stmRender();
+  if(stw.root) stwRender();
 }
 
 /* ============================================================
@@ -9198,13 +9303,13 @@ function pfCropper(img){
   });
 }
 /* WebP(안 되면 JPEG)로, 화질을 조금씩 낮춰 목표 크기 이하로 */
-async function pfCompress(cv){
+async function pfCompress(cv, maxBytes = PF_MAX_BYTES){
   const enc = (type, q) => new Promise(r => cv.toBlob(b => r(b), type, q));
   let type = "image/webp";
   let b = await enc(type, 0.82);
   if(!b || b.type !== "image/webp"){ type = "image/jpeg"; b = await enc(type, 0.82); }
   for(const q of [0.72, 0.62, 0.52, 0.44, 0.36]){
-    if(b.size <= PF_MAX_BYTES) break;
+    if(b.size <= maxBytes) break;
     b = await enc(type, q);
   }
   const dataUrl = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); });
@@ -9363,6 +9468,714 @@ async function stmRender(){
       save: async obj => obj ? pfb.put(classId, me.sid, await sealJson(me.ck, obj)) : pfb.del(classId, me.sid)
     });
   }, stuFb && !fbRefs ? stuFb : undefined);
+}
+
+/* ============================================================
+   우리 반 담벼락 — 학급 안에서만 보는 피드
+   ------------------------------------------------------------
+   · walls/{반ID}/posts/{글}  { c, au, aid, at, st, rx, vt, rp, nc, hc, ed? }
+       c   = 반 열쇠로 잠근 { text, imgs[], poll{q,opts[]}, tn? }
+       au  = 쓴 기기의 로그인 ID(규칙 확인용) / aid = 화면에 보일 글쓴이(home·학생칸·t:교과)
+       st  = ok · held(욕설 보류) · hidden(담임이 가림)
+       rx  = { 로그인ID: 이모지 } 공감 / vt = { 로그인ID: 번호 } 투표 / rp = { 로그인ID: true } 신고
+       nc  = 댓글 수 / hc = 보류된 댓글 수
+   · walls/{반ID}/posts/{글}/cm/{댓글} { c, au, aid, at, st, ed? }
+   · classDir/{반ID} = 반 열쇠로 잠근 이름 목록 (글쓴이 이름 표시용)
+   · 학생의 쓰기 쉬는 시간·하루 글 수는 앱 화면에서 막는다(서버 규칙은 아님).
+   ============================================================ */
+const WL_RX = ["👍","❤️","😂","😮","👏"];
+const WL_PAGE = 30, WL_DAILY = 5, WL_MAX = 1000, WL_IMG_MAX = 4, WL_IMG_BYTES = 90000;
+const WL_BAD = /씨\s*발|시\s*발|ㅅ\s*ㅂ|ㅆ\s*ㅂ|ㅂ\s*ㅅ|병\s*신|븅\s*신|개\s*새|새\s*끼|ㅅ\s*ㄲ|좆|존\s*나|졸\s*라|닥\s*쳐|꺼\s*져|미\s*친\s*(놈|년|새)|ㅁ\s*ㅊ|찐\s*따|느\s*금|니\s*애미|애\s*미\s*(없|뒤)|에\s*미|패\s*드립|죽\s*어\s*라|죽\s*여\s*버|틀\s*딱|급식충|한\s*남\s*충|한\s*녀|fuck|shit|bitch/i;
+const WL_DEL = { __del: true };   // 지우기 표시 (서버에서는 deleteField)
+const wlMem = { posts:{}, cms:{}, dir:null, watchers:new Set(), cmWatch:{} };
+
+/* ---------- 저장소 (서버 / 체험 메모리) ---------- */
+function wlNotify(){ wlMem.watchers.forEach(f => f()); }
+function wlCmNotify(pid){ (wlMem.cmWatch[pid] || new Set()).forEach(f => f()); }
+function wlApply(obj, patch){
+  Object.entries(patch).forEach(([path, v]) => {
+    const ks = path.split(".");
+    let cur = obj;
+    for(let i = 0; i < ks.length - 1; i++) cur = cur[ks[i]] || (cur[ks[i]] = {});
+    if(v === WL_DEL) delete cur[ks[ks.length - 1]]; else cur[ks[ks.length - 1]] = v;
+  });
+}
+function wlFbPatch(f, patch){
+  const out = {};
+  Object.entries(patch).forEach(([k, v]) => { out[k] = v === WL_DEL ? f.deleteField() : v; });
+  return out;
+}
+const clone = x => JSON.parse(JSON.stringify(x));
+const wlb = {
+  watchPosts(ctx, n, cb){
+    if(ctx.demo){
+      const f = () => cb(Object.values(wlMem.posts).sort((a, b) => b.at.localeCompare(a.at)).slice(0, n).map(clone));
+      wlMem.watchers.add(f); f();
+      return () => wlMem.watchers.delete(f);
+    }
+    const f = ctx.fb;
+    return f.onSnapshot(f.query(f.collection(f.db, "walls", ctx.classId, "posts"), f.orderBy("at", "desc"), f.limit(n)),
+      s => cb(s.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+      e => { console.warn("담벼락 받기 실패", e); if(ctx.onError) ctx.onError(e); });
+  },
+  async add(ctx, body){
+    if(ctx.demo){ const id = "w" + Math.random().toString(36).slice(2, 10); wlMem.posts[id] = Object.assign({ id }, body); wlNotify(); return id; }
+    const f = ctx.fb;
+    return (await f.addDoc(f.collection(f.db, "walls", ctx.classId, "posts"), body)).id;
+  },
+  async update(ctx, pid, patch){
+    if(ctx.demo){ if(wlMem.posts[pid]) wlApply(wlMem.posts[pid], patch); wlNotify(); return; }
+    const f = ctx.fb;
+    await f.updateDoc(f.doc(f.db, "walls", ctx.classId, "posts", pid), wlFbPatch(f, patch));
+  },
+  async del(ctx, pid){
+    if(ctx.demo){ delete wlMem.posts[pid]; delete wlMem.cms[pid]; wlNotify(); return; }
+    const f = ctx.fb;
+    await f.deleteDoc(f.doc(f.db, "walls", ctx.classId, "posts", pid));
+  },
+  watchCms(ctx, pid, cb){
+    if(ctx.demo){
+      const f = () => cb(Object.values(wlMem.cms[pid] || {}).sort((a, b) => a.at.localeCompare(b.at)).map(clone));
+      (wlMem.cmWatch[pid] || (wlMem.cmWatch[pid] = new Set())).add(f); f();
+      return () => wlMem.cmWatch[pid].delete(f);
+    }
+    const f = ctx.fb;
+    return f.onSnapshot(f.query(f.collection(f.db, "walls", ctx.classId, "posts", pid, "cm"), f.orderBy("at", "asc")),
+      s => cb(s.docs.map(d => Object.assign({ id: d.id }, d.data()))), e => console.warn(e));
+  },
+  async addCm(ctx, pid, body){
+    if(ctx.demo){ const id = "c" + Math.random().toString(36).slice(2, 10); (wlMem.cms[pid] || (wlMem.cms[pid] = {}))[id] = Object.assign({ id }, body); wlCmNotify(pid); return id; }
+    const f = ctx.fb;
+    return (await f.addDoc(f.collection(f.db, "walls", ctx.classId, "posts", pid, "cm"), body)).id;
+  },
+  async updateCm(ctx, pid, cid, patch){
+    if(ctx.demo){ const c = (wlMem.cms[pid] || {})[cid]; if(c) wlApply(c, patch); wlCmNotify(pid); return; }
+    const f = ctx.fb;
+    await f.updateDoc(f.doc(f.db, "walls", ctx.classId, "posts", pid, "cm", cid), wlFbPatch(f, patch));
+  },
+  async delCm(ctx, pid, cid){
+    if(ctx.demo){ delete (wlMem.cms[pid] || {})[cid]; wlCmNotify(pid); return; }
+    const f = ctx.fb;
+    await f.deleteDoc(f.doc(f.db, "walls", ctx.classId, "posts", pid, "cm", cid));
+  },
+  watchDir(ctx, cb){
+    if(ctx.demo){ cb(wlMem.dir); return () => {}; }
+    const f = ctx.fb;
+    return f.onSnapshot(f.doc(f.db, "classDir", ctx.classId), s => cb(s.exists() ? s.data() : null), e => console.warn(e));
+  }
+};
+
+/* ---------- 이름 목록 올리기 (담임) ---------- */
+async function dirPublish(){
+  if(!state.data || !(state.mode === "cloud" || state.mode === "demo")) return;
+  if(!(state.data.wall && state.data.wall.on) || !boardNamesReady()) return;
+  const ck = await ckQuiet();
+  if(!ck) return;
+  const body = { c: await sealJson(ck, { students: (state.data.students || []).map(s => ({ sid: s.id, no: s.no, name: nameOf(s) })) }),
+                 at: new Date().toISOString() };
+  if(state.mode === "demo"){ wlMem.dir = body; return; }
+  try{ await fbRefs.setDoc(fbRefs.doc(fbRefs.db, "classDir", state.classId), body); }catch(e){ console.warn("이름 목록 올리기 실패", e); }
+}
+
+/* ---------- 공통 화면 ---------- */
+function wlAuthor(ctx, aid, tn){
+  if(aid === "home") return { name: "담임 선생님", sub: "", p: { emoji: "🏫", bg: "#E7EFF8" } };
+  if(String(aid).startsWith("t:")) return { name: `${tn || "교과"} 선생님`, sub: "교과", p: { emoji: "📘", bg: "#E5F3EF" } };
+  const d = ctx.dir[aid];
+  return { name: d ? d.name : "우리 반 친구", sub: d ? `${d.no}번` : "", p: ctx.pfs()[aid] || null, label: d ? d.name : "?" };
+}
+function wlTime(iso){
+  const d = new Date(iso), now = new Date();
+  const mins = Math.floor((now - d) / 60000);
+  if(mins < 1) return "방금";
+  if(mins < 60) return `${mins}분 전`;
+  if(ymd(d) === ymd(now)) return bubbleTime(iso);
+  return `${d.getMonth() + 1}/${d.getDate()} ${bubbleTime(iso)}`;
+}
+function wlQuietNow(q){
+  if(!q || q.qFrom == null) return false;
+  const h = new Date().getHours();
+  return q.qFrom > q.qTo ? (h >= q.qFrom || h < q.qTo) : (h >= q.qFrom && h < q.qTo);
+}
+/* 학생이 지금 쓸 수 있는지 — 담임·교과 선생님은 늘 쓸 수 있다 */
+function wlCanWrite(ctx){
+  if(ctx.kind !== "student") return { ok: true };
+  if(wlQuietNow(ctx.quiet)) return { ok: false, why: `지금은 쓰기 쉬는 시간이에요 (밤 ${ctx.quiet.qFrom}시 ~ 아침 ${ctx.quiet.qTo}시). 읽기와 공감은 할 수 있어요.` };
+  return { ok: true };
+}
+/* 보는 사람에게 이 글을 보여 줄지 */
+function wlVisible(ctx, x){
+  const mine = x.au === ctx.uid;
+  const reported = Object.keys(x.rp || {}).length >= 3;
+  if(ctx.moderator) return true;
+  if(x.st === "hidden" || x.st === "held" || reported) return mine;
+  return true;
+}
+async function wlDecode(ctx, x){
+  const key = x.id + "|" + (x.ed || x.at) + "|" + x.c.length;
+  if(ctx.dec[x.id] && ctx.dec[x.id].key === key) return ctx.dec[x.id].v;
+  let v;
+  try{ v = await openJson(ctx.ck, x.c); }catch(e){ v = { text: "(열 수 없는 글)" }; }
+  if(Array.isArray(v.imgs)) v.imgs = v.imgs.filter(u => /^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(u)).slice(0, WL_IMG_MAX);
+  ctx.dec[x.id] = { key, v };
+  return v;
+}
+
+function wlPostHtml(ctx, x, v){
+  const a = wlAuthor(ctx, x.aid, v.tn);
+  const rx = x.rx || {}, vt = x.vt || {};
+  const rpN = Object.keys(x.rp || {}).length;
+  const flags = [];
+  if(x.st === "held") flags.push(`<span class="wl-flag">선생님 확인 중 — 다른 친구에게는 아직 안 보여요</span>`);
+  if(x.st === "hidden") flags.push(`<span class="wl-flag red">${ctx.moderator ? "숨긴 글" : "선생님이 가린 글이에요"}</span>`);
+  if(rpN && ctx.moderator) flags.push(`<span class="wl-flag red">신고 ${rpN}건${rpN >= 3 ? " — 자동으로 가려짐" : ""}</span>`);
+  if(rpN >= 3 && !ctx.moderator && x.au === ctx.uid) flags.push(`<span class="wl-flag red">신고가 많아 가려졌어요</span>`);
+  if(x.hc && ctx.moderator) flags.push(`<span class="wl-flag">확인할 댓글 ${x.hc}개</span>`);
+  const imgs = (v.imgs || []);
+  let poll = "";
+  if(v.poll && Array.isArray(v.poll.opts)){
+    const counts = v.poll.opts.map((_, i) => Object.values(vt).filter(n => n === i).length);
+    const total = counts.reduce((p, q) => p + q, 0);
+    poll = `<div class="wl-poll"><div class="q">📊 ${escapeHtml(v.poll.q || "")}</div>${v.poll.opts.map((o, i) => {
+      const pct = total ? Math.round(counts[i] / total * 100) : 0;
+      return `<button data-wv="${x.id}|${i}" aria-pressed="${vt[ctx.uid] === i}"><i class="pbar" style="width:${pct}%"></i><span>${escapeHtml(o)}</span><span class="cnt">${counts[i]}표 · ${pct}%</span></button>`;
+    }).join("")}<div class="tot">${total}명 참여 · 다시 누르면 바꿀 수 있어요</div></div>`;
+  }
+  const rxBtns = WL_RX.map(e => {
+    const n = Object.values(rx).filter(z => z === e).length;
+    return `<button data-wr="${x.id}|${e}" aria-pressed="${rx[ctx.uid] === e}">${e}${n ? `<small>${n}</small>` : ""}</button>`;
+  }).join("");
+  const open = ctx.open[x.id];
+  return `<article class="wl-post ${x.st === "held" ? "held" : ""} ${x.st === "hidden" || rpN >= 3 ? "hid" : ""}" data-pid="${x.id}">
+    <div class="wl-head">${pfHtml(a.p, 42, a.label || a.name)}
+      <div class="who"><b>${escapeHtml(a.name)}</b><span>${[a.sub, wlTime(x.at), x.ed ? "수정됨" : ""].filter(Boolean).map(escapeHtml).join(" · ")}</span></div>
+      <button class="more" data-wm="${x.id}" aria-label="글 메뉴">⋯</button></div>
+    ${flags.join(" ")}
+    ${v.text ? `<p class="wl-text">${escapeHtml(v.text)}</p>` : ""}
+    ${imgs.length ? `<div class="wl-imgs n${imgs.length}">${imgs.map(u => `<img src="${u}" alt="" data-wimg="1" loading="lazy">`).join("")}</div>` : ""}
+    ${poll}
+    <div class="wl-rx">${rxBtns}<button class="cmt" data-wc="${x.id}">💬 댓글 ${Math.max(0, x.nc || 0)}</button></div>
+    ${open ? `<div class="wl-cms" id="wlcm-${x.id}">${ctx.cmHtml[x.id] || `<p class="sub">불러오는 중…</p>`}</div>
+      ${wlCanWrite(ctx).ok ? `<div class="wl-cmform"><input type="text" maxlength="300" placeholder="댓글 달기" data-wci="${x.id}" autocomplete="off"><button class="btn sm primary" data-wcs="${x.id}">달기</button></div>` : ""}` : ""}
+  </article>`;
+}
+
+async function wlRenderCms(ctx, pid, list){
+  const out = [];
+  for(const c of list){
+    const mine = c.au === ctx.uid;
+    if(!ctx.moderator && (c.st === "held" || c.st === "hidden") && !mine) continue;
+    let v; try{ v = await openJson(ctx.ck, c.c); }catch(e){ v = { text: "(열 수 없는 댓글)" }; }
+    const a = wlAuthor(ctx, c.aid, v.tn);
+    out.push(`<div class="wl-cm ${c.st === "held" ? "held" : ""} ${c.st === "hidden" ? "hid" : ""}">${pfHtml(a.p, 28, a.label || a.name)}
+      <div class="bd"><b>${escapeHtml(a.name)}</b><span class="t">${escapeHtml(wlTime(c.at))}${c.st === "held" ? " · 선생님 확인 중" : c.st === "hidden" ? " · 가려짐" : ""}</span>
+      <p>${escapeHtml(v.text || "")}</p></div>
+      ${mine || ctx.moderator ? `<button class="x" data-wcm="${pid}|${c.id}" aria-label="댓글 메뉴">⋯</button>` : ""}</div>`);
+  }
+  ctx.cmRaw[pid] = list;
+  ctx.cmHtml[pid] = out.join("") || `<p class="sub" style="margin:4px 0;">첫 댓글을 달아 보세요.</p>`;
+  const box = ctx.root.querySelector(`#wlcm-${pid}`);
+  if(box) box.innerHTML = ctx.cmHtml[pid];
+}
+
+async function wlRenderList(ctx){
+  const list = ctx.root.querySelector(".wl-list");
+  if(!list) return;
+  /* 쓰던 댓글을 다시 그려도 지우지 않는다 */
+  const typed = {};
+  list.querySelectorAll("[data-wci]").forEach(i => { if(i.value) typed[i.dataset.wci] = i.value; });
+  const focus = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.wci : null;
+  const html = [];
+  for(const x of ctx.posts){
+    if(!wlVisible(ctx, x)) continue;
+    html.push(wlPostHtml(ctx, x, await wlDecode(ctx, x)));
+  }
+  list.innerHTML = html.length ? html.join("") : `<p class="sub" style="text-align:center; padding:24px 0;">아직 글이 없어요. 첫 글을 올려 보세요!</p>`;
+  Object.entries(typed).forEach(([pid, val]) => { const i = list.querySelector(`[data-wci="${pid}"]`); if(i) i.value = val; });
+  if(focus){ const i = list.querySelector(`[data-wci="${focus}"]`); if(i) i.focus(); }
+  ctx.root.querySelector(".wl-morebtn").innerHTML = ctx.posts.length >= ctx.n ? `<button class="btn ghost" data-wmore="1" style="width:100%;">이전 글 더 보기</button>` : "";
+  if(ctx.onPosts) ctx.onPosts(ctx.posts);
+}
+
+function wlComposeHtml(ctx){
+  const cw = wlCanWrite(ctx);
+  if(!cw.ok) return `<div class="wl-quiet">🌙 ${escapeHtml(cw.why)}</div>`;
+  const me = ctx.kind === "home" ? { p: { emoji: "🏫", bg: "#E7EFF8" }, l: "담" } : ctx.kind === "teacher" ? { p: { emoji: "📘", bg: "#E5F3EF" }, l: "교" } : { p: ctx.pfs()[ctx.aid], l: String(ctx.no || "") };
+  const c = ctx.compose;
+  return `<div class="wl-compose">
+    <div class="top">${pfHtml(me.p, 40, me.l)}<textarea maxlength="${WL_MAX}" data-wt="1" placeholder="우리 반에 이야기해 보세요">${escapeHtml(c.text || "")}</textarea></div>
+    ${c.imgs.length ? `<div class="wl-thumbs">${c.imgs.map((u, i) => `<div><img src="${u}" alt=""><button data-wx="${i}" aria-label="사진 빼기">×</button></div>`).join("")}</div>` : ""}
+    ${c.poll ? `<div class="wl-poll-edit"><input type="text" data-wpq="1" maxlength="60" placeholder="투표 질문" value="${escapeHtml(c.poll.q)}">
+      ${c.poll.opts.map((o, i) => `<input type="text" data-wpo="${i}" maxlength="30" placeholder="선택지 ${i + 1}" value="${escapeHtml(o)}">`).join("")}
+      <div class="btn-row">${c.poll.opts.length < 5 ? `<button class="btn sm ghost" data-wa="opt">＋ 선택지</button>` : ""}<button class="btn sm ghost" data-wa="nopoll">투표 빼기</button></div></div>` : ""}
+    <div class="tools">
+      <button class="btn sm" data-wa="photo" ${c.poll || c.imgs.length >= WL_IMG_MAX ? "disabled" : ""}>📷 사진</button>
+      <button class="btn sm" data-wa="poll" ${c.poll || c.imgs.length ? "disabled" : ""}>📊 투표</button>
+      <span class="sp"></span>
+      <button class="btn primary sm" data-wa="post">올리기</button>
+    </div>
+    ${ctx.kind === "student" ? `<p class="wl-note">하루 ${WL_DAILY}개까지 · 밤 ${ctx.quiet.qFrom}시~아침 ${ctx.quiet.qTo}시는 쓰기 쉬어요 · 욕설이 있으면 선생님 확인 후 보여요</p>` : ""}
+  </div>`;
+}
+function wlRenderCompose(ctx){
+  const box = ctx.root.querySelector(".wl-composeWrap");
+  if(box) box.innerHTML = wlComposeHtml(ctx);
+}
+function wlSyncCompose(ctx){
+  const r = ctx.root;
+  const t = r.querySelector("[data-wt]"); if(t) ctx.compose.text = t.value;
+  const q = r.querySelector("[data-wpq]"); if(q && ctx.compose.poll) ctx.compose.poll.q = q.value;
+  r.querySelectorAll("[data-wpo]").forEach(i => { if(ctx.compose.poll) ctx.compose.poll.opts[+i.dataset.wpo] = i.value; });
+}
+
+/* 담벼락 사진 — 긴 변 1080px, 장당 약 90KB 이하 */
+async function wlCompress(img){
+  let long = 1080, r = null;
+  for(let i = 0; i < 3; i++){
+    const k = Math.min(1, long / Math.max(img.naturalWidth, img.naturalHeight));
+    const cv = document.createElement("canvas");
+    cv.width = Math.max(1, Math.round(img.naturalWidth * k));
+    cv.height = Math.max(1, Math.round(img.naturalHeight * k));
+    const g = cv.getContext("2d");
+    g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height);
+    g.drawImage(img, 0, 0, cv.width, cv.height);
+    r = await pfCompress(cv, WL_IMG_BYTES);
+    if(r.bytes <= WL_IMG_BYTES) return r;
+    long = Math.round(long * 0.75);
+  }
+  return r;
+}
+function wlPickFiles(){
+  return new Promise(resolve => {
+    const inp = document.createElement("input");
+    inp.type = "file"; inp.accept = "image/*"; inp.multiple = true;
+    inp.onchange = () => resolve([...inp.files]);
+    inp.click();
+  });
+}
+
+async function wlPost(ctx){
+  wlSyncCompose(ctx);
+  const c = ctx.compose;
+  const text = (c.text || "").trim().slice(0, WL_MAX);
+  let poll = null;
+  if(c.poll){
+    const opts = c.poll.opts.map(o => o.trim()).filter(Boolean);
+    if(!c.poll.q.trim() || opts.length < 2){ toast("투표 질문과 선택지 2개 이상을 적어 주세요."); return; }
+    poll = { q: c.poll.q.trim(), opts };
+  }
+  if(!text && !c.imgs.length && !poll){ toast("올릴 내용을 적어 주세요."); return; }
+  const cw = wlCanWrite(ctx);
+  if(!cw.ok){ toast(cw.why); return; }
+  if(ctx.kind === "student"){
+    const today = ymd(new Date());
+    const mineToday = ctx.posts.filter(x => x.au === ctx.uid && ymd(new Date(x.at)) === today).length;
+    if(mineToday >= WL_DAILY){ toast(`글은 하루 ${WL_DAILY}개까지 올릴 수 있어요. 댓글은 계속 달 수 있어요.`); return; }
+  }
+  const held = WL_BAD.test(text + " " + (poll ? poll.q + " " + poll.opts.join(" ") : ""));
+  const body = { text, imgs: c.imgs, poll };
+  if(ctx.kind === "teacher") body.tn = ctx.myName;
+  const sealed = await sealJson(ctx.ck, body);
+  if(sealed.length > 880000){ toast("사진이 너무 커서 올릴 수 없어요. 사진 수를 줄여 주세요."); return; }
+  try{
+    await wlb.add(ctx, { c: sealed, au: ctx.uid, aid: ctx.aid, at: new Date().toISOString(),
+                        st: held ? "held" : "ok", rx: {}, vt: {}, rp: {}, nc: 0, hc: 0 });
+  }catch(e){ console.error(e); toast("올리지 못했어요. 인터넷 연결을 확인해 주세요."); return; }
+  ctx.compose = { text: "", imgs: [], poll: null };
+  wlRenderCompose(ctx);
+  toast(held ? "욕설·비하 낱말이 있어 선생님 확인 후 보여요." : "올렸어요!");
+}
+
+async function wlComment(ctx, pid){
+  const inp = ctx.root.querySelector(`[data-wci="${pid}"]`);
+  const text = (inp ? inp.value : "").trim().slice(0, 300);
+  if(!text) return;
+  const cw = wlCanWrite(ctx);
+  if(!cw.ok){ toast(cw.why); return; }
+  const held = WL_BAD.test(text);
+  const body = { text };
+  if(ctx.kind === "teacher") body.tn = ctx.myName;
+  try{
+    await wlb.addCm(ctx, pid, { c: await sealJson(ctx.ck, body), au: ctx.uid, aid: ctx.aid, at: new Date().toISOString(), st: held ? "held" : "ok" });
+    const x = ctx.posts.find(p => p.id === pid);
+    await wlb.update(ctx, pid, held ? { nc: (x.nc || 0) + 1, hc: (x.hc || 0) + 1 } : { nc: (x.nc || 0) + 1 });
+  }catch(e){ console.error(e); toast("댓글을 달지 못했어요."); return; }
+  inp.value = "";
+  if(held) toast("욕설·비하 낱말이 있어 선생님 확인 후 보여요.");
+}
+
+/* 글 메뉴 — 글쓴이: 고치기·지우기 / 담임: 공개·숨기기·지우기 / 그 밖: 신고 */
+async function wlPostMenu(ctx, pid){
+  const x = ctx.posts.find(p => p.id === pid);
+  if(!x) return;
+  const mine = x.au === ctx.uid;
+  const acts = [];
+  if(mine && x.st !== "hidden") acts.push(["edit", "✏️ 글 고치기"]);
+  if(ctx.moderator){
+    if(x.st === "held") acts.push(["approve", "✅ 확인했어요 — 공개하기"]);
+    if(x.st === "hidden") acts.push(["show", "👁 다시 보이기"]);
+    else acts.push(["hide", "🙈 숨기기"]);
+    if(Object.keys(x.rp || {}).length) acts.push(["clearrp", "🧹 신고 지우고 보이기"]);
+  }
+  if(mine || ctx.moderator) acts.push(["del", "🗑 지우기"]);
+  if(!mine && !ctx.moderator) acts.push(["report", (x.rp || {})[ctx.uid] ? "🚩 이미 선생님께 알렸어요" : "🚩 선생님께 알리기"]);
+  const a = await wlMenu(acts);
+  try{
+    if(a === "edit"){
+      const v = ctx.dec[pid] ? ctx.dec[pid].v : {};
+      const t = await askPaste("글 고치기", "사진과 투표는 그대로 두고 글만 고칩니다.", v.text || "");
+      if(t === null) return;
+      const text = t.trim().slice(0, WL_MAX);
+      if(!text && !(v.imgs || []).length && !v.poll){ toast("내용을 적어 주세요."); return; }
+      const body = Object.assign({}, v, { text });
+      await wlb.update(ctx, pid, { c: await sealJson(ctx.ck, body), ed: new Date().toISOString(), st: WL_BAD.test(text) ? "held" : "ok" });
+      toast("고쳤어요.");
+    }
+    if(a === "approve") await wlb.update(ctx, pid, { st: "ok" });
+    if(a === "show")    await wlb.update(ctx, pid, { st: "ok" });
+    if(a === "hide")    await wlb.update(ctx, pid, { st: "hidden" });
+    if(a === "clearrp") await wlb.update(ctx, pid, { rp: {}, st: "ok" });
+    if(a === "del"){
+      if(!(await confirmBox({ title: "글을 지울까요?", body: "사진·투표·댓글이 함께 지워지고 되돌릴 수 없어요.", ok: "지우기" }))) return;
+      await wlb.del(ctx, pid);
+    }
+    if(a === "report" && !(x.rp || {})[ctx.uid]){
+      if(!(await confirmBox({ title: "선생님께 알릴까요?", body: "누가 알렸는지는 친구들에게 보이지 않아요. 3명이 알리면 글이 바로 가려져요.", ok: "알리기" }))) return;
+      await wlb.update(ctx, pid, { [`rp.${ctx.uid}`]: true });
+      toast("선생님께 알렸어요.");
+    }
+  }catch(e){ console.error(e); toast("처리하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+}
+async function wlCmMenu(ctx, pid, cid){
+  const c = (ctx.cmRaw[pid] || []).find(z => z.id === cid);
+  if(!c) return;
+  const mine = c.au === ctx.uid;
+  const acts = [];
+  if(ctx.moderator && c.st === "held") acts.push(["approve", "✅ 공개하기"]);
+  if(ctx.moderator && c.st !== "hidden") acts.push(["hide", "🙈 숨기기"]);
+  if(ctx.moderator && c.st === "hidden") acts.push(["show", "👁 다시 보이기"]);
+  if(mine || ctx.moderator) acts.push(["del", "🗑 지우기"]);
+  const a = await wlMenu(acts);
+  const x = ctx.posts.find(p => p.id === pid) || {};
+  try{
+    if(a === "approve"){ await wlb.updateCm(ctx, pid, cid, { st: "ok" }); await wlb.update(ctx, pid, { hc: Math.max(0, (x.hc || 0) - 1) }); }
+    if(a === "hide") await wlb.updateCm(ctx, pid, cid, { st: "hidden" });
+    if(a === "show") await wlb.updateCm(ctx, pid, cid, { st: "ok" });
+    if(a === "del"){
+      await wlb.delCm(ctx, pid, cid);
+      const patch = { nc: Math.max(0, (x.nc || 0) - 1) };
+      if(ctx.moderator && c.st === "held") patch.hc = Math.max(0, (x.hc || 0) - 1);
+      await wlb.update(ctx, pid, patch);
+    }
+  }catch(e){ console.error(e); toast("처리하지 못했어요."); }
+}
+function wlMenu(acts){
+  return new Promise(resolve => {
+    if(!acts.length) return resolve(null);
+    const wrap = document.createElement("div");
+    wrap.className = "modal";
+    wrap.style.zIndex = 80;
+    wrap.innerHTML = `<div class="box" role="dialog" aria-modal="true" style="max-width:320px;"><div class="wl-menu">
+      ${acts.map(([k, l]) => `<button class="btn ${k === "del" ? "danger" : ""}" data-k="${k}">${l}</button>`).join("")}
+      <button class="btn ghost" data-k="">닫기</button></div></div>`;
+    wrap.addEventListener("click", e => {
+      const b = e.target.closest("[data-k]");
+      if(!b && e.target !== wrap) return;
+      wrap.remove();
+      resolve(b ? b.dataset.k || null : null);
+    });
+    document.body.appendChild(wrap);
+  });
+}
+
+/* 담벼락 붙이기 — ctx: { classId, fb, demo, ck, uid, aid, kind, moderator, myName?, no?, quiet, dirFromState?, pfs() } */
+function wlMount(container, ctx){
+  if(container._wl) container._wl.unmount();
+  Object.assign(ctx, { root: container, posts: [], dec: {}, open: {}, cmHtml: {}, cmRaw: {}, cmUnsub: {}, n: WL_PAGE,
+                       compose: { text: "", imgs: [], poll: null }, dir: {}, unsubs: [] });
+  container.innerHTML = `<div class="wl-composeWrap"></div><div class="wl-list"><p class="sub">불러오는 중…</p></div><div class="wl-morebtn"></div>`;
+
+  /* 프로필 — 담임은 이미 받아 둔 것, 학생·교과는 따로 받는다 (글쓰기 칸보다 먼저 준비) */
+  if(!ctx.pfs){
+    let pfs = {};
+    ctx.pfs = () => pfs;
+    ctx.unsubs.push(pfb.watch(ctx.classId, async docs => { pfs = await pfDecode(ctx.ck, docs); wlRenderList(ctx); wlSyncCompose(ctx); wlRenderCompose(ctx); }, ctx.fb));
+  }
+  wlRenderCompose(ctx);
+
+  /* 이름 목록 */
+  if(ctx.dirFromState){
+    (state.data.students || []).forEach(s => { ctx.dir[s.id] = { no: s.no, name: nameOf(s) }; });
+  }else{
+    ctx.unsubs.push(wlb.watchDir(ctx, async d => {
+      if(!d) return;
+      try{ (await openJson(ctx.ck, d.c)).students.forEach(s => { ctx.dir[s.sid] = { no: s.no, name: s.name }; }); }catch(e){}
+      wlRenderList(ctx);
+    }));
+  }
+  const watch = () => {
+    if(ctx.postUnsub) ctx.postUnsub();
+    ctx.postUnsub = wlb.watchPosts(ctx, ctx.n, posts => { ctx.posts = posts; wlRenderList(ctx); });
+  };
+  watch();
+  ctx.onError = () => {
+    const list = container.querySelector(".wl-list");
+    if(list) list.innerHTML = `<p class="sub">담벼락을 열지 못했어요. 이 기기가 우리 반으로 등록되지 않았거나 인터넷 연결이 끊겼어요.</p>`;
+  };
+
+  container.onclick = async e => {
+    const t = e.target;
+    const q = s => t.closest(s);
+    let b;
+    if((b = q("[data-wa]"))){
+      wlSyncCompose(ctx);
+      const a = b.dataset.wa, c = ctx.compose;
+      if(a === "post") return wlPost(ctx);
+      if(a === "poll"){ c.poll = { q: "", opts: ["", ""] }; return wlRenderCompose(ctx); }
+      if(a === "opt"){ if(c.poll && c.poll.opts.length < 5) c.poll.opts.push(""); return wlRenderCompose(ctx); }
+      if(a === "nopoll"){ c.poll = null; return wlRenderCompose(ctx); }
+      if(a === "photo"){
+        if(!c.imgs.length && !(await confirmBox({ title: "사진을 올리기 전에", body: "다른 친구 얼굴이 나오는 사진이라면 그 친구에게 먼저 물어봤나요? 우리 반 친구들과 선생님이 보게 돼요.", ok: "네, 괜찮아요", cancel: "다시 생각할게요" }))) return;
+        const files = (await wlPickFiles()).slice(0, WL_IMG_MAX - c.imgs.length);
+        for(const f of files){
+          const img = await pfLoadImage(f);
+          if(!img) continue;
+          const r = await wlCompress(img);
+          URL.revokeObjectURL(img.src);
+          c.imgs.push(r.dataUrl);
+        }
+        return wlRenderCompose(ctx);
+      }
+    }
+    if((b = q("[data-wx]"))){ wlSyncCompose(ctx); ctx.compose.imgs.splice(+b.dataset.wx, 1); return wlRenderCompose(ctx); }
+    if((b = q("[data-wr]"))){
+      const [pid, em] = b.dataset.wr.split("|");
+      const x = ctx.posts.find(p => p.id === pid);
+      const cur = (x.rx || {})[ctx.uid];
+      try{ await wlb.update(ctx, pid, { [`rx.${ctx.uid}`]: cur === em ? WL_DEL : em }); }catch(err){ console.warn(err); toast("공감하지 못했어요."); }
+      return;
+    }
+    if((b = q("[data-wv]"))){
+      const [pid, i] = b.dataset.wv.split("|");
+      try{ await wlb.update(ctx, pid, { [`vt.${ctx.uid}`]: Number(i) }); }catch(err){ console.warn(err); toast("투표하지 못했어요."); }
+      return;
+    }
+    if((b = q("[data-wc]"))){
+      const pid = b.dataset.wc;
+      ctx.open[pid] = !ctx.open[pid];
+      if(ctx.open[pid] && !ctx.cmUnsub[pid]) ctx.cmUnsub[pid] = wlb.watchCms(ctx, pid, list => wlRenderCms(ctx, pid, list));
+      if(!ctx.open[pid] && ctx.cmUnsub[pid]){ ctx.cmUnsub[pid](); delete ctx.cmUnsub[pid]; delete ctx.cmHtml[pid]; }
+      return wlRenderList(ctx);
+    }
+    if((b = q("[data-wcs]"))) return wlComment(ctx, b.dataset.wcs);
+    if((b = q("[data-wm]"))) return wlPostMenu(ctx, b.dataset.wm);
+    if((b = q("[data-wcm]"))){ const [pid, cid] = b.dataset.wcm.split("|"); return wlCmMenu(ctx, pid, cid); }
+    if((b = q("[data-wmore]"))){ ctx.n += WL_PAGE; return watch(); }
+    if((b = q("[data-wimg]"))){
+      const lb = document.createElement("div");
+      lb.className = "wl-light";
+      lb.innerHTML = `<img src="${b.getAttribute("src")}" alt="">`;
+      lb.onclick = () => lb.remove();
+      document.body.appendChild(lb);
+    }
+  };
+  container.onkeydown = e => { if(e.key === "Enter" && e.target.dataset && e.target.dataset.wci){ e.preventDefault(); wlComment(ctx, e.target.dataset.wci); } };
+
+  container._wl = { ctx, unmount(){
+    container._wl = null;
+    if(ctx.postUnsub) ctx.postUnsub();
+    ctx.unsubs.forEach(u => { try{ u(); }catch(e){} });
+    Object.values(ctx.cmUnsub).forEach(u => { try{ u(); }catch(e){} });
+  } };
+  return ctx;
+}
+
+/* ---------- 담임: 「담벼락」 탭 ---------- */
+function renderWallTab(){
+  const set = $("#wallSet");
+  if(!set || !state.data) return;
+  const w = state.data.wall || {};
+  if(state.mode === "local"){
+    set.innerHTML = `<p class="sub">학생과 함께 쓰는 기능이라 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다.</p>`;
+    $("#wallHome").innerHTML = "";
+    return;
+  }
+  const hours = (sel) => Array.from({ length: 24 }, (_, h) => `<option value="${h}" ${sel === h ? "selected" : ""}>${h}시</option>`).join("");
+  if(!w.on){
+    set.innerHTML = `
+      ${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 관리 탭 「학생 개인 코드」에서 코드를 만들어 나눠 주세요. 학생은 코드로 들어와 담벼락을 씁니다.</div>`}
+      <button class="btn primary" data-wset="on">📰 담벼락 열기</button>`;
+    $("#wallHome").innerHTML = "";
+    return;
+  }
+  set.innerHTML = `
+    <div class="btn-row" style="align-items:center;">
+      <span class="sub" style="margin:0;">학생 쓰기 쉬는 시간</span>
+      <select id="wlQFrom" style="width:auto; min-height:40px;">${hours(w.qFrom ?? 22)}</select>
+      <span class="sub" style="margin:0;">~</span>
+      <select id="wlQTo" style="width:auto; min-height:40px;">${hours(w.qTo ?? 7)}</select>
+      <button class="btn danger sm" data-wset="off" style="margin-left:auto;">담벼락 닫기</button>
+    </div>
+    <p class="sub" style="margin:8px 0 0;" id="wlAttention"></p>`;
+  const home = $("#wallHome");
+  if(home._wl) wallBadge(home._wl.ctx.posts);   // 이미 붙어 있으면 안내만 새로
+  wallResume();
+}
+$("#wallSet").addEventListener("click", async e => {
+  const b = e.target.closest("[data-wset]");
+  if(!b) return;
+  if(b.dataset.wset === "on"){
+    if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+    if(!(await ckTeacher())) return;
+    await store.save("wall", Object.assign({ qFrom: 22, qTo: 7 }, state.data.wall || {}, { on: true }));
+    await dirPublish();
+    await autoSync();
+    boardQueueMeta();
+    renderWallTab();
+    toast("담벼락을 열었습니다. 학생 화면에 📰 담벼락 탭이 생깁니다.");
+  }else{
+    if(!(await confirmBox({ title: "담벼락을 닫을까요?", body: "학생 화면에서 담벼락 탭이 사라집니다. 올라온 글은 지워지지 않고, 다시 열면 그대로 보입니다.", ok: "닫기" }))) return;
+    await store.save("wall", Object.assign({}, state.data.wall, { on: false }));
+    await autoSync();
+    boardQueueMeta();
+    if($("#wallHome")._wl) $("#wallHome")._wl.unmount();
+    renderWallTab();
+  }
+});
+$("#wallSet").addEventListener("change", async e => {
+  if(e.target.id !== "wlQFrom" && e.target.id !== "wlQTo") return;
+  await store.save("wall", Object.assign({}, state.data.wall, { qFrom: Number($("#wlQFrom").value), qTo: Number($("#wlQTo").value) }));
+  await autoSync();
+  toast("쓰기 쉬는 시간을 바꿨습니다.");
+});
+
+/* 담임 담벼락 붙이기 — 앱을 열 때부터(빨간 점 알림을 위해) */
+async function wallResume(){
+  const box = $("#wallHome");
+  if(!box || !state.data) return;
+  const w = state.data.wall;
+  if(!w || !w.on || !(state.mode === "cloud" || state.mode === "demo")){ wallBadge([]); return; }
+  if(box._wl) return;   // 이미 붙어 있다
+  const ck = await ckQuiet();
+  if(!ck){ box.innerHTML = `<div class="notice">담벼락을 보려면 이름 보호 암호를 풀어 주세요.</div>`; return; }
+  await dirPublish();
+  wlMount(box, {
+    classId: state.classId, fb: fbRefs, demo: state.mode === "demo", ck,
+    uid: state.mode === "demo" ? "demo-home" : state.uid, aid: "home", kind: "home", moderator: true,
+    dirFromState: true, pfs: () => pf.data, quiet: w,
+    onPosts: wallBadge
+  });
+}
+/* 확인할 글(보류·신고·보류 댓글) 알림 */
+function wallBadge(posts){
+  const need = (posts || []).filter(x => x.st === "held" || (Object.keys(x.rp || {}).length && x.st !== "hidden") || (x.hc || 0) > 0);
+  const dot = $("#wallDot");
+  if(dot) dot.classList.toggle("hidden", !need.length);
+  const at = $("#wlAttention");
+  if(at) at.textContent = need.length ? `확인할 글이 ${need.length}개 있습니다 (보류·신고·확인할 댓글). 아래에서 노란 점선·빨간 표시를 확인해 주세요.` : "";
+  const card = $("#cardWallDash");
+  if(card){
+    card.classList.toggle("hidden", !need.length);
+    $("#wallDashSub").textContent = `보류되거나 신고된 글·댓글 ${need.length}건이 있습니다.`;
+  }
+}
+
+$("#btnWallDash").addEventListener("click", () => switchTab("wall"));
+
+/* ---------- 학생 화면: 📰 담벼락 탭 ---------- */
+const stw = { root:null, pub:null };
+function renderStudentWall(pub, root){
+  const btn = root.querySelector('[data-sttab="wall"]');
+  const on = !!(pub.wall && pub.codes);
+  btn.classList.toggle("hidden", !on);
+  if(!on) return;
+  stw.root = root; stw.pub = pub;
+  stwRender();
+}
+async function stwRender(){
+  const box = stw.root.querySelector("#stWall");
+  const classId = stw.pub.classId;
+  const me = await stIdentity(classId);
+  if(!me){
+    box.innerHTML = `<div class="card"></div>`;
+    stCodeForm(box.firstChild, "담벼락", "우리 반 담벼락", "우리 반 친구들과 선생님만 보는 공간이에요.", classId, stRerenderAll);
+    return;
+  }
+  if(!me.ck){ box.innerHTML = `<div class="card"><p class="sub">선생님이 아직 담벼락을 준비하지 않았어요.</p></div>`; return; }
+  if(me.claimError){ box.innerHTML = `<div class="card"><p class="sub">이 기기를 우리 반으로 등록하지 못했어요. 잠시 뒤 다시 열어 주세요.</p></div>`; return; }
+  wlMount(box, {
+    classId, fb: fbRefs || stuFb, demo: state.mode === "demo", ck: me.ck,
+    uid: state.mode === "demo" ? "demo-" + me.sid : (fbRefs ? state.uid : me.uid),
+    aid: me.sid, no: me.no, kind: "student", moderator: false, quiet: stw.pub.wall
+  });
+}
+
+/* ---------- 교과 출석부: 담벼락 카드 ---------- */
+async function tbClaim(){
+  if(tb.demo) return "demo-t";
+  if(tb.uid) return tb.uid;
+  const authMod = await import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-auth.js`);
+  const auth = authMod.getAuth(tb.fb.app);
+  if(auth.authStateReady) await auth.authStateReady();
+  const user = auth.currentUser || (await authMod.signInAnonymously(auth)).user;
+  await tb.fb.setDoc(tb.fb.doc(tb.fb.db, "members", tb.classId, "m", user.uid), { bid: tb.id, at: new Date().toISOString() });
+  return (tb.uid = user.uid);
+}
+async function tbWallMount(){
+  const card = $("#tbWallCard");
+  if(!tb.meta || !tb.meta.ck || !tb.meta.wallOn){ card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  const box = $("#tbWall");
+  if(box._wl && box._wl.ctx.classId === tb.classId) return;
+  let uid;
+  try{ uid = await tbClaim(); }catch(e){ console.warn(e); box.innerHTML = `<p class="sub">담벼락에 연결하지 못했습니다. 잠시 뒤 새로고침해 주세요.</p>`; return; }
+  const ck = await crypto.subtle.importKey("raw", crypt.fromB64(tb.meta.ck), "AES-GCM", false, ["encrypt","decrypt"]);
+  wlMount(box, {
+    classId: tb.classId, fb: tb.fb, demo: tb.demo, ck, uid, aid: "t:" + uid, kind: "teacher", moderator: false,
+    get myName(){ return $("#tbName").value.trim() || "교과"; },
+    quiet: null, pfs: tb.demo ? () => pf.data : undefined
+  });
+}
+
+/* ---------- 체험 모드 — 예시 글 ---------- */
+async function wallDemoSetup(){
+  wlMem.posts = {}; wlMem.cms = {}; wlMem.watchers = new Set(); wlMem.cmWatch = {};
+  state.data.wall = { on: true, qFrom: 22, qTo: 7 };
+  const ck = pf.ck;
+  if(!ck) return;
+  await dirPublish();
+  const at = (dd, hh, mm) => { const d = new Date(); d.setDate(d.getDate() + dd); d.setHours(hh, mm, 0, 0); return d.toISOString(); };
+  /* 예시 사진 — 그림으로 그린다 */
+  const pic = async (bg, emoji, label) => {
+    const cv = document.createElement("canvas"); cv.width = 960; cv.height = 720;
+    const g = cv.getContext("2d");
+    const gr = g.createLinearGradient(0, 0, 960, 720); gr.addColorStop(0, bg[0]); gr.addColorStop(1, bg[1]);
+    g.fillStyle = gr; g.fillRect(0, 0, 960, 720);
+    g.font = "220px serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(emoji, 480, 320);
+    g.font = "bold 54px sans-serif"; g.fillStyle = "#fff"; g.fillText(label, 480, 580);
+    return (await pfCompress(cv, WL_IMG_BYTES)).dataUrl;
+  };
+  const put = async (id, aid, au, when, body, extra) => {
+    wlMem.posts[id] = Object.assign({ id, c: await sealJson(ck, body), au, aid, at: when, st: "ok", rx: {}, vt: {}, rp: {}, nc: 0, hc: 0 }, extra || {});
+  };
+  const cm = async (pid, cid, aid, au, when, text, st) => {
+    (wlMem.cms[pid] || (wlMem.cms[pid] = {}))[cid] = { id: cid, c: await sealJson(ck, { text }), au, aid, at: when, st: st || "ok" };
+  };
+  await put("p1", "home", "demo-home", at(-1, 8, 30),
+    { text: "🎉 체육대회 반티가 도착했어요! 금요일 조회 때 나눠 줄게요. 사이즈 바꾸고 싶은 사람은 목요일까지 말해 주세요.", imgs: [await pic(["#0F4C81", "#4F8CC9"], "👕", "3학년 1반 반티 도착!")] },
+    { rx: { "demo-s01": "👍", "demo-s02": "❤️", "demo-s05": "👏", "demo-s07": "❤️", "demo-s11": "👍" }, nc: 2 });
+  await cm("p1", "c1", "s02", "demo-s02", at(-1, 8, 41), "색깔 너무 예뻐요!!");
+  await cm("p1", "c2", "home", "demo-home", at(-1, 9, 2), "다들 잘 어울릴 거예요 😊");
+  await put("p2", "s05", "demo-s05", at(-1, 15, 20),
+    { text: "현장체험학습 어디로 가고 싶은지 투표해 줘!", poll: { q: "현장체험학습 어디로?", opts: ["놀이공원", "과학관", "한강 공원 피크닉"] } },
+    { vt: { "demo-s01": 0, "demo-s02": 0, "demo-s03": 1, "demo-s05": 0, "demo-s08": 2, "demo-s11": 1, "demo-s13": 0 }, rx: { "demo-s08": "😂" } });
+  await put("p3", "t:demo-t", "demo-t", at(0, 7, 50),
+    { text: "수학 수행평가(서술형) 예시 문항을 올려요. 풀이 과정을 꼭 적어 보세요 ✍️", tn: "김수학", imgs: [await pic(["#2E7D6B", "#7BC4B2"], "📐", "수행평가 예시 문항")] },
+    { rx: { "demo-s04": "👍", "demo-s20": "😮" }, nc: 1 });
+  await cm("p3", "c3", "s13", "demo-s13", at(0, 8, 5), "감사합니다! 열심히 풀어 볼게요");
+  await put("p4", "s09", "demo-s09", at(0, 8, 12), { text: "아 진짜 ㅅㅂ 수학 너무 어렵다" }, { st: "held" });
+  await put("p5", "s14", "demo-s14", at(0, 8, 20), { text: "오늘 급식 탕수육 최고였다 😋" },
+    { rx: { "demo-s02": "😂", "demo-s06": "👍" }, rp: { "demo-s03": true } });
 }
 
 /* ============================================================
@@ -9708,7 +10521,7 @@ function jhTotal(r){
 const jhFmt = v => v == null ? "—" : String(Math.round(v * 1000) / 1000);
 
 /* 여러 줄 붙여넣기 — 한 줄 입력칸은 줄바꿈을 지워 버리므로 따로 둔다 */
-function askPaste(title, body){
+function askPaste(title, body, value = ""){
   return new Promise(resolve => {
     const wrap = document.createElement("div");
     wrap.className = "modal";
@@ -9722,6 +10535,7 @@ function askPaste(title, body){
     $("h3", wrap).textContent = title;
     $("p", wrap).textContent = body;
     const ta = $("textarea", wrap);
+    ta.value = value;
     wrap.addEventListener("click", e => {
       const b = e.target.closest("[data-a]");
       if(!b) return;
