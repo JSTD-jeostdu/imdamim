@@ -157,6 +157,46 @@ service cloud.firestore {
       allow delete: if isMine(classId);
     }
 
+    // ---------- 우리 반 학생 기기 등록 (익명 로그인) ----------
+    // 학생이 개인 코드를 넣으면 이름 없는 익명 계정이 "우리 반 몇 번"으로 등록된다.
+    // k(코드 확인값)는 이 문서에만 있고 본인과 담임만 읽을 수 있다.
+    match /members/{classId}/m/{uid} {
+      function stuDoc(k) {
+        return get(/databases/$(database)/documents/stuKeys/$(k)).data;
+      }
+      allow read: if signedIn() && (request.auth.uid == uid || isMine(classId));
+      allow create, update: if signedIn() && request.auth.uid == uid
+                            && request.resource.data.keys().hasOnly(['k', 'sid', 'at'])
+                            && request.resource.data.k is string
+                            && exists(/databases/$(database)/documents/stuKeys/$(request.resource.data.k))
+                            && stuDoc(request.resource.data.k).classId == classId
+                            && stuDoc(request.resource.data.k).sid == request.resource.data.sid;
+      allow delete: if signedIn() && (request.auth.uid == uid || isMine(classId));
+    }
+
+    // ---------- 프로필 (사진·캐릭터) ----------
+    // 내용(c)은 반 열쇠로 잠겨 있어 우리 반 학생·선생님만 열 수 있다.
+    // 학생은 등록된 기기에서 "자기 번호" 프로필만 쓸 수 있다. 담임은 모두 바꾸고 지울 수 있다.
+    // 담임이 코드를 다시 만들면(stuKeys 삭제) 예전 기기는 더 이상 쓸 수 없다.
+    match /profiles/{classId}/p/{sid} {
+      function myMember() {
+        return get(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid)).data;
+      }
+      function isStudentOf() {
+        return signedIn()
+          && exists(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid))
+          && myMember().sid == sid
+          && exists(/databases/$(database)/documents/stuKeys/$(myMember().k));
+      }
+      allow read: if true;
+      allow create, update: if (isMine(classId) || isStudentOf())
+                            && request.resource.data.keys().hasOnly(['c', 'at'])
+                            && request.resource.data.c is string
+                            && request.resource.data.c.size() < 200000
+                            && request.resource.data.at is string;
+      allow delete: if isMine(classId) || isStudentOf();
+    }
+
     // ---------- 그 외 전부 차단 ----------
     match /{document=**} {
       allow read, write: if false;
