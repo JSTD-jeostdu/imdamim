@@ -1427,7 +1427,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         학생 이름은 선생님 기기에서 암호로 잠근 뒤 저장합니다.<br>
         <b style="color:var(--stamp);">공문 결재와 개인정보 수집·이용 동의서가 필요합니다.</b>
       </span>
-      <span class="pm">필요: Firebase 설정 · 구글 로그인</span>
+      <span class="pm">필요: 학교 서버 연결 · 구글 로그인</span>
     </button>
 
     <button class="pick" data-preset="local">
@@ -2100,7 +2100,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div class="notice hidden" id="pubLocalNote">
           이 기기에만 저장하는 방식에서는 학생 화면을 올릴 수 없습니다.
           「미리보기」로 내용은 확인하실 수 있고, 학생 화면이 필요하시면
-          Firebase 설정 후 서버 동기화로 바꿔 주세요.
+          서버를 연결한 뒤 「학교 승인 후 동기화」 방식으로 바꿔 주세요.
         </div>
 
         <div class="linkbox">
@@ -3336,7 +3336,7 @@ async function startWithGoogle(){
   const errBox = $("#loginError");
   if(errBox) errBox.classList.add("hidden");
   if(!firebaseConfigured()){
-    toast("Firebase 설정이 아직 비어 있습니다. 둘러보기로 먼저 확인해 보세요.");
+    toast("서버가 아직 연결되지 않았습니다. 둘러보기로 먼저 확인해 보세요.");
     return;
   }
   try{
@@ -6609,6 +6609,7 @@ async function decodeChecks(key, docs){
   for(const d of docs){
     try{
       const c = await openJson(key, d.data().c);
+      if(!c || typeof c !== "object" || Array.isArray(c)) continue;
       c.id = d.id;
       c.at = c.at || d.data().at || "";
       out.push(c);
@@ -6659,7 +6660,14 @@ function resolveChecks(list){
   const subjects = {};   // 교시 → 과목 수정 기록(마지막 것)
   (list || []).forEach(c => {
     if(c.type === "cancel" || cancelled.has(c.id)) return;
-    if(c.type === "subject"){ subjects[c.period] = c; return; }
+    /* 체크는 출석부 암호를 아는 누구나 추가할 수 있으므로 모양을 확인하고 받는다 */
+    if(!c || !Number.isInteger(c.period) || c.period < 1 || c.period > 12) return;
+    if(typeof c.at !== "string") return;
+    if(c.type === "subject"){
+      if(typeof c.subject !== "string" || !c.subject.trim()) return;
+      subjects[c.period] = Object.assign({}, c, { subject: c.subject.trim().slice(0, 12) });
+      return;
+    }
     if(!c.sid || !CHECK_LABEL[c.type]) return;
     (marks[c.sid] || (marks[c.sid] = {}))[c.period] = c;
   });
