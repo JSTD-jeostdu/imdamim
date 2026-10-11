@@ -265,6 +265,26 @@ service cloud.firestore {
       }
     }
 
+    // ---------- 오늘의 기분 ----------
+    // 학생 본인(등록된 기기)과 담임만 읽고 쓴다. 같은 반 친구도 읽을 수 없다. 내용은 반 열쇠로 잠겨 있다.
+    match /moods/{classId}/d/{date}/s/{sid} {
+      function moodMember() {
+        return get(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid)).data;
+      }
+      function isThisStudent() {
+        return signedIn()
+          && exists(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid))
+          && moodMember().sid == sid
+          && exists(/databases/$(database)/documents/stuKeys/$(moodMember().k));
+      }
+      allow read: if isMine(classId) || isThisStudent();
+      allow create, update: if (isMine(classId) || isThisStudent())
+                            && request.resource.data.keys().hasOnly(['c', 'at'])
+                            && request.resource.data.c is string && request.resource.data.c.size() < 4000
+                            && request.resource.data.at is string;
+      allow delete: if isMine(classId);
+    }
+
     // ---------- 그 외 전부 차단 ----------
     match /{document=**} {
       allow read, write: if false;

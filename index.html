@@ -636,6 +636,30 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .wl-light img{ max-width:100%; max-height:100%; border-radius:8px; }
 .wl-quiet{ background:#F2F4F7; border-radius:var(--r); padding:10px 12px; font-size:13.5px; color:var(--ink-70); }
 
+/* ---------- 오늘의 기분 ---------- */
+.md-pick{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:6px; margin:10px 0; }
+.md-pick button{
+  display:flex; flex-direction:column; align-items:center; gap:2px; min-height:72px; padding:6px 2px;
+  border:1.5px solid var(--line); border-radius:14px; background:#fff; color:var(--ink-70); font-size:11.5px; font-weight:600;
+}
+.md-pick button .e{ font-size:28px; line-height:1.1; }
+.md-pick button[aria-pressed="true"]{ border-color:var(--ink); background:var(--tint); color:var(--ink); }
+.md-sum{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:6px; margin:8px 0; }
+.md-sum div{ background:var(--paper); border-radius:12px; padding:8px 4px; text-align:center; }
+.md-sum div b{ display:block; font-size:24px; line-height:1.2; }
+.md-sum div span{ font-size:13px; font-weight:700; color:var(--ink); }
+.md-row{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; background:#fff; border:1px solid var(--line); }
+.md-row + .md-row{ margin-top:6px; }
+.md-row .e{ font-size:24px; }
+.md-row .bd{ flex:1; min-width:0; font-size:14px; }
+.md-row .bd small{ display:block; color:var(--ink-70); font-size:13px; white-space:pre-wrap; word-break:break-word; }
+.md-row.urgent{ border:2px solid var(--stamp); background:#FFF7F5; }
+.md-week{ width:100%; border-collapse:collapse; font-size:13px; }
+.md-week th{ font-size:11.5px; color:var(--ink-45); font-weight:600; padding:4px 2px; }
+.md-week td{ text-align:center; padding:3px 2px; font-size:18px; border-top:1px solid #EEF2F7; }
+.md-week td.nm{ text-align:left; font-size:13px; font-weight:600; white-space:nowrap; }
+.md-week tr.concern td.nm{ color:var(--stamp); }
+
 /* ---------- 학생 화면 하단 탭 ---------- */
 .st-tabbar{ z-index:30; }
 .st-tabbar button{ position:relative; }
@@ -1973,6 +1997,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
 
     <!-- ── 오늘 ── -->
     <section class="st-tab" data-st="today">
+      <div class="card hidden" id="stMood"></div>
       <div class="card" id="stCardTT">
         <span class="eyebrow">오늘 시간표</span>
         <h2 id="stTTHead">시간표</h2>
@@ -2749,6 +2774,13 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <h2 id="voiceDashHead">읽지 않은 마음 편지</h2>
         <p class="sub" id="voiceDashSub" style="margin-bottom:10px;"></p>
         <button class="btn primary sm" id="btnVoiceDash">편지함 열기</button>
+      </div>
+
+      <!-- 오늘 우리 반 기분 -->
+      <div class="card" id="cardMood">
+        <span class="eyebrow">오늘의 기분</span>
+        <h2>오늘 우리 반 기분</h2>
+        <div id="moodBody"></div>
       </div>
 
       <!-- 담벼락 확인할 글 알림 -->
@@ -4187,6 +4219,7 @@ async function startDemo(){
   fillDemoClass(list.map(s => s.id), todayStr);
   await vcDemoSetup();   // 마음의 소리함 — 체험용 열쇠·개인 코드·편지 예시
   await wallDemoSetup(); // 담벼락 — 예시 글
+  await moodDemoSetup(); // 오늘의 기분 — 최근 7일 예시
 
   $("#demoBanner").classList.remove("hidden");
   enterApp();
@@ -4308,7 +4341,7 @@ function enterApp(){
   if(state.mode === "demo") $("#demoBanner").classList.remove("hidden");
   renderAll();
   boardResume();   // 교과 출석부가 켜져 있으면 최신 내용을 올리고 교시 체크를 받아 보기 시작
-  vcResume().then(pfResume).then(wallResume);   // 마음의 소리함 편지 · 학생 프로필 · 담벼락 받아 보기 시작
+  vcResume().then(pfResume).then(wallResume).then(renderMoodCard);   // 소리함 · 프로필 · 담벼락 · 오늘의 기분
 }
 
 /* ============================================================
@@ -4627,6 +4660,7 @@ function renderAll(){
   renderBubbles();
   renderCodesPanel();
   renderVoicePanel();
+  renderMoodCard();
   $("#inPw").placeholder = state.data.passwordHash
     ? "설정되어 있습니다 (바꾸려면 새로 입력)"
     : "비우면 누구나 볼 수 있습니다";
@@ -6656,6 +6690,7 @@ function buildPublicDoc(){
   if(state.data.voice && state.data.voice.on && state.data.voice.pub) doc.voicePub = state.data.voice.pub;
   /* 개인 코드를 나눠 준 반이면 학생 화면에 「🙂 나」 탭을 연다 (코드·명단은 넣지 않는다) */
   doc.codes = Object.keys(state.data.stuSh || {}).length > 0;
+  doc.mood  = !!state.data.moodOn;   // 오늘의 기분 고르기 (기록은 따로, 담임만 읽음)
   /* 담벼락 — 열려 있으면 학생 쓰기 쉬는 시간만 (글은 반 열쇠로 잠긴 채 따로 있다) */
   doc.wall = state.data.wall && state.data.wall.on ? { qFrom: state.data.wall.qFrom ?? 22, qTo: state.data.wall.qTo ?? 7 } : null;
   if(P.supplies) doc.supplies = state.data.supplies || "";
@@ -6856,6 +6891,7 @@ function renderStudent(pub, mount){
   renderStudentVoice(pub, root);
   renderStudentMe(pub, root);
   renderStudentWall(pub, root);
+  renderStudentMood(pub, root);
   setupStudentTabs(pub, root, !!mount);
 
   const t = pub.updatedAt ? new Date(pub.updatedAt) : null;
@@ -7972,7 +8008,7 @@ $("#tbBack").addEventListener("click", () => {
   $("#tbDemoNote").classList.add("hidden");
   showOnly("screen-app");
   document.body.style.paddingBottom = "";
-  renderAtt();
+  if(state.attDate) renderAtt();   // 출석 탭을 아직 안 열었으면 날짜가 비어 있다
   renderDash();
 });
 
@@ -9054,6 +9090,7 @@ function stRerenderAll(){
   if(stv.root) stvRender();
   if(stm.root) stmRender();
   if(stw.root) stwRender();
+  if(stmd.root) stmdRender();
 }
 
 /* ============================================================
@@ -10176,6 +10213,249 @@ async function wallDemoSetup(){
   await put("p4", "s09", "demo-s09", at(0, 8, 12), { text: "아 진짜 ㅅㅂ 수학 너무 어렵다" }, { st: "held" });
   await put("p5", "s14", "demo-s14", at(0, 8, 20), { text: "오늘 급식 탕수육 최고였다 😋" },
     { rx: { "demo-s02": "😂", "demo-s06": "👍" }, rp: { "demo-s03": true } });
+}
+
+/* ============================================================
+   오늘의 기분 — 학생 → 담임 (친구에게는 보이지 않음)
+   ------------------------------------------------------------
+   · moods/{반ID}/d/{날짜}/s/{학생칸} = { c: 반 열쇠로 잠근 { m: 0~4, note }, at }
+   · 읽기는 담임과 그 학생 본인만(보안 규칙). 하루에 하나, 언제든 바꿀 수 있다.
+   · 최근 기록 3번이 연속으로 속상·화남이면 「관심 필요」
+   ============================================================ */
+const MD = [ { e:"😄", l:"최고예요" }, { e:"🙂", l:"좋아요" }, { e:"😐", l:"그저 그래요" }, { e:"😢", l:"속상해요" }, { e:"😠", l:"화나요" } ];
+const mdNeg = m => m >= 3;
+const mdMem = { d:{}, watch:{} };
+
+function mdDemo(){ return state.mode === "demo"; }
+const mdb = {
+  async put(fb, classId, date, sid, c){
+    const body = { c, at: new Date().toISOString() };
+    if(mdDemo()){ (mdMem.d[date] || (mdMem.d[date] = {}))[sid] = body; (mdMem.watch[date] || new Set()).forEach(f => f()); return; }
+    await fb.setDoc(fb.doc(fb.db, "moods", classId, "d", date, "s", sid), body);
+  },
+  async get(fb, classId, date, sid){
+    if(mdDemo()) return (mdMem.d[date] || {})[sid] || null;
+    const s = await fb.getDoc(fb.doc(fb.db, "moods", classId, "d", date, "s", sid));
+    return s.exists() ? s.data() : null;
+  },
+  async list(fb, classId, date){
+    if(mdDemo()) return Object.entries(mdMem.d[date] || {}).map(([sid, d]) => Object.assign({ sid }, d));
+    const s = await fb.getDocs(fb.collection(fb.db, "moods", classId, "d", date, "s"));
+    return s.docs.map(d => Object.assign({ sid: d.id }, d.data()));
+  },
+  watch(fb, classId, date, cb){
+    if(mdDemo()){
+      const f = async () => cb(await mdb.list(fb, classId, date));
+      (mdMem.watch[date] || (mdMem.watch[date] = new Set())).add(f); f();
+      return () => mdMem.watch[date].delete(f);
+    }
+    return fb.onSnapshot(fb.collection(fb.db, "moods", classId, "d", date, "s"),
+      s => cb(s.docs.map(d => Object.assign({ sid: d.id }, d.data()))), e => console.warn("기분 받기 실패", e));
+  }
+};
+async function mdDecode(ck, list){
+  const out = {};
+  for(const x of list){
+    try{
+      const v = await openJson(ck, x.c);
+      if(Number.isInteger(v.m) && v.m >= 0 && v.m < MD.length) out[x.sid] = { m: v.m, note: String(v.note || "").slice(0, 50), at: x.at };
+    }catch(e){}
+  }
+  return out;
+}
+function crisisHelpHtml(title){
+  return `<div class="vc-help"><b>${escapeHtml(title)}</b> 지금 많이 힘들다면 바로 이야기할 수 있는 곳이 있어요.<br>
+    <a href="tel:1388">📞 1388 청소년상담</a><a href="tel:109">📞 109 자살예방상담</a><a href="tel:117">📞 117 학교폭력 신고</a>
+    <br>문자 상담은 #1388, 위급하면 112·119로 연락하세요.</div>`;
+}
+
+/* ---------- 담임: 조회 탭 카드 ---------- */
+const mdT = { unsub:null, today:{}, date:null };
+async function renderMoodCard(){
+  const box = $("#moodBody");
+  if(!box || !state.data) return;
+  if(state.mode === "local"){
+    box.innerHTML = `<p class="sub">학생이 학생 화면에서 남기는 기능이라 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다.</p>`;
+    return;
+  }
+  if(!state.data.moodOn){
+    if(mdT.unsub){ mdT.unsub(); mdT.unsub = null; }
+    box.innerHTML = `<p class="sub">학생이 학생 화면 「🌅 오늘」 탭에서 오늘 기분을 고르고, 선생님께만 한 줄을 남깁니다.
+      친구들에게는 보이지 않습니다. 속상·화남이 이어지는 학생을 놓치지 않게 알려 드립니다.</p>
+      ${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 관리 탭 「학생 개인 코드」에서 코드를 나눠 주세요.</div>`}
+      <button class="btn primary sm" data-md="on">오늘의 기분 받기 시작</button>`;
+    return;
+  }
+  const ck = await ckQuiet();
+  if(!ck){ box.innerHTML = `<div class="notice">기분을 보려면 이름 보호 암호를 풀어 주세요.</div>`; return; }
+  const today = ymd(today_());
+  if(!mdT.unsub || mdT.date !== today){
+    if(mdT.unsub) mdT.unsub();
+    mdT.date = today;
+    mdT.unsub = mdb.watch(fbRefs, state.classId, today, async list => { mdT.today = await mdDecode(ck, list); mdDraw(); });
+  }
+  mdDraw();
+}
+function mdDraw(){
+  const box = $("#moodBody");
+  if(!box || !state.data || !state.data.moodOn) return;
+  const students = (state.data.students || []).slice().sort((a, b) => a.no - b.no);
+  const t = mdT.today;
+  const counts = MD.map((_, i) => Object.values(t).filter(x => x.m === i).length);
+  const none = students.filter(s => !t[s.id]).length;
+  const flagged = students.filter(s => t[s.id] && (mdNeg(t[s.id].m) || VC_CRISIS.test(t[s.id].note)))
+    .sort((a, b) => VC_CRISIS.test(t[b.id].note) - VC_CRISIS.test(t[a.id].note));
+  const notes = students.filter(s => t[s.id] && t[s.id].note && !flagged.includes(s));
+  const row = s => {
+    const x = t[s.id], urgent = VC_CRISIS.test(x.note);
+    return `<div class="md-row ${urgent ? "urgent" : ""}"><span class="e">${MD[x.m].e}</span>
+      <div class="bd"><b>${s.no}번 ${escapeHtml(nameOf(s))}</b> · ${MD[x.m].l}${urgent ? ` <span class="vc-badge urgent">도움 필요</span>` : ""}
+      ${x.note ? `<small>${escapeHtml(x.note)}</small>` : ""}</div></div>`;
+  };
+  box.innerHTML = `
+    <div class="md-sum">${MD.map((d, i) => `<div><b>${d.e}</b><span>${counts[i]}</span></div>`).join("")}</div>
+    <p class="sub" style="margin:0 0 10px;">${students.length - none}/${students.length}명이 남겼습니다${none ? ` · 아직 ${none}명` : ""}.</p>
+    ${flagged.length ? `<h3 style="font-size:14px; margin:6px 0;">살펴볼 학생</h3>${flagged.map(row).join("")}` : ""}
+    ${notes.length ? `<h3 style="font-size:14px; margin:12px 0 6px;">선생님께 남긴 말</h3>${notes.map(row).join("")}` : ""}
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn sm" data-md="week">최근 7일 보기</button>
+      <button class="btn sm ghost" data-md="off" style="margin-left:auto;">기분 받기 끄기</button>
+    </div>`;
+}
+async function mdWeek(){
+  const ck = await ckQuiet();
+  if(!ck) return;
+  const days = [];
+  let d = ymd(today_());
+  if([0, 6].includes(parseYmd(d).getDay())) d = shiftSchoolDay(d, -1);
+  for(let i = 0; i < 7; i++){ days.unshift(d); d = shiftSchoolDay(d, -1); }
+  const byDay = {};
+  for(const day of days) byDay[day] = await mdDecode(ck, await mdb.list(fbRefs, state.classId, day));
+  const students = (state.data.students || []).slice().sort((a, b) => a.no - b.no);
+  /* 최근 기록 3번이 모두 속상·화남이면 관심 필요 */
+  const concern = s => {
+    const rec = days.map(day => byDay[day][s.id]).filter(Boolean).slice(-3);
+    return rec.length === 3 && rec.every(r => mdNeg(r.m));
+  };
+  const rows = students.map(s => `<tr class="${concern(s) ? "concern" : ""}"><td class="nm">${s.no} ${escapeHtml(nameOf(s))}${concern(s) ? " ⚠" : ""}</td>${
+    days.map(day => { const r = byDay[day][s.id]; return `<td title="${r && r.note ? escapeHtml(r.note) : ""}">${r ? MD[r.m].e : "·"}</td>`; }).join("")}</tr>`).join("");
+  const n = students.filter(concern).length;
+  const wrap = document.createElement("div");
+  wrap.className = "modal";
+  wrap.style.zIndex = 70;
+  wrap.innerHTML = `<div class="box" role="dialog" aria-modal="true" style="max-width:560px; max-height:92vh; overflow:auto;">
+    <h3>최근 7일 우리 반 기분</h3>
+    <p style="margin:0 0 8px;">${n ? `⚠ 최근 3번 연속 속상·화남을 고른 학생이 ${n}명 있습니다. 가볍게 말을 걸어 봐 주세요.` : "연속으로 속상·화남을 고른 학생은 없습니다."}</p>
+    <div style="overflow-x:auto;"><table class="md-week"><thead><tr><th></th>${days.map(day => { const x = parseYmd(day); return `<th>${x.getMonth() + 1}/${x.getDate()}<br>${DAY_LABEL[x.getDay()]}</th>`; }).join("")}</tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <p class="sub" style="margin-top:8px;">표의 이모지를 길게 누르거나 마우스를 올리면 그날 남긴 말이 보입니다.</p>
+    <div class="btn-row"><button class="btn ghost" data-x="1" style="margin-left:auto;">닫기</button></div></div>`;
+  wrap.addEventListener("click", e => { if(e.target.closest("[data-x]")) wrap.remove(); });
+  document.body.appendChild(wrap);
+}
+$("#moodBody").addEventListener("click", async e => {
+  const b = e.target.closest("[data-md]");
+  if(!b) return;
+  const a = b.dataset.md;
+  if(a === "on"){
+    if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+    if(!Object.keys(state.data.stuSh || {}).length){ toast("먼저 관리 탭 「학생 개인 코드」에서 코드를 만들어 주세요."); return; }
+    if(!(await ckTeacher())) return;
+    await store.save("moodOn", true);
+    await autoSync();
+    renderMoodCard();
+    toast("학생 화면 「오늘」 탭에 기분 고르기가 생겼습니다.");
+  }
+  if(a === "off"){
+    if(!(await confirmBox({ title: "기분 받기를 끌까요?", body: "학생 화면에서 기분 고르기가 사라집니다. 남긴 기록은 그대로 있습니다.", ok: "끄기" }))) return;
+    await store.save("moodOn", false);
+    await autoSync();
+    renderMoodCard();
+  }
+  if(a === "week") mdWeek();
+});
+
+/* ---------- 학생 화면: 오늘 탭 「오늘 기분은?」 ---------- */
+const stmd = { root:null, pub:null, sel:null };
+function renderStudentMood(pub, root){
+  const card = root.querySelector("#stMood");
+  const on = !!(pub.mood && pub.codes);
+  card.classList.toggle("hidden", !on);
+  if(!on) return;
+  stmd.root = root; stmd.pub = pub;
+  stmdRender();
+}
+async function stmdRender(){
+  const card = stmd.root.querySelector("#stMood");
+  const classId = stmd.pub.classId;
+  const me = await stIdentity(classId);
+  if(!me || !me.ck){
+    card.innerHTML = `<span class="eyebrow">오늘의 기분</span><h2>오늘 기분은 어때요?</h2>
+      <p class="sub">선생님께 받은 개인 코드를 「🙂 나」 탭에서 넣으면 오늘 기분을 남길 수 있어요.</p>
+      <button class="btn sm" data-mdgo="1">🙂 나 탭으로</button>`;
+    card.querySelector("[data-mdgo]").onclick = () => stmd.root.querySelector('[data-sttab="me"]').click();
+    return;
+  }
+  const fb = fbRefs || stuFb;
+  const today = ymd(today_());
+  let mine = null;
+  try{ const r = await mdb.get(fb, classId, today, me.sid); if(r) mine = (await mdDecode(me.ck, [Object.assign({ sid: me.sid }, r)]))[me.sid] || null; }catch(e){}
+  stmd.sel = mine ? mine.m : null;
+  card.innerHTML = `<span class="eyebrow">오늘의 기분</span>
+    <h2>${mine ? `오늘은 ${MD[mine.m].e} ${MD[mine.m].l}` : "오늘 기분은 어때요?"}</h2>
+    <div class="md-pick">${MD.map((d, i) => `<button data-mdm="${i}" aria-pressed="${stmd.sel === i}"><span class="e">${d.e}</span>${d.l}</button>`).join("")}</div>
+    <input type="text" id="stMdNote" maxlength="50" placeholder="선생님께만 한 줄 (안 써도 돼요)" autocomplete="off" value="${escapeHtml(mine ? mine.note : "")}">
+    <div id="stMdHelp"></div>
+    <div class="btn-row" style="margin-top:8px; align-items:center;">
+      <span class="sub" style="margin:0;">친구들에게는 보이지 않아요. 오늘 안에 언제든 바꿀 수 있어요.</span>
+      <button class="btn primary sm" data-mdsave="1" style="margin-left:auto;">${mine ? "바꾸기" : "남기기"}</button>
+    </div>`;
+  card.querySelector(".md-pick").onclick = e => {
+    const b = e.target.closest("[data-mdm]");
+    if(!b) return;
+    stmd.sel = Number(b.dataset.mdm);
+    card.querySelectorAll("[data-mdm]").forEach(x => x.setAttribute("aria-pressed", Number(x.dataset.mdm) === stmd.sel));
+  };
+  card.querySelector("#stMdNote").oninput = e => {
+    card.querySelector("#stMdHelp").innerHTML = VC_CRISIS.test(e.target.value) ? crisisHelpHtml("혼자 견디지 않아도 돼요.") : "";
+  };
+  card.querySelector("[data-mdsave]").onclick = async () => {
+    if(stmd.sel === null){ toast("오늘 기분을 하나 골라 주세요."); return; }
+    const note = card.querySelector("#stMdNote").value.trim().slice(0, 50);
+    try{
+      await mdb.put(fb, classId, today, me.sid, await sealJson(me.ck, { m: stmd.sel, note }));
+    }catch(err){ console.error(err); toast("남기지 못했어요. 인터넷 연결을 확인해 주세요."); return; }
+    toast("선생님께 전했어요 " + MD[stmd.sel].e);
+    const urgent = VC_CRISIS.test(note);
+    await stmdRender();
+    if(urgent) stmd.root.querySelector("#stMdHelp").innerHTML = crisisHelpHtml("선생님께 잘 전했어요.");
+  };
+}
+
+/* ---------- 체험 모드 — 최근 7일 예시 ---------- */
+async function moodDemoSetup(){
+  mdMem.d = {}; mdMem.watch = {};
+  state.data.moodOn = true;
+  const ck = pf.ck;
+  if(!ck) return;
+  let d = ymd(today_());
+  if([0, 6].includes(parseYmd(d).getDay())) d = shiftSchoolDay(d, -1);
+  const days = [];
+  for(let i = 0; i < 7; i++){ days.unshift(d); d = shiftSchoolDay(d, -1); }
+  const rnd = n => { const x = Math.sin(n * 7919 + 104729) * 10000; return x - Math.floor(x); };
+  const todayStr = ymd(today_());
+  for(const [di, day] of days.entries()){
+    const box = mdMem.d[day] = {};
+    for(const s of state.data.students){
+      if(day === todayStr && !["s13","s09","s20"].includes(s.id) && rnd(s.no * 3) < 0.25) continue;   // 오늘은 아직 안 남긴 학생도 있게
+      let m = Math.floor(rnd(s.no * 31 + di * 7) * 3);           // 대부분 좋음~보통
+      let note = "";
+      if(s.id === "s13" && di >= days.length - 3){ m = 3; if(day === days[days.length - 1]) note = "요즘 쉬는 시간마다 친구들이 별명으로 놀려서 속상해요"; }
+      if(s.id === "s09" && di === days.length - 1){ m = 4; note = "수학 시험 망해서 짜증나요"; }
+      if(s.id === "s20" && di === days.length - 1){ m = 0; note = "목표 생겨서 기분 최고!"; }
+      box[s.id] = { c: await sealJson(ck, { m, note }), at: new Date(day + "T08:1" + (s.no % 10) + ":00").toISOString() };
+    }
+  }
 }
 
 /* ============================================================
