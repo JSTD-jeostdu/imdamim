@@ -513,6 +513,27 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .tb-addev summary::-webkit-details-marker{ display:none; }
 .tb-addev[open] summary{ margin-bottom:6px; }
 
+/* ---------- 도구 모음 (바로가기 타일) ---------- */
+.tools{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px; }
+.tool{
+  display:flex; flex-direction:column; gap:6px; border:1px solid var(--line); border-radius:var(--r);
+  background:#fff; padding:12px; min-height:var(--tap);
+}
+.tool a.go{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--text); }
+.tool a.go .ic{ font-size:22px; line-height:1; flex:none; }
+.tool a.go b{ display:block; font-size:14.5px; color:var(--ink); }
+.tool a.go small{ display:block; font-size:12px; color:var(--ink-45); line-height:1.4; }
+.tool .copy{ align-self:flex-start; min-height:36px; padding:0 10px; border-radius:999px; border:1.5px solid var(--ink);
+  background:var(--card); color:var(--ink); font-size:12.5px; font-weight:700; }
+.toolrow{ display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:var(--r); background:#fff; padding:10px 12px; }
+.toolrow .ic{ font-size:22px; flex:none; width:28px; text-align:center; }
+.toolrow .body{ flex:1; min-width:0; }
+.toolrow .body b{ display:block; font-size:14.5px; }
+.toolrow .body small{ display:block; font-size:12px; color:var(--ink-45); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.toolrow label{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-70); flex:none; min-height:40px; }
+.toolrow label input{ width:20px; height:20px; accent-color:var(--ink); }
+.toolrow .del{ border:0; background:transparent; color:var(--ink-45); min-width:36px; min-height:40px; font-size:18px; flex:none; }
+
 /* ---------- 명렬 랜덤 뽑기 (전체 화면) ---------- */
 #picker{
   position:fixed; inset:0; z-index:60; background:var(--ink); color:#fff;
@@ -1775,6 +1796,12 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <div class="items" id="stCalDay" style="margin-top:10px;"></div>
     </div>
 
+    <div class="card hidden" id="stCardTools">
+      <span class="eyebrow">도구</span>
+      <h2>우리 반 도구 모음</h2>
+      <div class="tools" id="stTools"></div>
+    </div>
+
     <div class="card" id="stCardMeal">
       <span class="eyebrow">급식</span>
       <h2>오늘 급식</h2>
@@ -2237,6 +2264,26 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div id="boardBody"></div>
       </div>
 
+      <!-- 내 도구 모음 -->
+      <div class="card" id="cardTools">
+        <span class="eyebrow">도구 모음</span>
+        <h2>자주 쓰는 앱 바로가기</h2>
+        <p class="sub">조회 탭 「수업 도구」에 바로가기로 뜹니다. 「학생 화면」을 켠 도구는 학생 화면에도 링크로 올라갑니다.</p>
+        <div class="items" id="toolList"></div>
+        <details class="tb-addev" style="margin-top:12px;">
+          <summary class="btn sm">＋ 도구 추가</summary>
+          <div style="display:flex; gap:8px;">
+            <div style="flex:0 0 72px;"><label class="field" for="inToolIcon">아이콘</label><input type="text" id="inToolIcon" maxlength="2" placeholder="🔧" autocomplete="off"></div>
+            <div style="flex:1;"><label class="field" for="inToolName">이름</label><input type="text" id="inToolName" maxlength="24" placeholder="예: 우리 반 퀴즈" autocomplete="off"></div>
+          </div>
+          <label class="field" for="inToolUrl">주소</label>
+          <input type="text" id="inToolUrl" inputmode="url" placeholder="https://" autocomplete="off">
+          <label class="field" for="inToolDesc">한 줄 설명 (선택)</label>
+          <input type="text" id="inToolDesc" maxlength="40" placeholder="예: 쉬는 시간 퀴즈 게임" autocomplete="off">
+          <div class="btn-row" style="margin-top:10px;"><button class="btn primary sm" id="btnAddTool">추가</button></div>
+        </details>
+      </div>
+
       <!-- 웨일 사이드바 -->
       <div class="card" id="cardSidebar">
         <span class="eyebrow">웨일 사이드바</span>
@@ -2425,6 +2472,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <p class="sub">발표자·당번·모둠장을 공정하게 뽑습니다. 오늘 결석한 학생은 빼고, 한 번 뽑힌 학생은 모두 돌 때까지 다시 뽑지 않습니다.
         전체 화면이라 웨일온 화면 공유나 교실 TV로 띄우기 좋습니다.</p>
         <button class="btn primary" id="btnPicker">🎲 랜덤 뽑기 열기</button>
+        <div class="tools" id="dashTools" style="margin-top:14px;"></div>
       </div>
     </section>
 
@@ -4242,6 +4290,7 @@ function renderAll(){
   renderPublicPanel();
   renderBoardPanel();
   renderSidebarPanel();
+  renderTools();
   $("#inPw").placeholder = state.data.passwordHash
     ? "설정되어 있습니다 (바꾸려면 새로 입력)"
     : "비우면 누구나 볼 수 있습니다";
@@ -4864,7 +4913,7 @@ function renderDdList(){
     const meta = [x.date, x.cat, x.subject, x.src === "t" && x.by ? `${x.by} 선생님` : ""].filter(Boolean).join(" · ");
     return `<div class="item">
       <span class="dd ${b.cls}">${b.txt}</span>
-      <span class="ttl">${escapeHtml(x.title)}${safeUrl(x.link) ? " 🔗" : ""}<br>
+      <span class="ttl">${escapeHtml(evLabel(x))}${safeUrl(x.link) ? " 🔗" : ""}<br>
         <span style="font-size:12px; color:var(--ink-45); font-family:var(--font-mono);">${escapeHtml(meta)}</span>
         ${x.note ? `<br><span style="font-size:12.5px; color:var(--ink-70);">📌 ${escapeHtml(x.note)}</span>` : ""}
       </span>
@@ -5089,7 +5138,7 @@ function renderDash(){
   }else{
     tbox.innerHTML =
       recs.map(r => `<div class="item"><span class="tag">${recLabel(r)}</span><span class="ttl">${escapeHtml(r.title)}</span></div>`).join("") +
-      todayDd.map(x => `<div class="item"><span class="dd today">TODAY</span><span class="ttl">${escapeHtml(x.title)}</span></div>`).join("");
+      todayDd.map(x => `<div class="item"><span class="dd today">TODAY</span><span class="ttl">${escapeHtml(evLabel(x))}</span></div>`).join("");
   }
   renderDashCalendarBits(ds);   // 오늘의 학교 학사일정 · 내일 준비물
 
@@ -5099,7 +5148,7 @@ function renderDash(){
     ? up.map(x => {
         const b = ddayBadge(ddayNum(x.date));
         return `<div class="item"><span class="dd ${b.cls}">${b.txt}</span>
-          <span class="ttl">${escapeHtml(x.title)}<br>
+          <span class="ttl">${escapeHtml(evLabel(x))}<br>
           <span style="font-size:12px; color:var(--ink-45); font-family:var(--font-mono);">${escapeHtml(x.cat)}</span></span></div>`;
       }).join("")
     : `<p class="sub">등록된 일정이 없습니다.</p>`;
@@ -6263,6 +6312,7 @@ function buildPublicDoc(){
     /* 급식 내용이 아니라 학교 코드만 넘긴다. 학생 브라우저가 직접 불러온다. */
     doc.school = { office: state.data.school.office, code: state.data.school.code };
   }
+  doc.tools = publicTools();   // 학생용으로 켠 바로가기 (학생 정보 없음)
   if(P.supplies) doc.supplies = state.data.supplies || "";
   if(P.notice)   doc.notice   = state.data.notice   || "";
   if(P.duty && D.enabled){
@@ -6406,7 +6456,7 @@ function renderStudent(pub, mount){
       ? up.map(x => {
           const b = ddayBadge(ddayNum(x.date));
           return `<div class="item"><span class="dd ${b.cls}">${b.txt}</span>
-            <span class="ttl">${escapeHtml(x.title)}<br>
+            <span class="ttl">${escapeHtml(evLabel(x))}<br>
             <span style="font-size:12px; color:var(--ink-45); font-family:var(--font-mono);">${x.date} · ${escapeHtml(x.cat)}</span>
             </span></div>`;
         }).join("")
@@ -6453,8 +6503,9 @@ function renderStudent(pub, mount){
     }
   }
 
-  /* --- 달력 --- */
+  /* --- 달력 · 도구 --- */
   renderStudentCal(pub, root);
+  renderStudentTools(pub, root);
 
   const t = pub.updatedAt ? new Date(pub.updatedAt) : null;
   $s("#stFoot").textContent = t
@@ -7924,6 +7975,109 @@ async function renderDashCalendarBits(ds){
     box.insertAdjacentHTML("beforeend", `<div class="prep"><b>내일 준비</b> (${dayHead(next)})<br>${
       prep.map(x => `${escapeHtml(evLabel(x))} — ${escapeHtml(x.note)}`).join("<br>")}</div>`);
   }
+}
+
+/* ============================================================
+   도구 모음 — 정우쌤이 만든 다른 앱 + 선생님이 직접 넣은 링크
+   ------------------------------------------------------------
+   · state.data.tools 가 없으면(처음) 기본 도구를 쓴다. 한 번이라도 고치면 그때 저장한다.
+   · roster:"1p1j" — 1P1J 명단 칸이 받는 「번호(탭)이름」 형식으로 명단을 복사해 준다.
+   · student:true 인 도구만 학생 화면에 올라간다 (이름·주소·설명만, 학생 정보 없음).
+   ============================================================ */
+const DEFAULT_TOOLS = [
+  { id:"t200",  icon:"🎓", name:"200 · 고입 내신 산출기", url:"https://jstd-jeostdu.github.io/200/",
+    desc:"경기도 비평준화 고입 내신을 계산합니다", student:true },
+  { id:"t1p1j", icon:"🧩", name:"1P1J · 1인 1역 배정",   url:"https://jstd-jeostdu.github.io/1P1J/",
+    desc:"학급 전체 만족도가 가장 높게 역할을 배정합니다", student:false, roster:"1p1j" },
+  { id:"tmind", icon:"🌱", name:"마음당김 워크북",         url:"https://jstd-jeostdu.github.io/mindpullness/",
+    desc:"마음을 돌아보는 워크북", student:false },
+  { id:"t6b",   icon:"🧱", name:"SixBlocks",              url:"https://jstd-jeostdu.github.io/6-Blocks/",
+    desc:"하루 6가지 중요한 일 정리", student:false }
+];
+function getTools(){
+  const t = state.data && state.data.tools;
+  return Array.isArray(t) ? t : DEFAULT_TOOLS.map(x => Object.assign({}, x));
+}
+async function saveTools(list){
+  await store.save("tools", list);
+  renderTools();
+  await autoSync();
+}
+
+function toolTileHtml(t, withCopy){
+  const url = safeUrl(t.url);
+  if(!url) return "";
+  return `<div class="tool">
+    <a class="go" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+      <span class="ic">${escapeHtml(t.icon || "🔗")}</span>
+      <span><b>${escapeHtml(t.name)}</b>${t.desc ? `<small>${escapeHtml(t.desc)}</small>` : ""}</span>
+    </a>
+    ${withCopy && t.roster === "1p1j" ? `<button class="copy" data-copyroster="1p1j">📋 우리 반 명단 복사</button>` : ""}
+  </div>`;
+}
+
+function renderTools(){
+  if(!state.data || !$("#toolList")) return;
+  const list = getTools();
+  $("#toolList").innerHTML = list.length ? list.map(t => `
+    <div class="toolrow">
+      <span class="ic">${escapeHtml(t.icon || "🔗")}</span>
+      <div class="body"><b>${escapeHtml(t.name)}</b><small>${escapeHtml(t.url)}</small></div>
+      <label><input type="checkbox" data-toolstu="${escapeHtml(t.id)}" ${t.student ? "checked" : ""}> 학생 화면</label>
+      <button class="del" data-tooldel="${escapeHtml(t.id)}" aria-label="${escapeHtml(t.name)} 지우기">×</button>
+    </div>`).join("") : `<p class="sub">등록된 도구가 없습니다.</p>`;
+  $("#dashTools").innerHTML = list.map(t => toolTileHtml(t, true)).join("");
+}
+
+$("#toolList").addEventListener("change", async e => {
+  const id = e.target.dataset.toolstu;
+  if(!id) return;
+  await saveTools(getTools().map(t => t.id === id ? Object.assign({}, t, { student: e.target.checked }) : t));
+  toast(e.target.checked ? "학생 화면에 올렸습니다." : "학생 화면에서 내렸습니다.");
+});
+$("#toolList").addEventListener("click", async e => {
+  const b = e.target.closest("[data-tooldel]");
+  if(!b) return;
+  const t = getTools().find(x => x.id === b.dataset.tooldel);
+  if(!t || !(await confirmBox({ title: "도구를 지울까요?", body: `「${t.name}」 바로가기를 지웁니다. 앱 자체에는 영향이 없습니다.`, ok: "지우기" }))) return;
+  await saveTools(getTools().filter(x => x.id !== t.id));
+});
+$("#btnAddTool").addEventListener("click", async () => {
+  const name = $("#inToolName").value.trim();
+  const raw  = $("#inToolUrl").value.trim();
+  if(!name){ toast("이름을 적어 주세요."); $("#inToolName").focus(); return; }
+  if(!safeUrl(raw)){ toast("주소는 http:// 또는 https:// 로 시작해야 합니다."); $("#inToolUrl").focus(); return; }
+  const item = { id: "u" + Date.now().toString(36), icon: $("#inToolIcon").value.trim() || "🔗",
+                 name: name.slice(0, 24), url: safeUrl(raw), desc: $("#inToolDesc").value.trim().slice(0, 40), student: false };
+  await saveTools([...getTools(), item]);
+  ["#inToolIcon","#inToolName","#inToolUrl","#inToolDesc"].forEach(s => { $(s).value = ""; });
+  toast("도구를 추가했습니다.");
+});
+
+/* 1P1J 명단 칸 형식(번호<탭>이름) 그대로 복사 */
+$("#dashTools").addEventListener("click", async e => {
+  const b = e.target.closest("[data-copyroster]");
+  if(!b) return;
+  const list = [...(state.data.students || [])].sort((x, y) => x.no - y.no);
+  if(!list.length){ toast("먼저 관리 탭에서 학생 명단을 등록해 주세요."); return; }
+  if(state.nameMode !== "number" && !crypt.key){ toast("이름 보호 암호를 풀어야 실명 명단을 복사할 수 있습니다."); return; }
+  const text = list.map(s => `${s.no}\t${nameOf(s)}`).join("\n");
+  try{
+    await navigator.clipboard.writeText(text);
+    toast(`${list.length}명 명단을 복사했습니다. 1P1J 명단 칸에 붙여넣으세요.`);
+  }catch(err){ toast("복사하지 못했습니다. 다른 브라우저에서 다시 시도해 주세요."); }
+});
+
+/* 학생 화면 — 학생용으로 켠 도구만 */
+function publicTools(){
+  return getTools().filter(t => t.student && safeUrl(t.url))
+    .map(t => ({ icon: t.icon || "🔗", name: t.name, url: safeUrl(t.url), desc: t.desc || "" }));
+}
+function renderStudentTools(pub, root){
+  const box = root.querySelector("#stTools");
+  const list = pub.tools || [];
+  root.querySelector("#stCardTools").classList.toggle("hidden", !list.length);
+  box.innerHTML = list.map(t => toolTileHtml(t, false)).join("");
 }
 
 /* ============================================================
