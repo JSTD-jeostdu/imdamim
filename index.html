@@ -24,7 +24,8 @@
 <!-- 엑셀 파일 읽기용 -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <!-- 학생 화면 QR 만들기용 -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<!-- 1.5.x 부터는 브라우저용 build 파일이 없다(404). 같은 사용법인 1.4.4 를 쓴다 -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
 <style>
 /* ============================================================
@@ -405,7 +406,7 @@ input:focus, select:focus, textarea:focus{ border-color:var(--ink); outline:none
 .pc.arrive{ background:#E5F3EF; color:var(--seal); border-color:#9ACFC1; }
 .pc.absentClass{ background:#FBEDEA; color:var(--stamp); border-color:#E7A79F; }
 .pc.early{ background:#FDF3D6; color:#8A6D12; border-color:#E2C56B; }
-.pc.out{ background:var(--tint); color:var(--ink); border-color:#A6C0DC; }
+.pc.out{ background:#FBEDEA; color:var(--stamp); border-color:#E7A79F; }
 .pc.miss{ background:#FBEDEA; color:var(--stamp); border-color:#E7A79F; opacity:.55; }
 .flow-wrap{ overflow-x:auto; margin:0 -4px; padding:0 4px; }
 .flow-legend{ display:flex; flex-wrap:wrap; gap:6px 12px; font-size:12px; color:var(--ink-70); margin-top:10px; }
@@ -1449,7 +1450,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <div class="card">
         <span class="eyebrow">교시별 흐름</span>
         <h2>학생을 눌러 내 교시에 체크</h2>
-        <p class="sub" id="tbFlowSub">학생을 누르면 고른 교시에 도착·결과·조퇴·이석을 남길 수 있습니다.</p>
+        <p class="sub" id="tbFlowSub">학생을 누르면 고른 교시에 도착·결과·조퇴를 남길 수 있습니다.</p>
         <div id="tbFlow"></div>
       </div>
       <p class="footnote">이 화면의 기록은 담임 선생님 확인용이며 공식 학적 자료가 아닙니다.</p>
@@ -2240,7 +2241,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <div class="card" id="cardPeriods">
         <span class="eyebrow">교과 출석부</span>
         <h2>교시별 기록</h2>
-        <p class="sub" id="periodsSub">교과 선생님이 체크한 도착·결과·조퇴·이석이 여기에 바로 뜹니다.</p>
+        <p class="sub" id="periodsSub">교과 선생님이 체크한 도착·결과·조퇴가 여기에 바로 뜹니다.</p>
         <div id="periodsBody"></div>
         <div class="btn-row hidden" id="periodsDemoRow" style="margin-top:12px;">
           <button class="btn sm" id="btnTeacherPreview">교과 선생님 화면 미리보기</button>
@@ -3531,7 +3532,7 @@ function fillDemoClass(ids, todayStr){
   const last = shiftSchoolDay(todayStr, -1);
   const rec = (ds, hh, o) => Object.assign({ id: "demo" + hh + o.sid, at: `${ds}T${hh}:00:00.000Z` }, o);
   board.demo[last] = [
-    rec(last, "01", { type:"out",         period:2, sid:"s13", note:"보건실", subject:"수학", teacher:"김수학" }),
+    rec(last, "01", { type:"absentClass", period:2, sid:"s13", note:"보건실", subject:"수학", teacher:"김수학" }),
     rec(last, "02", { type:"absentClass", period:3, sid:"s13", note:"",      subject:"국어", teacher:"최국어" }),
     rec(last, "04", { type:"arrive",      period:4, sid:"s13", note:"",      subject:"영어", teacher:"이영어" }),
     rec(last, "03", { type:"absentClass", period:4, sid:"s20", note:"",      subject:"영어", teacher:"이영어" }),
@@ -6372,8 +6373,9 @@ const K_BOARD = "imdi_board_";   // + 반ID → { id, k }  담임 기기의 출�
 const K_TB    = "imdi_tb_";      // + 반ID → { id, k }  교과 선생님 기기의 출석부 열쇠
 const K_TB_ME = "imdi_tb_me";    // { name, subject }   교과 선생님 성함·교과
 const BOARD_DAYS_BACK = 200;     // 학기 전체 — 오늘부터 거꾸로 이만큼의 날짜를 다룬다
-const CHECK_LABEL = { arrive:"도착", absentClass:"결과", early:"조퇴", out:"이석" };
-const CHECK_SHORT = { arrive:"도", absentClass:"결", early:"조", out:"이" };
+/* out(이석)은 예전 기록 호환용 — 학교 용어에 맞춰 결과로 보여 준다 */
+const CHECK_LABEL = { arrive:"도착", absentClass:"결과", early:"조퇴", out:"결과" };
+const CHECK_SHORT = { arrive:"도", absentClass:"결", early:"조", out:"결" };
 
 const board = { id:null, key:null, unsubs:[], checks:{}, timers:{}, metaTimer:null, demo:{} };
 
@@ -6606,7 +6608,7 @@ function flowTableHtml({ students, att, marks, n, sel, all }){
   }).join("");
   return `<div class="flow-wrap"><table class="flow"><thead>${head}</thead><tbody>${body}</tbody></table></div>
     <div class="flow-legend"><span><span class="pc arrive">도</span>수업 중 도착</span><span><span class="pc absentClass">결</span>결과</span>
-    <span><span class="pc early">조</span>조퇴</span><span><span class="pc out">이</span>이석</span><span><span class="pc miss">–</span>아직 안 옴</span></div>`;
+    <span><span class="pc early">조</span>조퇴</span><span><span class="pc miss">–</span>아직 안 옴</span></div>`;
 }
 
 /* ---------- 담임: 출석 탭 「교시별 기록」 ---------- */
@@ -6690,6 +6692,7 @@ function renderBoardPanel(){
     <div id="boardQr"></div>
     <p class="sub">QR을 교실 앞에 붙이거나 교과 선생님들께 보내 주세요. 암호는 따로 알려 주세요.</p>
     <div class="btn-row">
+      <button class="btn sm" id="btnBoardQrSave">QR 이미지 저장</button>
       <button class="btn sm" id="btnBoardPin">암호 바꾸기</button>
       <button class="btn danger sm" id="btnBoardOff">교과 출석부 닫기</button>
     </div>`;
@@ -6697,7 +6700,21 @@ function renderBoardPanel(){
     const cv = document.createElement("canvas");
     $("#boardQr").appendChild(cv);
     QRCode.toCanvas(cv, teacherUrl(), { width: 168, margin: 1, color: { dark:"#0F4C81", light:"#ffffff" } }, () => {});
+  }else{
+    $("#boardQr").innerHTML = `<p class="sub">QR을 만들지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.</p>`;
   }
+}
+
+/* 교실에 붙일 QR — 크게 다시 그려 그림 파일로 내려받는다 */
+function saveBoardQr(){
+  if(typeof QRCode === "undefined"){ toast("QR을 만들지 못했습니다."); return; }
+  QRCode.toDataURL(teacherUrl(), { width: 800, margin: 2, color: { dark:"#0F4C81", light:"#ffffff" } }, (err, url) => {
+    if(err){ toast("QR을 만들지 못했습니다."); return; }
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `교과출석부_QR_${(state.data.className || "우리반").replace(/\s+/g, "")}.png`;
+    a.click();
+  });
 }
 
 function readPin(){
@@ -6725,6 +6742,7 @@ async function boardEachDay(fn){
 
 $("#boardBody").addEventListener("click", async e => {
   const id = e.target.id;
+  if(id === "btnBoardQrSave"){ saveBoardQr(); return; }
   if(id === "btnBoardCopy"){
     try{ await navigator.clipboard.writeText(teacherUrl()); toast("주소를 복사했습니다."); }
     catch(err){ toast("주소를 길게 눌러 복사해 주세요."); }
@@ -7068,12 +7086,11 @@ $("#tbFlow").addEventListener("click", async e => {
       <div class="hist">${a ? `<div>아침 ${a.status === "absent" ? "결석" : "지각"} — ${escapeHtml(a.reason || "사유 없음")}</div>` : ""}${hist || (a ? "" : "<div>기록이 없습니다.</div>")}</div>
       ${canWrite ? `
       <div class="acts">
+        <button class="btn danger" data-t="absentClass" style="grid-column:1 / -1;">결과 (이 교시에 없음)</button>
         <button class="btn" data-t="arrive">수업 중 도착</button>
-        <button class="btn danger" data-t="absentClass">결과 (불참)</button>
         <button class="btn" data-t="early">조퇴</button>
-        <button class="btn" data-t="out">이석</button>
       </div>
-      <input type="text" id="tbNote" maxlength="20" placeholder="이석 메모 (예: 보건실) — 병명은 적지 마세요" autocomplete="off">
+      <input type="text" id="tbNote" maxlength="20" placeholder="결과 사유 (예: 보건실, 상담) — 병명은 적지 마세요" autocomplete="off">
       ${mk[tb.period] ? `<button class="btn ghost sm" data-t="cancel" style="margin-top:10px;">${tb.period}교시 기록 취소</button>` : ""}` :
       `<p>${tbWritable() ? "먼저 위에서 내 교시를 고르세요." : "지난 날짜는 볼 수만 있습니다."}</p>`}
       <div class="btn-row" style="margin-top:12px;"><button class="btn ghost" data-t="close">닫기</button></div>
@@ -7088,7 +7105,7 @@ $("#tbFlow").addEventListener("click", async e => {
     if(t === "cancel"){
       await tbAddCheck({ type:"cancel", ref: mk[tb.period].id, period: tb.period, sid, subject: who.subject, teacher: who.name });
     }else{
-      const note = t === "out" ? ($("#tbNote", wrap).value || "").trim().slice(0, 20) : "";
+      const note = t === "absentClass" ? ($("#tbNote", wrap).value || "").trim().slice(0, 20) : "";
       await tbAddCheck({ type: t, period: tb.period, sid, note, subject: who.subject, teacher: who.name });
     }
     wrap.remove();
