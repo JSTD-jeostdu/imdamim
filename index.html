@@ -267,7 +267,18 @@ input:focus, select:focus, textarea:focus{ border-color:var(--ink); outline:none
 .traycol .tag b{ font-family:var(--font-mono); font-size:10px; color:var(--ink-45); font-weight:600; }
 .traycol .tag[data-on="1"]{ background:var(--highlight); border-color:var(--ink); }
 .traycol .done{ font-size:12px; color:var(--seal); font-weight:600; text-align:center; padding:8px 0; }
-@media (max-width:420px){ .traycol{ width:74px; } .traycol .tag{ font-size:11.5px; } }
+/* 좁은 화면(휴대폰·웨일 사이드바) — 앉힐 학생 목록을 좌석표 위 가로 한 줄로 옮긴다.
+   학생을 고르고 바로 아래 자리를 누르는 흐름은 그대로 유지된다. */
+@media (max-width:480px){
+  .seatwrap{ flex-direction:column; gap:8px; }
+  .traycol{
+    order:-1; width:100%; border-left:0; padding:0 0 8px; border-bottom:1px solid var(--line);
+    position:static; max-height:none;
+  }
+  .traycol .tlist{ flex-direction:row; overflow-x:auto; overflow-y:hidden; gap:6px; padding-bottom:6px; }
+  .traycol .tag{ width:auto; min-width:62px; flex:none; font-size:12.5px; }
+  .traycol .done{ padding:4px 0; text-align:left; }
+}
 .grid{ display:grid; gap:7px; }
 .seat{
   min-height:58px; border:1.5px solid var(--line); border-radius:var(--r);
@@ -409,6 +420,26 @@ input:focus, select:focus, textarea:focus{ border-color:var(--ink); outline:none
 .pc.out{ background:#FBEDEA; color:var(--stamp); border-color:#E7A79F; }
 .pc.miss{ background:#FBEDEA; color:var(--stamp); border-color:#E7A79F; opacity:.55; }
 .flow-wrap{ overflow-x:auto; margin:0 -4px; padding:0 4px; }
+@media (max-width:420px){
+  .flow td{ padding:0 1px; }
+  .flow .pc{ min-width:24px; height:26px; font-size:10.5px; border-radius:7px; }
+  .flow tr.stu td.nm{ max-width:82px; font-size:13px; padding:7px 4px; }
+}
+
+/* ---------- 웨일 사이드바 작게 보기 (?sidebar=1) ----------
+   수업 중 브라우저 옆에 띄워 두고 보도록 여백·글자를 촘촘하게 */
+body.sidebar{ font-size:15px; }
+body.sidebar .wrap{ padding:0 10px; }
+body.sidebar .card{ padding:12px; margin:10px 0; border-radius:14px; }
+body.sidebar .card > h2{ font-size:15.5px; }
+body.sidebar .card .sub{ font-size:12.5px; margin-bottom:10px; }
+body.sidebar .topbar{ padding-top:calc(6px + env(safe-area-inset-top)); padding-bottom:6px; }
+body.sidebar .topbar h1{ font-size:16px; }
+body.sidebar .btn{ min-height:42px; }
+body.sidebar .seat{ min-height:48px; }
+body.sidebar #demoBanner{ font-size:11.5px; padding:5px 10px; }
+.sb-steps{ margin:8px 0 12px; padding-left:20px; font-size:14px; line-height:1.75; color:var(--text); }
+.sb-steps b{ color:var(--ink); }
 .flow-legend{ display:flex; flex-wrap:wrap; gap:6px 12px; font-size:12px; color:var(--ink-70); margin-top:10px; }
 .flow-legend span{ display:inline-flex; align-items:center; gap:4px; }
 .flow-by{ display:block; font-size:12px; color:var(--ink-45); margin-top:2px; }
@@ -2088,6 +2119,26 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div class="notice">이름·사유·체크 기록은 출석부 암호로 잠근 채 저장됩니다.
         암호를 모르면 서버에서 출석부를 찾을 수조차 없습니다. 암호는 교과 선생님들께만 알려 주세요.</div>
         <div id="boardBody"></div>
+      </div>
+
+      <!-- 웨일 사이드바 -->
+      <div class="card" id="cardSidebar">
+        <span class="eyebrow">웨일 사이드바</span>
+        <h2>수업 중에도 옆에 띄워 두기</h2>
+        <p class="sub">네이버 웨일 브라우저의 사이드바에 이 앱을 추가하면, 수업 자료를 띄운 채로 옆에서 출석·시간표·교과 출석부를 볼 수 있습니다.
+        아래 「사이드바용 주소」는 좁은 폭에 맞춰 여백과 글자를 촘촘하게 보여 줍니다.</p>
+        <ol class="sb-steps">
+          <li>웨일 브라우저에서 <b>오른쪽 사이드바 맨 아래의 「+」(추가)</b>를 누릅니다.</li>
+          <li>아래 주소를 붙여넣어 추가합니다. (이 앱을 탭에 열어 둔 상태라면 「현재 페이지 추가」를 골라도 됩니다)</li>
+          <li>사이드바에서 처음 한 번 로그인합니다. 로그인 창이 열리지 않으면 일반 탭에서 로그인한 뒤 사이드바를 새로고침해 주세요.</li>
+        </ol>
+        <label class="field">담임용 (사이드바용 주소)</label>
+        <div class="linkbox"><code id="sbHomeUrl">—</code><button class="btn sm" data-sbcopy="sbHomeUrl">복사</button></div>
+        <div id="sbBoardRow" class="hidden">
+          <label class="field">교과 선생님께 안내할 주소 (사이드바용)</label>
+          <div class="linkbox"><code id="sbBoardUrl">—</code><button class="btn sm" data-sbcopy="sbBoardUrl">복사</button></div>
+        </div>
+        <p class="sub" style="margin-top:8px;">메뉴 이름은 웨일 버전에 따라 조금 다를 수 있습니다.</p>
       </div>
 
       <!-- 학년도 정리 -->
@@ -3836,7 +3887,8 @@ function renderSeats(justPlaced){
 function renderSeatGrid(grid_, seatsSrc, readonly, justPlaced){
   const { rows, cols } = grid_;
   const grid = $("#seatGrid");
-  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  /* minmax(0,1fr) — 그냥 1fr 이면 이름 길이만큼 칸이 넓어져 옆의 학생 목록을 밀고 들어간다 */
+  grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
 
   /* 칠판이 화면 아래에 있으므로 칠판에서 가까운 줄(r0)을 마지막에 그린다 */
   let html = "";
@@ -3943,6 +3995,7 @@ function renderAll(){
   renderDash();
   renderPublicPanel();
   renderBoardPanel();
+  renderSidebarPanel();
   $("#inPw").placeholder = state.data.passwordHash
     ? "설정되어 있습니다 (바꾸려면 새로 입력)"
     : "비우면 누구나 볼 수 있습니다";
@@ -6595,6 +6648,7 @@ async function boardResume(){
     }
   }
   renderBoardPanel();
+  renderSidebarPanel();
   renderPeriodsCard();
 }
 
@@ -7194,6 +7248,33 @@ $("#tbBack").addEventListener("click", () => {
   document.body.style.paddingBottom = "";
   renderAtt();
   renderDash();
+});
+
+/* ============================================================
+   웨일 사이드바 작게 보기 — ?sidebar=1 로 열면 켜지고, 같은 창에서는 계속 유지
+   ============================================================ */
+(function(){
+  let on = new URLSearchParams(location.search).get("sidebar") === "1";
+  try{
+    if(on) sessionStorage.setItem("imdi_sidebar", "1");
+    else on = sessionStorage.getItem("imdi_sidebar") === "1";
+  }catch(e){}
+  if(on) document.body.classList.add("sidebar");
+})();
+
+function renderSidebarPanel(){
+  if(!$("#sbHomeUrl")) return;
+  const base = location.origin + location.pathname;
+  $("#sbHomeUrl").textContent = `${base}?sidebar=1`;
+  const boardOn = state.mode === "cloud" && state.data.board && state.data.board.on;
+  $("#sbBoardRow").classList.toggle("hidden", !boardOn);
+  if(boardOn) $("#sbBoardUrl").textContent = `${base}?sidebar=1#/t/${state.classId}`;
+}
+$("#cardSidebar").addEventListener("click", async e => {
+  const b = e.target.closest("[data-sbcopy]");
+  if(!b) return;
+  try{ await navigator.clipboard.writeText($("#" + b.dataset.sbcopy).textContent); toast("주소를 복사했습니다."); }
+  catch(err){ toast("주소를 길게 눌러 복사해 주세요."); }
 });
 
 /* ============================================================
