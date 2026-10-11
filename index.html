@@ -534,6 +534,54 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .toolrow label input{ width:20px; height:20px; accent-color:var(--ink); }
 .toolrow .del{ border:0; background:transparent; color:var(--ink-45); min-width:36px; min-height:40px; font-size:18px; flex:none; }
 
+/* ---------- 진학관리 (전체 화면) ---------- */
+#jh{
+  position:fixed; inset:0; z-index:55; background:var(--paper); overflow:auto;
+  padding:0 0 calc(24px + env(safe-area-inset-bottom));
+}
+#jh .jh-top{
+  position:sticky; top:0; z-index:2; background:var(--ink); color:#fff;
+  display:flex; align-items:center; gap:10px; padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+}
+#jh .jh-top h2{ margin:0; font-size:17px; flex:1; }
+#jh .jh-top button{ min-height:40px; padding:0 14px; border-radius:999px; border:1.5px solid rgba(255,255,255,.6); background:transparent; color:#fff; font-weight:700; }
+#jh .jh-body{ max-width:1100px; margin:0 auto; padding:12px 16px; }
+#jh .jh-bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+#jh .jh-bar select{ width:auto; min-height:44px; }
+#jh .jh-stats{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; margin:12px 0; }
+#jh .jh-stats div{ background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:10px; text-align:center; }
+#jh .jh-stats b{ display:block; font-size:20px; color:var(--ink); }
+#jh .jh-stats span{ font-size:12px; color:var(--ink-45); }
+#jh .jh-view{ display:flex; gap:6px; margin:4px 0 10px; }
+#jh .jh-view button{ min-height:40px; padding:0 14px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-weight:600; color:var(--ink-70); }
+#jh .jh-view button[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.jh-tablewrap{ overflow-x:auto; background:#fff; border:1px solid var(--line); border-radius:var(--r-lg); }
+table.jh-t{ width:100%; border-collapse:collapse; font-size:13.5px; font-variant-numeric:tabular-nums; }
+table.jh-t th{ position:sticky; top:0; background:#F4F7FB; color:var(--ink-70); font-weight:700; font-size:12px; padding:9px 6px; white-space:nowrap; cursor:pointer; border-bottom:1px solid var(--line); }
+table.jh-t th small{ display:block; font-weight:500; color:var(--ink-45); }
+table.jh-t td{ padding:9px 6px; text-align:center; border-bottom:1px solid #EEF2F7; white-space:nowrap; }
+table.jh-t td.nm{ text-align:left; font-weight:600; }
+table.jh-t td.tot{ font-weight:800; color:var(--ink); }
+table.jh-t td.empty{ color:var(--ink-45); }
+table.jh-t tr.stu{ cursor:pointer; }
+table.jh-t tr.stu:hover td{ background:var(--tint); }
+table.jh-t th[aria-sort] { color:var(--ink); }
+.jh-warn{ color:var(--stamp); font-weight:700; }
+.jh-group{ background:#fff; border:1px solid var(--line); border-radius:var(--r-lg); padding:12px 14px; margin-bottom:10px; }
+.jh-group h3{ margin:0 0 8px; font-size:15px; color:var(--ink); }
+.jh-group .who{ display:flex; flex-wrap:wrap; gap:6px; }
+.jh-group .who button{ min-height:36px; padding:0 10px; border-radius:999px; border:1px solid var(--line); background:var(--paper); font-size:13px; }
+.jh-empty{ background:#fff; border:1px dashed var(--ink-45); border-radius:var(--r-lg); padding:24px 16px; text-align:center; color:var(--ink-70); }
+.jh-map{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); gap:6px 10px; align-items:center; margin:10px 0; }
+.jh-map label{ font-size:13.5px; font-weight:600; color:var(--ink-70); }
+.jh-map select{ min-height:40px; font-size:14px; padding:6px 8px; }
+.jh-scores{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:6px; margin:8px 0 12px; }
+.jh-scores div{ display:flex; justify-content:space-between; gap:6px; background:var(--paper); border-radius:10px; padding:8px 10px; font-size:13.5px; }
+.jh-scores div b{ color:var(--ink); }
+.jh-scores div.tot{ grid-column:1 / -1; background:var(--ink); color:#fff; font-size:15px; }
+.jh-scores div.tot b{ color:#fff; }
+@media (max-width:520px){ #jh .jh-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+
 /* ---------- 명렬 랜덤 뽑기 (전체 화면) ---------- */
 #picker{
   position:fixed; inset:0; z-index:60; background:var(--ink); color:#fff;
@@ -2251,6 +2299,16 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
           <button class="btn sm" id="btnCopyLink">복사</button>
         </div>
         <div id="qrBox"></div>
+      </div>
+
+      <!-- 진학관리 (담임 전용) -->
+      <div class="card" id="cardJinhak">
+        <span class="eyebrow">진학관리 · 담임 전용</span>
+        <h2>고입 내신 점수와 희망고</h2>
+        <p class="sub">고입포털에서 받은 학급 내신 파일(엑셀·CSV)을 올리거나 표를 붙여넣으면 학급 전체 점수를 한눈에 봅니다.
+        학생별로 희망고·상담 메모를 적고, 「200에서 열기」로 목표 점수 역산기를 바로 씁니다.</p>
+        <div class="notice">성적은 <b>이 기기에만</b> 이름 보호 암호로 잠가 저장합니다. 서버·학생 화면·교과 출석부·백업 파일에는 올라가지 않습니다.</div>
+        <button class="btn primary" id="btnJinhak">📊 진학관리 열기</button>
       </div>
 
       <!-- 교과 출석부 -->
@@ -6649,6 +6707,7 @@ $("#btnResetYear").addEventListener("click", async () => {
   const fresh = emptyClassDoc(state.uid);
   for(const [k, v] of Object.entries(fresh)) await store.save(k, v);
   try{ await store.deletePublic(); }catch(e){}
+  LS.del(K_JH + state.classId);   // 이 기기의 진학관리 성적도 함께 지운다
   state.attCache = {};
   lockNow();
   renderAll();
@@ -7283,7 +7342,7 @@ $("#boardBody").addEventListener("click", async e => {
 });
 
 /* 글 한 줄 묻기 — 확인이면 입력값, 취소면 null */
-function askText(title, body, value){
+function askText(title, body, value, type = "text"){
   return new Promise(resolve => {
     const wrap = document.createElement("div");
     wrap.className = "modal";
@@ -7299,6 +7358,7 @@ function askText(title, body, value){
     $("h3", wrap).textContent = title;
     $("p", wrap).textContent = body;
     const inp = $("input", wrap);
+    inp.type = type;
     inp.value = value || "";
     const done = ok => { wrap.remove(); resolve(ok ? inp.value : null); };
     wrap.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if(b) done(b.dataset.a === "1"); });
@@ -8079,6 +8139,527 @@ function renderStudentTools(pub, root){
   root.querySelector("#stCardTools").classList.toggle("hidden", !list.length);
   box.innerHTML = list.map(t => toolTileHtml(t, false)).join("");
 }
+
+/* ============================================================
+   진학관리 — 고입 내신 점수 · 희망고 · 200 연동 (담임 전용)
+   ------------------------------------------------------------
+   ★ 개인정보
+     · 성적은 이 기기 브라우저에만, 이름 보호 열쇠(AES-256-GCM)로 잠가 저장한다.
+       「번호만 사용」 방식이면 진학관리 암호를 따로 정해 같은 방식으로 잠근다.
+     · state.data(서버 동기화·백업 대상)에는 한 글자도 넣지 않는다.
+       buildPublicDoc · 교과 출석부에도 들어가지 않는다.
+     · 체험 모드는 메모리에만 둔다.
+   ★ 파일 형식은 학교·지역마다 다를 수 있어 열 이름을 읽어 자동으로 짝짓고,
+     선생님이 확인·수정한 뒤 가져온다.
+   ============================================================ */
+const URL_200 = "https://jstd-jeostdu.github.io/200/";
+const K_JH = "imdi_jh_";          // + 반ID → { salt?, blob }
+const JH_FIELDS = [
+  { k:"no",   label:"번호" },
+  { k:"name", label:"성명" },
+  { k:"g1_2", label:"1학년 2학기", max:12 },
+  { k:"g2_1", label:"2학년 1학기", max:24 },
+  { k:"g2_2", label:"2학년 2학기", max:24 },
+  { k:"g2",   label:"2학년 (합산)", max:48 },
+  { k:"g3_1", label:"3학년 1학기", max:30 },
+  { k:"g3_2", label:"3학년 2학기", max:30 },
+  { k:"art",  label:"체육·예술", max:30 },
+  { k:"att",  label:"출결", max:20 },
+  { k:"bon",  label:"봉사", max:20 },
+  { k:"sch",  label:"학교활동", max:10 },
+  { k:"total",label:"합계 (파일)" }
+];
+/* 열 이름 → 항목 추정. 학기가 붙은 것을 먼저 본다 */
+const JH_GUESS = [
+  ["no",   /^(출석)?\s*번호$|^번$|^no\.?$/i],
+  ["name", /성명|이름/],
+  ["g1_2", /1\s*학년\D*2\s*학기|^1\s*-\s*2$/],
+  ["g2_1", /2\s*학년\D*1\s*학기|^2\s*-\s*1$/],
+  ["g2_2", /2\s*학년\D*2\s*학기|^2\s*-\s*2$/],
+  ["g3_1", /3\s*학년\D*1\s*학기|^3\s*-\s*1$/],
+  ["g3_2", /3\s*학년\D*2\s*학기|^3\s*-\s*2$/],
+  ["g2",   /2\s*학년/],
+  ["art",  /체육|예술/],
+  ["att",  /출결/],
+  ["bon",  /봉사/],
+  ["sch",  /학교\s*활동|자치|행동/],
+  ["total",/합계|총점|총\s*합|환산\s*총|^계$/]
+];
+const JH_SCORE_KEYS = ["g1_2","g2","g3_1","g3_2","art","att","bon","sch"];
+
+const jh = { data:null, key:null, view:"table", sort:{ k:"no", dir:1 } };
+
+/* ---------- 열쇠 · 저장 ---------- */
+async function jhKey(){
+  if(state.mode === "demo") return null;                    // 체험은 저장하지 않는다
+  if(state.nameMode !== "number"){
+    if(!crypt.key){ toast("관리 탭에서 이름 보호 암호를 먼저 풀어 주세요."); return undefined; }
+    return crypt.key;
+  }
+  if(jh.key) return jh.key;
+  const saved = LS.get(K_JH + state.classId) || {};
+  const salt = saved.salt || crypt.toB64(crypto.getRandomValues(new Uint8Array(16)));
+  const pass = await askText("진학관리 암호",
+    saved.salt ? "진학관리 암호를 넣어 주세요." : "성적을 잠글 암호를 정해 주세요. (이름 보호 암호를 쓰지 않는 방식이라 따로 정합니다) 잊으면 성적을 다시 올려야 합니다.",
+    "", "password");
+  if(!pass) return undefined;
+  const key = await crypt.derive(pass, salt);
+  if(saved.blob){
+    try{ await openJson(key, saved.blob); }catch(e){ toast("암호가 맞지 않습니다."); return undefined; }
+  }else{
+    LS.set(K_JH + state.classId, { salt });
+  }
+  jh.key = key;
+  return key;
+}
+async function jhLoad(){
+  if(state.mode === "demo") return jh.data || (jh.data = { year:"2027", rows:{} });
+  const key = await jhKey();
+  if(key === undefined) return null;
+  const saved = LS.get(K_JH + state.classId);
+  if(!saved || !saved.blob) return (jh.data = { year:"2027", rows:{} });
+  try{ return (jh.data = await openJson(key, saved.blob)); }
+  catch(e){ toast("저장된 성적을 열지 못했습니다. 암호가 바뀌었다면 파일을 다시 올려 주세요."); return (jh.data = { year:"2027", rows:{} }); }
+}
+async function jhSave(){
+  if(state.mode === "demo" || !jh.data) return;
+  const key = await jhKey();
+  if(!key) return;
+  const prev = LS.get(K_JH + state.classId) || {};
+  LS.set(K_JH + state.classId, Object.assign({}, prev, { blob: await sealJson(key, jh.data), savedAt: new Date().toISOString() }));
+}
+
+/* ---------- 계산 ---------- */
+function jhNum(v){
+  if(v === null || v === undefined) return null;
+  const s = String(v).replace(/[^\d.\-]/g, "");
+  if(!s || s === "." || s === "-") return null;
+  const n = Number(s);
+  return isFinite(n) ? n : null;
+}
+function jhParts(r){
+  const g2 = r.g2 != null ? r.g2 : (r.g2_1 != null || r.g2_2 != null ? (r.g2_1 || 0) + (r.g2_2 || 0) : null);
+  return { g1_2: r.g1_2, g2, g3_1: r.g3_1, g3_2: r.g3_2, art: r.art, att: r.att, bon: r.bon, sch: r.sch };
+}
+function jhTotal(r){
+  const p = jhParts(r);
+  const vals = JH_SCORE_KEYS.map(k => p[k]).filter(v => v != null);
+  return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) * 1000) / 1000 : null;
+}
+const jhFmt = v => v == null ? "—" : String(Math.round(v * 1000) / 1000);
+
+/* 여러 줄 붙여넣기 — 한 줄 입력칸은 줄바꿈을 지워 버리므로 따로 둔다 */
+function askPaste(title, body){
+  return new Promise(resolve => {
+    const wrap = document.createElement("div");
+    wrap.className = "modal";
+    wrap.style.zIndex = 70;
+    wrap.innerHTML = `
+      <div class="box" role="dialog" aria-modal="true" style="max-width:560px;">
+        <h3></h3><p></p>
+        <textarea style="min-height:200px; margin-bottom:14px;" placeholder="여기에 붙여넣기 (Ctrl+V)"></textarea>
+        <div class="btn-row"><button class="btn ghost" data-a="0">취소</button><button class="btn primary" data-a="1">읽기</button></div>
+      </div>`;
+    $("h3", wrap).textContent = title;
+    $("p", wrap).textContent = body;
+    const ta = $("textarea", wrap);
+    wrap.addEventListener("click", e => {
+      const b = e.target.closest("[data-a]");
+      if(!b) return;
+      wrap.remove();
+      resolve(b.dataset.a === "1" ? ta.value : null);
+    });
+    document.body.appendChild(wrap);
+    ta.focus();
+  });
+}
+
+/* ---------- 화면 ---------- */
+async function openJinhak(){
+  if(!(state.data.students || []).length){ toast("먼저 학생 명단을 등록해 주세요."); return; }
+  const data = await jhLoad();
+  if(!data) return;
+  let wrap = $("#jh");
+  if(!wrap){
+    wrap = document.createElement("div");
+    wrap.id = "jh";
+    wrap.setAttribute("role", "dialog");
+    wrap.setAttribute("aria-modal", "true");
+    document.body.appendChild(wrap);
+  }
+  wrap.innerHTML = `
+    <div class="jh-top"><h2>📊 진학관리 · ${escapeHtml(state.data.className || "")}</h2><button data-jh="close">닫기</button></div>
+    <div class="jh-body">
+      <div class="notice">성적 화면입니다. 학생 앞이나 화면 공유 중에는 열지 마세요.
+      ${state.mode === "demo" ? "체험 모드에서는 저장되지 않습니다." : "이 기기에만 잠긴 채 저장됩니다."}</div>
+      <div class="jh-bar">
+        <select id="jhYear" aria-label="고입 학년도">
+          <option value="2027">2027학년도 고입 (현 중3 · 봉사 반영)</option>
+          <option value="2028">2028학년도 고입 (현 중2 이하 · 출결 40)</option>
+        </select>
+        <label class="btn sm" style="cursor:pointer;">📁 파일 올리기<input type="file" id="jhFile" accept=".csv,.xlsx,.xls,.tsv,.txt" hidden></label>
+        <button class="btn sm" data-jh="paste">📋 표 붙여넣기</button>
+        ${state.mode === "demo" ? `<button class="btn sm" data-jh="demo">🎲 가상 성적 채우기</button>` : ""}
+        <button class="btn danger sm" data-jh="wipe" style="margin-left:auto;">이 기기에서 성적 지우기</button>
+      </div>
+      <div id="jhMain"></div>
+    </div>`;
+  $("#jhYear").value = data.year || "2027";
+  document.body.style.overflow = "hidden";
+  jhRender();
+}
+function closeJinhak(){
+  const w = $("#jh");
+  if(w) w.remove();
+  document.body.style.overflow = "";
+  if(state.mode !== "demo" && state.nameMode === "number") jh.key = null;   // 닫으면 진학 암호를 잊는다
+  jh.data = state.mode === "demo" ? jh.data : null;
+}
+
+function jhRows(){
+  const rows = (jh.data && jh.data.rows) || {};
+  return (state.data.students || []).map(s => ({ s, r: rows[s.id] || null }));
+}
+
+function jhRender(){
+  const main = $("#jhMain");
+  if(!main) return;
+  const list = jhRows();
+  const scored = list.filter(x => x.r && jhTotal(x.r) != null);
+  if(!scored.length && !list.some(x => x.r && (x.r.hope || []).some(Boolean))){
+    main.innerHTML = `<div class="jh-empty" style="margin-top:12px;">
+      <p style="margin:0 0 6px; font-weight:700; color:var(--ink);">아직 점수가 없습니다</p>
+      <p class="sub" style="margin:0;">고입포털에서 내려받은 학급 내신 파일(엑셀·CSV)을 「파일 올리기」로 올리거나,
+      엑셀에서 표를 복사해 「표 붙여넣기」 하세요. 열 이름을 읽어 자동으로 짝지은 뒤 확인을 받습니다.</p></div>`;
+    return;
+  }
+  const totals = scored.map(x => jhTotal(x.r));
+  const avg = totals.reduce((a, b) => a + b, 0) / (totals.length || 1);
+  const stats = `<div class="jh-stats">
+    <div><b>${scored.length}/${list.length}</b><span>입력 인원</span></div>
+    <div><b>${totals.length ? jhFmt(avg) : "—"}</b><span>평균</span></div>
+    <div><b>${totals.length ? jhFmt(Math.max(...totals)) : "—"}</b><span>최고</span></div>
+    <div><b>${totals.length ? jhFmt(Math.min(...totals)) : "—"}</b><span>최저</span></div></div>
+    <div class="jh-view">
+      <button data-jhview="table" aria-pressed="${jh.view === "table"}">전체 표</button>
+      <button data-jhview="hope"  aria-pressed="${jh.view === "hope"}">희망고별</button>
+    </div>`;
+  main.innerHTML = stats + (jh.view === "hope" ? jhHopeHtml(list) : jhTableHtml(list));
+}
+
+function jhTableHtml(list){
+  const cols = [
+    ["no","번호"],["name","이름"],["g1_2","1-2",12],["g2","2학년",48],["g3_1","3-1",30],["g3_2","3-2",30],
+    ["art","체·예",30],["att","출결",(jh.data.year === "2028" ? 40 : 20)],["bon","봉사",(jh.data.year === "2028" ? 0 : 20)],["sch","학교활동",10],["total","합계",200],["hope","1지망"]
+  ];
+  const val = (x, k) => {
+    if(k === "no") return x.s.no;
+    if(k === "name") return nameOf(x.s);
+    if(k === "hope") return (x.r && x.r.hope && x.r.hope[0]) || "";
+    if(!x.r) return null;
+    if(k === "total") return jhTotal(x.r);
+    return jhParts(x.r)[k];
+  };
+  const { k: sk, dir } = jh.sort;
+  const sorted = list.slice().sort((a, b) => {
+    const p = val(a, sk), q = val(b, sk);
+    if(p == null && q == null) return a.s.no - b.s.no;
+    if(p == null) return 1;
+    if(q == null) return -1;
+    return (typeof p === "number" ? p - q : String(p).localeCompare(String(q))) * dir;
+  });
+  const head = cols.map(([k, l, m]) =>
+    `<th data-jhsort="${k}" ${sk === k ? `aria-sort="${dir > 0 ? "ascending" : "descending"}"` : ""}>${l}${sk === k ? (dir > 0 ? " ▲" : " ▼") : ""}${m != null ? `<small>/${m}</small>` : ""}</th>`).join("");
+  const body = sorted.map(x => {
+    const ft = x.r && x.r.total, tt = x.r ? jhTotal(x.r) : null;
+    const warn = ft != null && tt != null && Math.abs(ft - tt) > 0.01;
+    return `<tr class="stu" data-sid="${x.s.id}">${cols.map(([k]) => {
+      const v = val(x, k);
+      if(k === "name") return `<td class="nm">${escapeHtml(v)}</td>`;
+      if(k === "hope") return `<td>${escapeHtml(v) || `<span class="empty">—</span>`}</td>`;
+      if(k === "total") return `<td class="tot">${jhFmt(v)}${warn ? ` <span class="jh-warn" title="파일의 합계 ${ft}와 다릅니다">⚠</span>` : ""}</td>`;
+      return `<td class="${v == null ? "empty" : ""}">${k === "no" ? v : jhFmt(v)}</td>`;
+    }).join("")}</tr>`;
+  }).join("");
+  return `<div class="jh-tablewrap"><table class="jh-t"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+    <p class="sub" style="margin-top:8px;">제목을 누르면 정렬, 학생을 누르면 희망고·상담 메모와 「200에서 열기」가 나옵니다.
+    ⚠는 파일의 합계와 영역별 합이 다른 학생입니다.</p>`;
+}
+
+function jhHopeHtml(list){
+  const groups = {};
+  list.forEach(x => {
+    const h = (x.r && x.r.hope && x.r.hope[0]) || "미정";
+    (groups[h] || (groups[h] = [])).push(x);
+  });
+  const names = Object.keys(groups).sort((a, b) => a === "미정" ? 1 : b === "미정" ? -1 : groups[b].length - groups[a].length);
+  return names.map(h => {
+    const xs = groups[h].sort((a, b) => (jhTotal(b.r || {}) || 0) - (jhTotal(a.r || {}) || 0));
+    return `<div class="jh-group"><h3>${escapeHtml(h)} · ${xs.length}명</h3><div class="who">${
+      xs.map(x => `<button data-sid="${x.s.id}">${x.s.no}번 ${escapeHtml(nameOf(x.s))} · ${jhFmt(x.r ? jhTotal(x.r) : null)}</button>`).join("")
+    }</div></div>`;
+  }).join("") + `<p class="sub">1지망 기준입니다. 학생을 누르면 2·3지망과 메모를 볼 수 있습니다.</p>`;
+}
+
+/* ---------- 학생 한 명 ---------- */
+function jhOpenStudent(sid){
+  const s = studentById(sid);
+  const rows = jh.data.rows;
+  const r = rows[sid] || (rows[sid] = {});
+  r.hope = r.hope || ["", "", ""];
+  const p = jhParts(r);
+  const y = jh.data.year || "2027";
+  const line = (l, v, m) => `<div><span>${l}</span><b>${jhFmt(v)}${m != null ? ` / ${m}` : ""}</b></div>`;
+  const wrap = document.createElement("div");
+  wrap.className = "modal";
+  wrap.style.zIndex = 70;
+  wrap.innerHTML = `
+    <div class="box" role="dialog" aria-modal="true" style="max-width:460px; max-height:92vh; overflow:auto;">
+      <h3>${s.no}번 ${escapeHtml(nameOf(s))}</h3>
+      <div class="jh-scores">
+        ${line("1학년 2학기", p.g1_2, 12)}${line("2학년", p.g2, 48)}
+        ${line("3학년 1학기", p.g3_1, 30)}${line("3학년 2학기", p.g3_2, 30)}
+        ${line("체육·예술", p.art, 30)}${line("출결", p.att, y === "2028" ? 40 : 20)}
+        ${line("봉사", p.bon, y === "2028" ? 0 : 20)}${line("학교활동", p.sch, 10)}
+        <div class="tot"><span>합계</span><b>${jhFmt(jhTotal(r))} / 200</b></div>
+      </div>
+      <label class="field">희망 고등학교</label>
+      <div style="display:grid; gap:6px;">
+        ${[0,1,2].map(i => `<input type="text" data-hope="${i}" maxlength="24" placeholder="${i + 1}지망" autocomplete="off" value="${escapeHtml(r.hope[i] || "")}">`).join("")}
+      </div>
+      <label class="field">상담 메모 <span style="font-weight:400; color:var(--ink-45);">(병명·가정사 등 민감한 내용은 적지 마세요)</span></label>
+      <textarea id="jhMemo" maxlength="300" style="min-height:90px; font-family:inherit;">${escapeHtml(r.memo || "")}</textarea>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn" data-jhs="200">🎓 200에서 열기</button>
+        <button class="btn ghost" data-jhs="close">닫기</button>
+        <button class="btn primary" data-jhs="save">저장</button>
+      </div>
+      <p class="sub" style="margin-top:8px;">「200에서 열기」는 이 학생 점수를 주소 뒤 #에 담아 넘깁니다. 서버로 전송되지 않고, 학생 이름은 넘기지 않습니다.</p>
+    </div>`;
+  document.body.appendChild(wrap);
+  wrap.addEventListener("click", async e => {
+    const b = e.target.closest("[data-jhs]");
+    if(!b) return;
+    const a = b.dataset.jhs;
+    if(a === "200"){ open200(s, r); return; }
+    if(a === "save"){
+      r.hope = $$("[data-hope]", wrap).map(i => i.value.trim().slice(0, 24));
+      r.memo = $("#jhMemo", wrap).value.trim().slice(0, 300);
+      await jhSave();
+      toast("저장했습니다.");
+    }
+    wrap.remove();
+    jhRender();
+  });
+}
+
+function open200(s, r){
+  const p = jhParts(r);
+  const d = { y: jh.data.year || "2027", label: `${state.data.className || ""} ${s.no}번`.trim() };
+  JH_SCORE_KEYS.forEach(k => { if(p[k] != null) d[k] = p[k]; });
+  const bytes = new TextEncoder().encode(JSON.stringify(d));
+  let bin = "";
+  bytes.forEach(b => { bin += String.fromCharCode(b); });
+  const enc = btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  window.open(`${URL_200}#import=${enc}`, "_blank", "noopener");
+}
+
+/* ---------- 가져오기 ---------- */
+/* CSV 는 UTF-8 이 아니면 EUC-KR(나이스 내려받기에 흔함)로 다시 읽는다 */
+async function jhReadFile(file){
+  const buf = await file.arrayBuffer();
+  if(/\.(xlsx|xls)$/i.test(file.name)){
+    if(typeof XLSX === "undefined"){ toast("엑셀을 읽는 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요."); return null; }
+    const wb = XLSX.read(buf, { type:"array" });
+    return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, raw:false, defval:"" });
+  }
+  let text = new TextDecoder("utf-8").decode(buf);
+  if(text.includes("�")){
+    try{ text = new TextDecoder("euc-kr").decode(buf); }catch(e){}
+  }
+  return jhParseText(text);
+}
+function jhParseText(text){
+  const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter(l => l.trim());
+  const tab = lines.some(l => l.includes("\t"));
+  return lines.map(l => tab ? l.split("\t") : jhSplitCsv(l));
+}
+function jhSplitCsv(line){
+  const out = []; let cur = "", q = false;
+  for(let i = 0; i < line.length; i++){
+    const c = line[i];
+    if(q){
+      if(c === '"' && line[i + 1] === '"'){ cur += '"'; i++; }
+      else if(c === '"') q = false;
+      else cur += c;
+    }else if(c === '"') q = true;
+    else if(c === ","){ out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+/* 제목 줄 찾기 — 「성명/이름」이나 「번호」가 있는 첫 줄. 바로 윗줄(병합된 큰 제목)을 이어 붙인다 */
+function jhFindHeader(rows){
+  let h = rows.findIndex((r, i) => i < 15 && r.some(c => /성명|이름/.test(String(c))));
+  if(h < 0) h = rows.findIndex((r, i) => i < 15 && r.some(c => /번호/.test(String(c))));
+  if(h < 0) h = 0;
+  const top = h > 0 ? rows[h - 1] : [];
+  let carry = "";
+  const labels = rows[h].map((c, i) => {
+    const t = String(top[i] || "").trim();
+    if(t) carry = t;
+    const own = String(c || "").trim();
+    return (carry && !own.includes(carry) && h > 0 && rows[h - 1].some(x => String(x).trim()) ? carry + " " : "") + own;
+  });
+  return { h, labels };
+}
+function jhGuessMap(labels){
+  const map = {};
+  JH_GUESS.forEach(([k, re]) => {
+    const i = labels.findIndex((l, idx) => re.test(l) && !Object.values(map).includes(idx));
+    if(i >= 0) map[k] = i;
+  });
+  /* 2학년을 학기별로 찾았으면 「2학년 (합산)」은 쓰지 않는다 */
+  if(map.g2 != null && (map.g2_1 != null || map.g2_2 != null)) delete map.g2;
+  return map;
+}
+
+function jhStartImport(rows){
+  if(!rows || !rows.length){ toast("읽을 내용이 없습니다."); return; }
+  const { h, labels } = jhFindHeader(rows);
+  const data = rows.slice(h + 1).filter(r => r.some(c => String(c).trim()));
+  const map = jhGuessMap(labels);
+  const opt = sel => `<option value="">— 없음 —</option>` + labels.map((l, i) =>
+    `<option value="${i}" ${sel === i ? "selected" : ""}>${escapeHtml(l || `(${i + 1}번째 열)`)}</option>`).join("");
+  const wrap = document.createElement("div");
+  wrap.className = "modal";
+  wrap.style.zIndex = 70;
+  wrap.innerHTML = `
+    <div class="box" role="dialog" aria-modal="true" style="max-width:520px; max-height:92vh; overflow:auto;">
+      <h3>열 맞추기</h3>
+      <p>파일의 열 이름을 보고 자동으로 짝지었습니다. 다르면 고쳐 주세요. 학생은 <b>번호</b>로 우리 반 명단과 맞춥니다.</p>
+      <div class="jh-map">${JH_FIELDS.map(f => `<label for="jhm_${f.k}">${f.label}${f.max ? ` <small>(/${f.max})</small>` : ""}</label>
+        <select id="jhm_${f.k}" data-f="${f.k}">${opt(map[f.k])}</select>`).join("")}</div>
+      <p class="sub" id="jhPrev"></p>
+      <div class="btn-row"><button class="btn ghost" data-a="0">취소</button><button class="btn primary" data-a="1">가져오기</button></div>
+    </div>`;
+  document.body.appendChild(wrap);
+  const cur = () => { const m = {}; $$("[data-f]", wrap).forEach(s => { if(s.value !== "") m[s.dataset.f] = Number(s.value); }); return m; };
+  const preview = () => {
+    const m = cur();
+    $("#jhPrev", wrap).textContent = `읽은 학생 줄 ${data.length}개 · 첫 줄: ` + JH_FIELDS.filter(f => m[f.k] != null)
+      .map(f => `${f.label} ${data[0] ? String(data[0][m[f.k]] ?? "").trim() || "—" : "—"}`).join(", ");
+  };
+  wrap.addEventListener("change", preview);
+  preview();
+  wrap.addEventListener("click", async e => {
+    const b = e.target.closest("[data-a]");
+    if(!b) return;
+    if(b.dataset.a === "0"){ wrap.remove(); return; }
+    const m = cur();
+    if(m.no == null && m.name == null){ toast("번호나 성명 열을 골라 주세요."); return; }
+    wrap.remove();
+    await jhApply(data, m);
+  });
+}
+
+async function jhApply(data, m){
+  const byNo = {}, byName = {};
+  (state.data.students || []).forEach(s => { byNo[s.no] = s; byName[nameOf(s)] = s; });
+  const rows = jh.data.rows;
+  let ok = 0;
+  const miss = [], diff = [];
+  data.forEach(r => {
+    const no = m.no != null ? jhNum(r[m.no]) : null;
+    const nm = m.name != null ? String(r[m.name] || "").trim() : "";
+    const s = (no != null && byNo[no]) || (nm && byName[nm]) || null;
+    if(!s){ if(no != null || nm) miss.push(no != null ? `${no}번` : nm); return; }
+    /* 실명이 풀려 있는데 번호와 이름이 다르면 알려 준다 (가져오기는 번호 기준) */
+    if(nm && state.names[s.id] && state.names[s.id] !== nm) diff.push(`${s.no}번`);
+    const prev = rows[s.id] || {};
+    const next = { hope: prev.hope || ["", "", ""], memo: prev.memo || "" };
+    ["g1_2","g2_1","g2_2","g2","g3_1","g3_2","art","att","bon","sch","total"].forEach(k => {
+      if(m[k] != null) next[k] = jhNum(r[m[k]]);
+    });
+    rows[s.id] = next;
+    ok++;
+  });
+  jh.data.importedAt = new Date().toISOString();
+  await jhSave();
+  jhRender();
+  await confirmBox({
+    title: `${ok}명 점수를 가져왔습니다`,
+    body: [
+      miss.length ? `명단에 없는 줄: ${miss.slice(0, 12).join(", ")}${miss.length > 12 ? " 외" : ""}` : "",
+      diff.length ? `번호는 같은데 이름이 다른 학생: ${diff.join(", ")} — 번호 기준으로 넣었습니다. 확인해 주세요.` : "",
+      state.mode === "demo" ? "체험 모드라 저장되지 않습니다." : "이 기기에만 잠긴 채 저장했습니다."
+    ].filter(Boolean).join("\n"),
+    ok: "확인", cancel: "닫기"
+  });
+}
+
+/* 체험용 가상 성적 — 번호마다 늘 같은 값 */
+function jhDemoFill(){
+  const rnd = n => { const x = Math.sin(n * 9301 + 49297) * 233280; return x - Math.floor(x); };
+  const hopes = ["아임고등학교", "담임과학고", "바다외국어고", "하늘고등학교", "구름예술고"];
+  (state.data.students || []).forEach(s => {
+    const k = rnd(s.no);
+    const r = jh.data.rows[s.id] || {};
+    jh.data.rows[s.id] = Object.assign(r, {
+      g1_2: +(9 + k * 3).toFixed(3), g2: +(38 + k * 10).toFixed(3), g3_1: +(23 + rnd(s.no + 7) * 7).toFixed(3),
+      art: +(24 + rnd(s.no + 3) * 6).toFixed(3), att: k > 0.15 ? 20 : 18, bon: 20, sch: k > 0.1 ? 10 : 9,
+      hope: r.hope && r.hope[0] ? r.hope : [hopes[Math.floor(rnd(s.no + 11) * hopes.length)], "", ""], memo: r.memo || ""
+    });
+  });
+}
+
+/* ---------- 이벤트 ---------- */
+$("#btnJinhak").addEventListener("click", openJinhak);
+document.addEventListener("click", async e => {
+  const w = e.target.closest("#jh");
+  if(!w) return;
+  const b = e.target.closest("[data-jh]");
+  if(b){
+    const a = b.dataset.jh;
+    if(a === "close"){ closeJinhak(); return; }
+    if(a === "paste"){
+      const t = await askPaste("표 붙여넣기", "엑셀이나 고입포털 화면에서 제목 줄까지 포함해 표를 복사한 뒤 아래 칸에 붙여넣으세요.");
+      if(t) jhStartImport(jhParseText(t));
+      return;
+    }
+    if(a === "demo"){ jhDemoFill(); jhRender(); toast("가상 성적을 채웠습니다."); return; }
+    if(a === "wipe"){
+      if(!(await confirmBox({ title: "이 기기의 성적을 지울까요?", body: "올린 점수·희망고·상담 메모가 모두 지워집니다. 되돌릴 수 없습니다.", ok: "지우기" }))) return;
+      jh.data = { year: jh.data.year || "2027", rows:{} };
+      LS.del(K_JH + state.classId);
+      jh.key = null;
+      jhRender();
+      toast("지웠습니다.");
+      return;
+    }
+  }
+  const v = e.target.closest("[data-jhview]");
+  if(v){ jh.view = v.dataset.jhview; jhRender(); return; }
+  const th = e.target.closest("[data-jhsort]");
+  if(th){
+    const k = th.dataset.jhsort;
+    jh.sort = { k, dir: jh.sort.k === k ? -jh.sort.dir : (k === "no" || k === "name" || k === "hope" ? 1 : -1) };
+    jhRender();
+    return;
+  }
+  const st = e.target.closest("[data-sid]");
+  if(st) jhOpenStudent(st.dataset.sid);
+});
+document.addEventListener("change", async e => {
+  if(e.target.id === "jhYear"){ jh.data.year = e.target.value; await jhSave(); jhRender(); }
+  if(e.target.id === "jhFile"){
+    const f = e.target.files[0];
+    e.target.value = "";
+    if(f) jhStartImport(await jhReadFile(f));
+  }
+});
 
 /* ============================================================
    웨일 사이드바 작게 보기 — ?sidebar=1 로 열면 켜지고, 같은 창에서는 계속 유지
