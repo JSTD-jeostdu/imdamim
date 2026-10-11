@@ -420,6 +420,54 @@ input:focus, select:focus, textarea:focus{ border-color:var(--ink); outline:none
 .sheet-pick .hist{ font-size:13px; color:var(--ink-70); margin:0 0 10px; }
 .sheet-pick .hist div{ padding:4px 0; border-bottom:1px dashed var(--line); }
 
+/* ---------- 명렬 랜덤 뽑기 (전체 화면) ---------- */
+#picker{
+  position:fixed; inset:0; z-index:60; background:var(--ink); color:#fff;
+  display:flex; flex-direction:column; padding:calc(14px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  overflow:auto;
+}
+#picker .pk-top{ display:flex; align-items:center; gap:10px; }
+#picker .pk-top h2{ margin:0; font-size:18px; flex:1; }
+#picker .pk-top .left{ font-size:13px; color:#C6D8EC; }
+#picker .pk-x{
+  min-width:44px; min-height:44px; border-radius:999px; border:1.5px solid rgba(255,255,255,.5);
+  background:transparent; color:#fff; font-size:18px;
+}
+#picker .pk-stage{
+  flex:1; display:flex; flex-wrap:wrap; align-content:center; justify-content:center; gap:14px;
+  min-height:220px; padding:20px 0;
+}
+#picker .pk-card{
+  background:#fff; color:var(--ink); border-radius:24px; padding:18px 26px; text-align:center;
+  min-width:min(280px, 80vw); box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+#picker .pk-card .no{ font-size:clamp(16px, 3vw, 24px); font-weight:700; color:var(--ink-45); }
+#picker .pk-card .nm{ font-size:clamp(40px, 9vw, 96px); font-weight:800; line-height:1.15; letter-spacing:-.01em; }
+#picker .pk-card.rolling{ opacity:.75; transform:scale(.97); }
+#picker .pk-card.hit{ animation:pkHit .45s ease-out; }
+@keyframes pkHit{ 0%{ transform:scale(.85); } 60%{ transform:scale(1.06); } 100%{ transform:scale(1); } }
+#picker .pk-hint{ font-size:clamp(18px, 3vw, 26px); color:#C6D8EC; text-align:center; }
+#picker .pk-ctrl{
+  background:rgba(255,255,255,.08); border-radius:var(--r-lg); padding:14px; display:grid; gap:10px;
+  max-width:720px; width:100%; margin:0 auto;
+}
+#picker .pk-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+#picker .pk-row label{ display:flex; align-items:center; gap:8px; min-height:40px; font-size:14px; }
+#picker .pk-row input[type=checkbox]{ width:20px; height:20px; accent-color:var(--highlight); }
+#picker .pk-num{ display:flex; align-items:center; gap:6px; }
+#picker .pk-num button{
+  min-width:44px; min-height:44px; border-radius:12px; border:1.5px solid rgba(255,255,255,.5);
+  background:transparent; color:#fff; font-size:20px; font-weight:700;
+}
+#picker .pk-num span{ min-width:3.2em; text-align:center; font-size:17px; font-weight:700; }
+#picker .pk-go{
+  min-height:60px; border:0; border-radius:16px; background:var(--highlight); color:var(--ink);
+  font-size:20px; font-weight:800; box-shadow:0 4px 14px rgba(0,0,0,.2);
+}
+#picker .pk-go:disabled{ opacity:.5; }
+#picker .pk-reset{ min-height:40px; padding:0 14px; border-radius:999px; border:1.5px solid rgba(255,255,255,.5); background:transparent; color:#fff; font-size:13px; font-weight:600; }
+#picker .pk-hist{ font-size:13px; color:#C6D8EC; line-height:1.7; }
+
 /* ---------- 출결 신고서 ---------- */
 .rp-row{
   display:flex; align-items:center; gap:10px; padding:10px 2px;
@@ -1438,6 +1486,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div class="tb-periods" id="tbPeriods"></div>
         <div class="btn-row" style="margin-top:10px;">
           <button class="btn sm ghost" id="tbFixSubject" disabled>이 교시 과목 고치기</button>
+          <button class="btn sm" id="tbPicker">🎲 랜덤 뽑기</button>
         </div>
       </div>
 
@@ -2200,6 +2249,15 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div class="btn-row" style="margin-top:12px;">
           <button class="btn primary sm" id="btnSaveNotes">저장</button>
         </div>
+      </div>
+
+      <!-- 수업 도구 -->
+      <div class="card">
+        <span class="eyebrow">수업 도구</span>
+        <h2>명렬 랜덤 뽑기</h2>
+        <p class="sub">발표자·당번·모둠장을 공정하게 뽑습니다. 오늘 결석한 학생은 빼고, 한 번 뽑힌 학생은 모두 돌 때까지 다시 뽑지 않습니다.
+        전체 화면이라 웨일온 화면 공유나 교실 TV로 띄우기 좋습니다.</p>
+        <button class="btn primary" id="btnPicker">🎲 랜덤 뽑기 열기</button>
       </div>
     </section>
 
@@ -7136,6 +7194,163 @@ $("#tbBack").addEventListener("click", () => {
   document.body.style.paddingBottom = "";
   renderAtt();
   renderDash();
+});
+
+/* ============================================================
+   명렬 랜덤 뽑기 — 담임(조회 탭)과 교과 출석부가 함께 쓴다
+   ------------------------------------------------------------
+   · 공정성: Math.random 대신 crypto.getRandomValues 로 고른다
+   · "다시 안 뽑기"는 창을 열어 둔 동안(같은 반·같은 교시)만 기억한다. 저장하지 않는다.
+   ============================================================ */
+const pickerPools = {};   // key → 이미 뽑힌 학생 id 집합 (메모리)
+
+function randInt(n){
+  const a = new Uint32Array(1);
+  crypto.getRandomValues(a);
+  return a[0] % n;
+}
+
+/* students: [{ id, no, name }] / isAway(id): 오늘 빠진 학생인지 / key: "다시 안 뽑기" 기억 단위 */
+function openPicker({ title, students, isAway, awayLabel, key }){
+  const used = pickerPools[key] || (pickerPools[key] = new Set());
+  const opt = { n: 1, skipAway: true, noRepeat: true, numOnly: false };
+  const history = [];
+  let rolling = false;
+
+  const wrap = document.createElement("div");
+  wrap.id = "picker";
+  wrap.setAttribute("role", "dialog");
+  wrap.setAttribute("aria-modal", "true");
+  wrap.innerHTML = `
+    <div class="pk-top"><h2></h2><span class="left" id="pkLeft"></span><button class="pk-x" data-pk="close" aria-label="닫기">✕</button></div>
+    <div class="pk-stage" id="pkStage"><p class="pk-hint">「뽑기」를 누르세요</p></div>
+    <div class="pk-ctrl">
+      <div class="pk-row">
+        <span style="font-size:14px;">인원</span>
+        <div class="pk-num"><button data-pk="minus" aria-label="한 명 줄이기">−</button><span id="pkN">1명</span><button data-pk="plus" aria-label="한 명 늘리기">+</button></div>
+        <button class="pk-reset" data-pk="reset" style="margin-left:auto;">처음부터</button>
+      </div>
+      <div class="pk-row">
+        <label><input type="checkbox" data-opt="skipAway" checked> ${escapeHtml(awayLabel)}</label>
+        <label><input type="checkbox" data-opt="noRepeat" checked> 뽑힌 학생 다시 안 뽑기</label>
+        <label><input type="checkbox" data-opt="numOnly"> 번호만 보이기</label>
+      </div>
+      <button class="pk-go" data-pk="go">🎲 뽑기</button>
+      <div class="pk-hist" id="pkHist"></div>
+    </div>`;
+  $("h2", wrap).textContent = title;
+  document.body.appendChild(wrap);
+
+  const label = s => opt.numOnly ? `${s.no}번` : s.name;
+  const pool = () => students.filter(s =>
+    !(opt.skipAway && isAway(s.id)) && !(opt.noRepeat && used.has(s.id)));
+
+  function refresh(){
+    const left = pool().length;
+    $("#pkN", wrap).textContent = `${opt.n}명`;
+    $("#pkLeft", wrap).textContent = opt.noRepeat ? `남은 학생 ${left}명` : `대상 ${left}명`;
+    $('[data-pk="go"]', wrap).disabled = rolling || left === 0;
+    $('[data-pk="go"]', wrap).textContent = left === 0 ? "모두 뽑았습니다 — 「처음부터」를 누르세요" : "🎲 뽑기";
+    $("#pkHist", wrap).innerHTML = history.length
+      ? "이번에 뽑은 순서: " + history.map((g, i) => `${i + 1}) ${g.map(s => escapeHtml(label(s))).join(", ")}`).join(" · ")
+      : "";
+  }
+
+  function cardsHtml(list, cls){
+    return list.map(s => `<div class="pk-card ${cls}">${opt.numOnly ? "" : `<div class="no">${s.no}번</div>`}<div class="nm">${escapeHtml(label(s))}</div></div>`).join("");
+  }
+
+  async function go(){
+    const cand = pool();
+    if(!cand.length || rolling) return;
+    const n = Math.min(opt.n, cand.length);
+    /* 섞어서 앞에서 n명 (Fisher–Yates) */
+    const arr = cand.slice();
+    for(let i = arr.length - 1; i > 0; i--){ const j = randInt(i + 1); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    const picked = arr.slice(0, n).sort((a, b) => a.no - b.no);
+
+    /* 잠깐 돌아가는 효과 — 결과는 이미 정해져 있다 */
+    rolling = true; refresh();
+    const stage = $("#pkStage", wrap);
+    const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const steps = reduce ? 0 : 14;
+    for(let k = 0; k < steps; k++){
+      const fake = Array.from({ length: n }, () => cand[randInt(cand.length)]);
+      stage.innerHTML = cardsHtml(fake, "rolling");
+      await new Promise(r => setTimeout(r, 40 + k * 9));
+    }
+    stage.innerHTML = cardsHtml(picked, "hit");
+    picked.forEach(s => used.add(s.id));
+    history.push(picked);
+    rolling = false; refresh();
+  }
+
+  wrap.addEventListener("click", e => {
+    const b = e.target.closest("[data-pk]");
+    if(!b) return;
+    const a = b.dataset.pk;
+    if(a === "close"){ wrap.remove(); document.removeEventListener("keydown", onKey); return; }
+    if(a === "minus"){ opt.n = Math.max(1, opt.n - 1); refresh(); }
+    if(a === "plus"){ opt.n = Math.min(Math.max(1, students.length), opt.n + 1); refresh(); }
+    if(a === "reset"){ used.clear(); history.length = 0; $("#pkStage", wrap).innerHTML = `<p class="pk-hint">「뽑기」를 누르세요</p>`; refresh(); }
+    if(a === "go") go();
+  });
+  wrap.addEventListener("change", e => {
+    const k = e.target.dataset.opt;
+    if(k){ opt[k] = e.target.checked; refresh(); }
+  });
+  /* 스페이스·엔터로도 뽑는다 (화면 공유 중 키보드로 진행) */
+  const onKey = e => {
+    if(!document.body.contains(wrap)){ document.removeEventListener("keydown", onKey); return; }
+    if(e.key === "Escape"){ wrap.remove(); document.removeEventListener("keydown", onKey); }
+    else if((e.key === " " || e.key === "Enter") && e.target.tagName !== "INPUT" && e.target.tagName !== "BUTTON"){ e.preventDefault(); go(); }
+  };
+  document.addEventListener("keydown", onKey);
+  refresh();
+  $('[data-pk="go"]', wrap).focus();
+}
+
+/* 담임 — 조회 탭 */
+$("#btnPicker").addEventListener("click", async () => {
+  const students = (state.data.students || []).map(s => ({ id: s.id, no: s.no, name: nameOf(s) })).sort((a, b) => a.no - b.no);
+  if(!students.length){ toast("먼저 관리 탭에서 학생 명단을 등록해 주세요."); return; }
+  const ds = ymd(today());
+  const doc = await store.loadAtt(ds);
+  openPicker({
+    title: `랜덤 뽑기 · ${state.data.className || ""}`,
+    students,
+    isAway: id => !!(doc.students && doc.students[id] && doc.students[id].status === "absent"),
+    awayLabel: "오늘 결석한 학생 빼기",
+    key: `home_${ds}`
+  });
+});
+
+/* 교과 선생님 — 고른 교시 기준으로 결석(도착 전)·결과·조퇴 학생을 뺀다 */
+$("#tbPicker").addEventListener("click", () => {
+  if(!tb.meta) return;
+  const students = (tb.meta.students || []).slice().sort((a, b) => a.no - b.no);
+  const { marks } = resolveChecks(tb.checks);
+  const att = (tb.day && tb.day.att) || {};
+  const p = tb.period || 0;
+  const away = id => {
+    const mk = marks[id] || {};
+    let gone = !!(att[id] && att[id].status === "absent");
+    for(let i = 1; i <= p; i++){
+      const r = mk[i];
+      if(!r) continue;
+      if(r.type === "arrive") gone = false;
+      if(r.type === "early") gone = true;
+    }
+    if(p && mk[p] && (mk[p].type === "absentClass" || mk[p].type === "out")) return true;
+    return gone;
+  };
+  openPicker({
+    title: `랜덤 뽑기 · ${tb.meta.className || ""}${p ? ` · ${p}교시` : ""}`,
+    students,
+    isAway: away,
+    awayLabel: p ? `${p}교시에 없는 학생 빼기` : "아침 결석 학생 빼기",
+    key: `tb_${tb.classId}_${tb.date}_${p}`
+  });
 });
 
 const K_RP_TEACHER = "imdi_rp_teacher";
