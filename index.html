@@ -358,6 +358,41 @@ input:focus, select:focus, textarea:focus{ border-color:var(--ink); outline:none
 .modal p{ font-size:14px; line-height:1.65; color:var(--ink-70); margin:0 0 18px; }
 .modal .btn-row{ justify-content:flex-end; }
 
+/* ---------- 출결 신고서 ---------- */
+.rp-row{
+  display:flex; align-items:center; gap:10px; padding:10px 2px;
+  border-bottom:1px solid var(--line);
+}
+.rp-row:last-child{ border-bottom:0; }
+.rp-row .who{ flex:1; min-width:0; }
+.rp-row .who b{ display:block; font-size:15px; }
+.rp-row .who span{ font-size:13px; color:var(--ink-45); }
+.rp-tag{ font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; border:1px solid; margin-right:4px; }
+.rp-tag.absent{ color:var(--stamp); border-color:var(--stamp); }
+.rp-tag.late{ color:#8A6D12; border-color:#C9A227; }
+
+.modal.report{ align-items:flex-start; overflow:auto; padding:16px; }
+.modal.report .box{ max-width:980px; padding:20px; border-radius:var(--r-lg); }
+.rp-wrap{ display:grid; grid-template-columns:minmax(0,1fr); gap:18px; }
+@media (min-width:860px){ .rp-wrap{ grid-template-columns:minmax(0,340px) minmax(0,1fr); } }
+#rpFields fieldset{ border:1px solid var(--line); border-radius:var(--r); padding:10px 12px 12px; margin:0 0 12px; }
+#rpFields legend{ font-size:13px; font-weight:700; color:var(--ink); padding:0 4px; }
+#rpFields .row2{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
+#rpFields .row3{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
+#rpFields label.field{ margin:8px 0 4px; }
+#rpFields .opts{ display:flex; flex-wrap:wrap; gap:4px 12px; }
+#rpFields .opts label{ display:flex; align-items:center; gap:6px; min-height:40px; font-size:14.5px; cursor:pointer; }
+#rpFields .opts input{ width:20px; height:20px; accent-color:var(--ink); }
+#rpFields .sublabel{ font-size:12.5px; color:var(--ink-45); margin:8px 0 0; }
+#rpFields input[type=text], #rpFields input[type=number], #rpFields input[type=date]{
+  width:100%; min-height:44px; padding:8px 10px; border:1.5px solid var(--line);
+  border-radius:var(--r); background:#fff; color:var(--text); font-family:inherit; font-size:16px;
+}
+.rp-preview{ background:#E3E9F0; border-radius:var(--r); padding:12px; overflow:hidden; }
+.rp-preview .frame-holder{ position:relative; margin:0 auto; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.12); background:#fff; }
+.rp-preview iframe{ position:absolute; top:0; left:0; width:794px; height:1123px; border:0; transform-origin:0 0; background:#fff; }
+.rp-actions{ position:sticky; bottom:-20px; background:var(--card); padding:12px 0 4px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+
 /* ---------- 날짜 고르기 달력 ---------- */
 .modal .box.cal{ max-width:340px; }
 .cal .cal-head{ display:flex; align-items:center; gap:8px; margin-bottom:14px; }
@@ -2055,6 +2090,15 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <p class="sub" id="attNoSeat" style="margin-top:14px;"></p>
       </div>
 
+      <!-- 출결 신고서 자동 작성 -->
+      <div class="card hidden" id="cardReport">
+        <span class="eyebrow">출결 신고서</span>
+        <h2>신고서 자동 작성</h2>
+        <p class="sub">지각·결석한 학생의 출결 신고서를 출석부 기록으로 채워 드립니다.
+        신고서는 이 화면에서 만들어 인쇄할 뿐, 어디에도 저장하지 않습니다.</p>
+        <div id="reportList"></div>
+      </div>
+
       <!-- 조회 종료 후 확인 필요 -->
       <div class="card hidden" id="cardFollow">
         <span class="eyebrow">확인 필요</span>
@@ -3317,6 +3361,8 @@ function fillDemoClass(ids, todayStr){
       students: { [r.s]: r.reason ? { status: r.status, reason: r.reason } : { status: r.status } }
     };
   }
+  /* 연속 결석 예시 — 신고서에서 이틀이 한 기간으로 묶이는 것을 볼 수 있다 */
+  state.attCache[d].students.s08 = { status:"absent", reason:"가정 사정" };
 }
 
 /* 체험 모드 급식 — 학교를 고르지 않아도 화면이 비지 않게 요일별 가상 메뉴 */
@@ -4838,6 +4884,7 @@ function renderAtt(){
   $("#btnCloseMeeting").classList.toggle("hidden", viewingHistory || !!doc.closed);
   $("#btnReopen").classList.toggle("hidden", viewingHistory || !doc.closed);
   renderFollow(doc);
+  renderReportList();
   renderDateNav("#attDateNav", "#attHistBar", ds);
 }
 
@@ -6117,6 +6164,327 @@ $("#inRestore").addEventListener("change", async e => {
     toast("이어서 사용합니다.");
   }
 });
+
+/* ============================================================
+   출결 신고서 자동 작성
+   ------------------------------------------------------------
+   학교에서 흔히 쓰는 「출결 신고서 + 담임교사 확인서」 양식을 그대로 그리고,
+   상황마다 달라지는 칸만 출석부 기록으로 채운다.
+   ★ 신고서는 화면에서 만들어 인쇄할 뿐 어디에도 저장하지 않는다.
+     (학부모 이름 등 새로 입력한 값도 남기지 않는다. 교사·학교 이름만 이 기기에 기억)
+   ============================================================ */
+const K_RP_TEACHER = "imdi_rp_teacher";
+const K_RP_SCHOOL  = "imdi_rp_school";
+
+function renderReportList(){
+  const ds = state.attDate;
+  const doc = state.attCache[ds] || { students:{} };
+  const rows = (state.data.students || [])
+    .filter(s => { const st = attStatus(s.id); return st === "absent" || st === "late"; })
+    .map(s => {
+      const st = attStatus(s.id);
+      const r  = attReason(s.id);
+      return `<div class="rp-row">
+        <div class="who"><b>${s.no}번 ${escapeHtml(nameOf(s))}</b>
+          <span><span class="rp-tag ${st}">${st === "absent" ? "결석" : "지각"}</span>${escapeHtml(r || "사유 없음")}</span></div>
+        <button class="btn sm" data-report="${s.id}">신고서</button>
+      </div>`;
+    });
+  $("#cardReport").classList.toggle("hidden", !rows.length);
+  $("#reportList").innerHTML = rows.join("");
+}
+
+$("#reportList").addEventListener("click", e => {
+  const b = e.target.closest("[data-report]");
+  if(b) openReport(b.dataset.report);
+});
+
+/* 평일만 하루씩 앞뒤로 */
+function shiftSchoolDay(ds, delta){
+  let d = ds;
+  do{ d = addDays(d, delta); }while([0, 6].includes(new Date(d + "T00:00:00").getDay()));
+  return d;
+}
+function countSchoolDays(a, b){
+  if(!a || !b || a > b) return "";
+  let n = 0;
+  for(let d = a; d <= b; d = addDays(d, 1)){
+    if(![0, 6].includes(new Date(d + "T00:00:00").getDay())) n++;
+  }
+  return n;
+}
+
+/* 같은 학생이 앞뒤 평일에도 결석이면 하나의 기간으로 묶는다 (최대 10일) */
+async function absenceRange(id, ds){
+  let start = ds, end = ds;
+  for(let i = 0; i < 10; i++){
+    const p = shiftSchoolDay(start, -1);
+    const doc = await store.loadAtt(p);
+    if(doc.students && doc.students[id] && doc.students[id].status === "absent") start = p; else break;
+  }
+  const todayStr = ymd(today());
+  for(let i = 0; i < 10; i++){
+    const n = shiftSchoolDay(end, 1);
+    if(n > todayStr) break;
+    const doc = await store.loadAtt(n);
+    if(doc.students && doc.students[id] && doc.students[id].status === "absent") end = n; else break;
+  }
+  return { start, end };
+}
+
+/* 사유 낱말로 구분을 추정한다 — 화면에서 언제든 바꿀 수 있다 */
+function guessCategory(reason){
+  const r = reason || "";
+  if(/체험|공결|출석\s*인정|대회|경조|인정|학교\s*대표/.test(r)) return "ok";
+  if(/병|진료|아프|아파|몸살|질병|통증|감기|입원|수술|약/.test(r)) return "ill";
+  return "etc";
+}
+
+/* "(으)로" — 마지막 한글 글자의 받침을 보고 고른다 */
+function withRo(word){
+  const w = (word || "").trim();
+  if(!w) return "";
+  const hangul = w.match(/[가-힣](?=[^가-힣]*$)/);
+  if(!hangul) return w + "(으)로";
+  const jong = (hangul[0].charCodeAt(0) - 0xAC00) % 28;
+  return w + (jong === 0 || jong === 8 ? "로" : "으로");   // 받침 없음·ㄹ받침 → 로
+}
+
+function parseGradeClass(name){
+  const m = (name || "").match(/(\d+)\s*학년\s*(\d+)\s*반/) || (name || "").match(/(\d+)\s*-\s*(\d+)/);
+  return m ? { grade: m[1], cls: m[2] } : { grade: "", cls: "" };
+}
+
+async function openReport(id){
+  const s = studentById(id);
+  if(!s) return;
+  const ds = state.attDate;
+  const st = attStatus(id);
+  const reason = attReason(id);
+  const range = st === "absent" ? await absenceRange(id, ds) : { start: ds, end: ds };
+  const gc = parseGradeClass(state.data.className);
+  const todayStr = ymd(today());
+  const cat = guessCategory(reason);
+
+  /* v = 신고서에 들어갈 값 전부. 화면 입력칸과 1:1 */
+  const v = {
+    grade: gc.grade, cls: gc.cls, no: String(s.no || ""),
+    name: state.nameMode === "number" ? "" : (state.names[id] || ""),
+    kind: st === "absent" ? "absent" : "late",
+    start: range.start, end: range.end, days: String(countSchoolDays(range.start, range.end)),
+    p1: st === "absent" ? "1" : "", p2: st === "absent" ? String(state.data.periods || CONFIG.periodsPerDay) : "",
+    cat, reason,
+    ev_ill_teacher:false, ev_ill_rx:false, ev_ill_clinic:false, ev_ill_etc:false, ev_ill_etcText:"",
+    ev_ill2_opinion:false, ev_ill2_diag:false, ev_ill2_etc:false, ev_ill2_etcText:"",
+    ev_etcText:"",
+    ev_ok_teacher: cat === "ok", ev_ok_etc:false, ev_ok_etcText:"",
+    submit: todayStr, parent:"",
+    school: (state.data.school && state.data.school.name) || LS.get(K_RP_SCHOOL) || "",
+    checkDate: todayStr,
+    how_visit:false, how_phone:false, how_parent:false, how_etc:false, how_etcText:"",
+    content: withRo(reason) ? withRo(reason) + " 인한" : "",
+    teacher: LS.get(K_RP_TEACHER) || ""
+  };
+
+  const wrap = document.createElement("div");
+  wrap.className = "modal report";
+  wrap.innerHTML = `
+    <div class="box" role="dialog" aria-modal="true" aria-label="출결 신고서">
+      <h3>출결 신고서 — ${s.no}번</h3>
+      <p style="margin:0 0 14px;">출석부 기록으로 채웠습니다. 고칠 곳만 고친 뒤 인쇄하세요. 이 내용은 저장되지 않습니다.</p>
+      <div class="rp-wrap">
+        <div id="rpFields">${reportFieldsHtml()}</div>
+        <div class="rp-preview"><div class="frame-holder"><iframe title="신고서 미리보기"></iframe></div></div>
+      </div>
+      <div class="rp-actions">
+        <button class="btn ghost" data-rp="close">닫기</button>
+        <button class="btn primary" data-rp="print">인쇄 / PDF로 저장</button>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+
+  const frame  = $("iframe", wrap);
+  const holder = $(".frame-holder", wrap);
+
+  /* 입력칸 ← v */
+  $$("[data-k]", wrap).forEach(el => {
+    const k = el.dataset.k;
+    if(el.type === "checkbox") el.checked = !!v[k];
+    else if(el.type === "radio") el.checked = v[k] === el.value;
+    else el.value = v[k] ?? "";
+  });
+
+  function fit(){
+    const w = Math.min(holder.parentElement.clientWidth - 24, 794);
+    const sc = w / 794;
+    holder.style.width  = w + "px";
+    holder.style.height = Math.round(1123 * sc) + "px";
+    frame.style.transform = `scale(${sc})`;
+  }
+  function draw(){ frame.srcdoc = reportDocHtml(v); }
+  fit(); draw();
+  window.addEventListener("resize", fit);
+
+  wrap.addEventListener("input", e => {
+    const el = e.target.closest("[data-k]");
+    if(!el) return;
+    const k = el.dataset.k;
+    if(el.type === "checkbox") v[k] = el.checked;
+    else if(el.type === "radio"){ if(el.checked) v[k] = el.value; }
+    else v[k] = el.value;
+    /* 기간을 바꾸면 일수를 다시 센다 */
+    if(k === "start" || k === "end"){
+      v.days = String(countSchoolDays(v.start, v.end));
+      $('[data-k="days"]', wrap).value = v.days;
+    }
+    if(k === "teacher") LS.set(K_RP_TEACHER, v.teacher);
+    if(k === "school")  LS.set(K_RP_SCHOOL, v.school);
+    draw();
+  });
+
+  wrap.addEventListener("click", e => {
+    const b = e.target.closest("[data-rp]");
+    if(!b) return;
+    if(b.dataset.rp === "close"){
+      window.removeEventListener("resize", fit);
+      wrap.remove();
+    }else{
+      try{ frame.contentWindow.focus(); frame.contentWindow.print(); }
+      catch(err){ toast("인쇄 창을 열지 못했습니다. 다른 브라우저에서 다시 시도해 주세요."); }
+    }
+  });
+}
+
+function reportFieldsHtml(){
+  const t  = (k, label, ph = "") => `<label class="field">${label}<input type="text" data-k="${k}" placeholder="${ph}" autocomplete="off"></label>`;
+  const d  = (k, label) => `<label class="field">${label}<input type="date" data-k="${k}"></label>`;
+  const cb = (k, label) => `<label><input type="checkbox" data-k="${k}">${label}</label>`;
+  const rd = (k, val, label) => `<label><input type="radio" name="rp_${k}" data-k="${k}" value="${val}">${label}</label>`;
+  return `
+    <fieldset><legend>학생</legend>
+      <div class="row3">${t("grade","학년")}${t("cls","반")}${t("no","번호")}</div>
+      ${t("name","성명","이름 보호 암호를 풀면 자동으로 채워집니다")}
+    </fieldset>
+    <fieldset><legend>출결 내용</legend>
+      <div class="opts">${rd("kind","absent","결석")}${rd("kind","late","지각")}${rd("kind","early","조퇴")}${rd("kind","result","결과")}</div>
+      <div class="row2">${d("start","시작일")}${d("end","종료일")}</div>
+      <div class="row3">${t("p1","시작 교시")}${t("p2","종료 교시")}${t("days","일수")}</div>
+      <label class="field">구분</label>
+      <div class="opts">${rd("cat","ill","질병")}${rd("cat","etc","기타")}${rd("cat","ok","출석인정")}</div>
+      ${t("reason","사유")}
+    </fieldset>
+    <fieldset><legend>증빙서류</legend>
+      <p class="sublabel">질병 — 2일 이내</p>
+      <div class="opts">${cb("ev_ill_teacher","담임교사 확인서")}${cb("ev_ill_rx","처방전")}${cb("ev_ill_clinic","진료확인서")}${cb("ev_ill_etc","기타")}</div>
+      ${t("ev_ill_etcText","질병 기타 내용")}
+      <p class="sublabel">질병 — 연속 3일 이상</p>
+      <div class="opts">${cb("ev_ill2_opinion","의사소견서")}${cb("ev_ill2_diag","진단서")}${cb("ev_ill2_etc","기타")}</div>
+      ${t("ev_ill2_etcText","질병(3일 이상) 기타 내용")}
+      ${t("ev_etcText","기타 결석 증빙")}
+      <p class="sublabel">출석인정</p>
+      <div class="opts">${cb("ev_ok_teacher","담임교사 확인서")}${cb("ev_ok_etc","기타")}</div>
+      ${t("ev_ok_etcText","출석인정 기타 내용")}
+    </fieldset>
+    <fieldset><legend>제출</legend>
+      ${d("submit","제출일")}
+      ${t("parent","보호자 성명","저장되지 않습니다")}
+      ${t("school","학교 이름","예: 아임중학교")}
+    </fieldset>
+    <fieldset><legend>담임교사 확인서</legend>
+      ${d("checkDate","확인 일시")}
+      <label class="field">확인 방법</label>
+      <div class="opts">${cb("how_visit","가정방문")}${cb("how_phone","전화연락")}${cb("how_parent","학부형 내교")}${cb("how_etc","기타")}</div>
+      ${t("how_etcText","확인 방법 기타 내용")}
+      ${t("content","확인 내용")}
+      ${t("teacher","담임 성명","이 기기에만 기억합니다")}
+    </fieldset>`;
+}
+
+/* 인쇄용 문서 — 원본 양식의 배치·문구를 그대로 따른다 */
+function reportDocHtml(v){
+  const E  = x => escapeHtml(x == null ? "" : String(x));
+  const ck = on => on ? "☑" : "□";
+  const num = (x, w = 2) => `<span class="v" style="min-width:${w}em">${E(x) || "&nbsp;"}</span>`;
+  const md = ds => ds
+    ? `${num(+ds.slice(5, 7))} 월 ${num(+ds.slice(8, 10))} 일`
+    : `${num("")} 월 ${num("")} 일`;
+  const year = (v.submit || ymd(today())).slice(0, 4);
+  const paren = (on, txt) => `${ck(on)} 기타(<span class="v" style="min-width:7em">${E(txt) || "&nbsp;"}</span>)`;
+
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>출결 신고서</title>
+<style>
+@page{ size:A4; margin:0; }
+html,body{ margin:0; background:#fff; }
+.sheet{
+  width:210mm; height:297mm; box-sizing:border-box; padding:16mm 15mm 12mm;
+  font-family:"Batang","바탕","BatangChe","AppleMyungjo","Noto Serif KR",serif;
+  color:#000; font-size:10.5pt; line-height:1.45;
+}
+.v{ display:inline-block; text-align:center; }
+.note{ font-size:8pt; font-style:italic; margin:0 0 3mm; }
+h1{ text-align:center; font-size:19pt; letter-spacing:.25em; margin:0 0 3mm; font-weight:bold; }
+.sign{ margin:0 0 4mm auto; border-collapse:collapse; font-size:9pt; }
+.sign td{ border:1px solid #000; text-align:center; }
+.sign .lab{ width:7mm; line-height:1.6; padding:1mm 0; }
+.sign .hd{ width:17mm; height:5mm; }
+.sign .cell{ height:13mm; vertical-align:top; padding-top:1mm; }
+.who{ text-align:right; margin:0 0 4mm; font-weight:bold; }
+.lead{ font-weight:bold; font-size:11pt; margin:0 0 1.5mm; }
+table.main{ width:100%; border-collapse:collapse; border:1.5px solid #000; }
+table.main > tbody > tr > td{ border:1px solid #000; padding:2mm 2mm; }
+.h{ width:14%; text-align:center; letter-spacing:1.2em; padding-left:1.2em !important; }
+.c{ text-align:center; }
+.cat span{ margin:0 7mm; }
+table.ev{ width:100%; border-collapse:collapse; font-size:8.6pt; }
+table.ev td{ border:1px solid #000; padding:1mm 1.5mm; }
+table.ev .eh{ width:14mm; text-align:center; font-size:9.5pt; }
+.ev b{ font-weight:normal; }
+.date{ text-align:center; margin:4mm 0 2mm; }
+.sig{ text-align:right; margin:0; }
+.sig .who2{ display:inline-block; min-width:30mm; text-align:center; }
+.to{ font-size:13pt; font-weight:bold; margin:4mm 0 3mm; letter-spacing:.05em; }
+.cut{ border-top:1px dashed #000; margin:3mm 0 4mm; }
+h2{ text-align:center; font-size:12pt; letter-spacing:.35em; margin:0 0 3mm; font-weight:bold; }
+table.conf{ width:100%; border-collapse:collapse; border:1.5px solid #000; }
+table.conf td{ border:1px solid #000; padding:2mm; }
+table.conf .h{ width:20%; letter-spacing:.5em; padding-left:.5em !important; }
+.end{ text-align:center; margin:3mm 0 2mm; }
+</style></head><body><div class="sheet">
+<p class="note">결석·지각·조퇴·결과일로부터 5일 이내에 제출해 주시기 바랍니다.</p>
+<h1>출결 신고서</h1>
+<table class="sign"><tr><td class="lab" rowspan="2">결<br>재</td><td class="hd">계</td><td class="hd">부장</td></tr>
+<tr><td class="cell"></td><td class="cell">전결</td></tr></table>
+<p class="who">제 ${num(v.grade)} 학년 ${num(v.cls)} 반 ${num(v.no)} 번&nbsp;&nbsp; 성명 : <span class="v" style="min-width:5em">${E(v.name) || "&nbsp;"}</span></p>
+<p class="lead">본인은 다음과 같이 (${ck(v.kind === "absent")}결석 ${ck(v.kind === "late")}지각 ${ck(v.kind === "early")}조퇴 ${ck(v.kind === "result")}결과) 하였기에 보호자 연서로 신고합니다.</p>
+<table class="main"><tbody>
+<tr><td class="h">기간</td><td class="c">${md(v.start)} ~ ${md(v.end)}&nbsp;&nbsp; ${num(v.p1)} 교시 ~ ${num(v.p2)} 교시&nbsp;&nbsp; ( ${num(v.days)} 일간)</td></tr>
+<tr><td class="h">구분</td><td class="c cat"><span>${ck(v.cat === "ill")}질병</span><span>${ck(v.cat === "etc")}기타</span><span>${ck(v.cat === "ok")}출석인정</span></td></tr>
+<tr><td class="h">사유</td><td class="c">${E(v.reason) || "&nbsp;"}</td></tr>
+<tr><td class="h" style="letter-spacing:0;padding-left:2mm !important;">증빙서류</td><td style="padding:1.5mm;">
+<table class="ev"><tbody>
+<tr><td class="eh" rowspan="2">질 병</td><td>※ 상습적이지 않은 2일 이내의 결석 증빙서류 첨부<br>
+${ck(v.ev_ill_teacher)} 담임교사 확인서&nbsp; ${ck(v.ev_ill_rx)} 처방전&nbsp; ${ck(v.ev_ill_clinic)} 진료확인서&nbsp; ${paren(v.ev_ill_etc, v.ev_ill_etcText)}</td></tr>
+<tr><td>※ 연속 3일 이상의 질병결석은 필히 증빙서류 첨부<br>&nbsp;(병명, 진료기간 등이 기록된 증빙서류)<br>
+${ck(v.ev_ill2_opinion)} 의사소견서&nbsp; ${ck(v.ev_ill2_diag)} 진단서&nbsp; ${paren(v.ev_ill2_etc, v.ev_ill2_etcText)}</td></tr>
+<tr><td class="eh">기 타</td><td>${E(v.ev_etcText) || "&nbsp;"}</td></tr>
+<tr><td class="eh">출석인정</td><td>${ck(v.ev_ok_teacher)} 담임교사 확인서&nbsp; ${paren(v.ev_ok_etc, v.ev_ok_etcText)}</td></tr>
+</tbody></table></td></tr>
+</tbody></table>
+<p class="date">${num(year, 3)} 년 ${md(v.submit)}</p>
+<p class="sig">학 생 : <span class="who2">${E(v.name) || "&nbsp;"}</span> (인)</p>
+<p class="sig">보호자 : <span class="who2">${E(v.parent) || "&nbsp;"}</span> (인)</p>
+<p class="to"><span class="v" style="min-width:6em">${E(v.school) || "&nbsp;"}</span> 학 교 장&nbsp;&nbsp; 귀 하</p>
+<div class="cut"></div>
+<h2>담임교사확인서</h2>
+<table class="conf"><tbody>
+<tr><td class="h">확인일시</td><td>&nbsp;&nbsp;${md(v.checkDate)}</td></tr>
+<tr><td class="h">확인방법</td><td>${ck(v.how_visit)} 가정방문 ${ck(v.how_phone)} 전화연락 ${ck(v.how_parent)} 학부형 내교 ${ck(v.how_etc)} 기타 ( <span class="v" style="min-width:9em">${E(v.how_etcText) || "&nbsp;"}</span> )</td></tr>
+<tr><td class="h">확인내용</td><td>${E(v.content) || "&nbsp;"}</td></tr>
+</tbody></table>
+<p class="end">위와 같이 확인하였습니다.</p>
+<p class="sig">담 임 : <span class="who2">${E(v.teacher) || "&nbsp;"}</span> (인)</p>
+</div></body></html>`;
+}
 
 (function boot(){
   const m = location.hash.match(/^#\/s\/(.+)$/);
