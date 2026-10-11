@@ -77,6 +77,45 @@ service cloud.firestore {
       allow write: if isMine(classId);
     }
 
+    // ---------- 교과 출석부 ----------
+    // 문서 ID(boardId)는 담임이 정한 출석부 암호에서 만든 값이다.
+    // 암호를 모르면 ID를 알 수 없으므로 "목록 보기(list)"는 막고 "하나 가져오기(get)"만 연다.
+    // 안의 내용(이름·출결·사유·체크)은 모두 출석부 암호로 잠근 채 저장되어 서버에서는 읽을 수 없다.
+    match /boards/{boardId} {
+
+      function boardOwner() {
+        return get(/databases/$(database)/documents/boards/$(boardId)).data.ownerUid;
+      }
+
+      allow get: if true;
+      allow list: if false;
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if signedIn() && resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.ownerUid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
+
+      // 날짜별 아침 출결·시간표 — 담임만 쓴다
+      match /days/{date} {
+        allow get: if true;
+        allow list: if false;
+        allow write: if signedIn() && boardOwner() == request.auth.uid;
+
+        // 교과 선생님의 교시 체크 — 누구나 "추가"만 할 수 있다(고치기 불가).
+        // 경로 자체가 비밀이므로 이 아래 목록 읽기는 연다. 지우기는 담임만(암호 바꿀 때 정리용).
+        match /checks/{checkId} {
+          allow read: if true;
+          allow create: if exists(/databases/$(database)/documents/boards/$(boardId))
+                        && request.resource.data.keys().hasOnly(['c', 'at'])
+                        && request.resource.data.c is string
+                        && request.resource.data.c.size() < 4000
+                        && request.resource.data.at is string
+                        && request.resource.data.at.size() < 40;
+          allow update: if false;
+          allow delete: if signedIn() && boardOwner() == request.auth.uid;
+        }
+      }
+    }
+
     // ---------- 그 외 전부 차단 ----------
     match /{document=**} {
       allow read, write: if false;

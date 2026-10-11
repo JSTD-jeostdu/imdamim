@@ -355,8 +355,69 @@ input:focus, select:focus, textarea:focus{ border-color:var(--ink); outline:none
   padding:22px; max-width:400px; width:100%;
 }
 .modal h3{ font-family:var(--font-display); font-size:18px; margin:0 0 10px; }
-.modal p{ font-size:14px; line-height:1.65; color:var(--ink-70); margin:0 0 18px; }
+.modal p{ font-size:14px; line-height:1.65; color:var(--ink-70); margin:0 0 18px; white-space:pre-line; }
 .modal .btn-row{ justify-content:flex-end; }
+
+/* ---------- 교과 출석부 ---------- */
+#screen-teacher .row2{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
+.tb-back{
+  margin-left:8px; min-height:36px; padding:0 12px; border-radius:999px;
+  border:1.5px solid rgba(255,255,255,.6); background:transparent; color:#fff; font-size:13px; font-weight:600;
+}
+.tb-remember{ display:flex; align-items:center; gap:8px; min-height:44px; font-size:13.5px; color:var(--ink-70); margin-top:6px; }
+.tb-remember input{ width:20px; height:20px; accent-color:var(--ink); }
+.tb-periods{ display:grid; grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); gap:8px; margin-top:6px; }
+.tb-periods button{
+  min-height:56px; border:1.5px solid var(--line); border-radius:var(--r); background:var(--card);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--text);
+}
+.tb-periods button b{ font-size:12px; color:var(--ink-45); font-weight:600; }
+.tb-periods button span{ font-size:15px; font-weight:700; }
+.tb-periods button small{ font-size:10.5px; color:var(--seal); }
+.tb-periods button[aria-pressed="true"]{ border-color:var(--ink); background:var(--ink); color:#fff; }
+.tb-periods button[aria-pressed="true"] b,
+.tb-periods button[aria-pressed="true"] small{ color:#D0DFEF; }
+.tb-periods button.now{ box-shadow:inset 0 -3px 0 var(--highlight); }
+
+.mrow{ display:flex; gap:10px; align-items:flex-start; padding:9px 2px; border-bottom:1px solid var(--line); }
+.mrow:last-child{ border-bottom:0; }
+.mrow .who{ flex:1; min-width:0; }
+.mrow .who b{ font-size:15px; }
+.mrow .rsn{ display:block; font-size:13px; color:var(--ink-70); }
+
+/* 학생 × 교시 흐름표 */
+.flow{ width:100%; border-collapse:separate; border-spacing:0 4px; }
+.flow th{ font-size:11.5px; color:var(--ink-45); font-weight:600; padding:0 2px 2px; text-align:center; }
+.flow th.nm{ text-align:left; }
+.flow td{ padding:0 2px; text-align:center; }
+.flow tr.stu{ cursor:pointer; }
+.flow tr.stu td.nm{
+  text-align:left; font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  max-width:110px; padding:8px 6px; border-radius:var(--r) 0 0 var(--r); background:var(--paper);
+}
+.flow tr.stu td.nm small{ display:block; font-size:11px; font-weight:500; color:var(--ink-45); }
+.flow tr.stu:hover td.nm{ background:var(--tint); }
+.pc{
+  display:inline-flex; align-items:center; justify-content:center; min-width:28px; height:28px;
+  border-radius:8px; font-size:11px; font-weight:700; background:#F4F7FB; color:var(--ink-45); border:1px solid var(--line);
+}
+.pc.sel{ outline:2px solid var(--ink); outline-offset:1px; }
+.pc.arrive{ background:#E5F3EF; color:var(--seal); border-color:#9ACFC1; }
+.pc.absentClass{ background:#FBEDEA; color:var(--stamp); border-color:#E7A79F; }
+.pc.early{ background:#FDF3D6; color:#8A6D12; border-color:#E2C56B; }
+.pc.out{ background:var(--tint); color:var(--ink); border-color:#A6C0DC; }
+.pc.miss{ background:#FBEDEA; color:var(--stamp); border-color:#E7A79F; opacity:.55; }
+.flow-wrap{ overflow-x:auto; margin:0 -4px; padding:0 4px; }
+.flow-legend{ display:flex; flex-wrap:wrap; gap:6px 12px; font-size:12px; color:var(--ink-70); margin-top:10px; }
+.flow-legend span{ display:inline-flex; align-items:center; gap:4px; }
+.flow-by{ display:block; font-size:12px; color:var(--ink-45); margin-top:2px; }
+
+/* 학생을 눌렀을 때 뜨는 선택지 */
+.sheet-pick .box{ max-width:420px; border-radius:var(--r-lg); }
+.sheet-pick .acts{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+.sheet-pick .acts button{ min-height:56px; }
+.sheet-pick .hist{ font-size:13px; color:var(--ink-70); margin:0 0 10px; }
+.sheet-pick .hist div{ padding:4px 0; border-bottom:1px dashed var(--line); }
 
 /* ---------- 출결 신고서 ---------- */
 .rp-row{
@@ -1327,6 +1388,76 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
 </div>
 
 <!-- =========================================================
+     교과 출석부 (교과 선생님용)
+     주소 뒤에 #/t/{반ID} — QR로 들어와 출석부 암호를 넣는다.
+     ========================================================= -->
+<div id="screen-teacher" class="hidden">
+  <header class="topbar">
+    <div class="wrap">
+      <h1 id="tbTitle">교과 출석부</h1>
+      <span class="cls" id="tbCls"></span>
+      <button class="tb-back hidden" id="tbBack">← 담임 화면</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <div id="tbDemoNote" class="histbar hidden" style="margin-top:12px;">체험용 미리보기입니다. 체크하면 담임 화면 「교시별 기록」에 바로 뜹니다.</div>
+
+    <!-- 암호 입력 -->
+    <div class="card" id="tbGate">
+      <span class="eyebrow">IM-DAM-IM · 아임담임</span>
+      <h2>교과 출석부</h2>
+      <p class="sub">담임 선생님께 받은 출석부 암호를 넣어 주세요. 이 기기에서는 한 번만 넣으면 됩니다.</p>
+      <label class="field" for="tbPin">출석부 암호</label>
+      <input type="text" id="tbPin" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="숫자">
+      <label class="tb-remember"><input type="checkbox" id="tbRemember" checked> 이 기기에서 기억하기 (공용 컴퓨터에서는 끄세요)</label>
+      <div class="btn-row" style="margin-top:12px;"><button class="btn primary" id="tbEnter">열기</button></div>
+      <p class="sub" id="tbGateMsg" style="margin-top:10px;"></p>
+    </div>
+
+    <!-- 출석부 본문 -->
+    <div id="tbMain" class="hidden">
+      <div class="card" id="tbMe">
+        <span class="eyebrow">나</span>
+        <div class="row2">
+          <div><label class="field" for="tbName">성함</label><input type="text" id="tbName" autocomplete="off" placeholder="예: 김수학"></div>
+          <div><label class="field" for="tbSubject">교과</label><input type="text" id="tbSubject" autocomplete="off" placeholder="교시를 고르면 채워집니다"></div>
+        </div>
+      </div>
+
+      <div class="datenav" id="tbDateNav">
+        <button class="dn-prev" aria-label="어제">◀</button>
+        <span class="dn-label" id="tbDateLabel"></span>
+        <button class="dn-next" aria-label="내일">▶</button>
+        <button class="dn-today hidden" id="tbToday">오늘로</button>
+      </div>
+
+      <div class="card">
+        <span class="eyebrow">오늘의 시간표</span>
+        <h2>내 교시를 고르세요</h2>
+        <div class="tb-periods" id="tbPeriods"></div>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn sm ghost" id="tbFixSubject" disabled>이 교시 과목 고치기</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="eyebrow">아침 출결</span>
+        <h2 id="tbMorningHead">지각·결석</h2>
+        <div id="tbMorning"></div>
+      </div>
+
+      <div class="card">
+        <span class="eyebrow">교시별 흐름</span>
+        <h2>학생을 눌러 내 교시에 체크</h2>
+        <p class="sub" id="tbFlowSub">학생을 누르면 고른 교시에 도착·결과·조퇴·이석을 남길 수 있습니다.</p>
+        <div id="tbFlow"></div>
+      </div>
+      <p class="footnote">이 화면의 기록은 담임 선생님 확인용이며 공식 학적 자료가 아닙니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
      학생 화면 (읽기 전용)
      주소 뒤에 #/s/{반ID} 를 붙이면 이 화면으로 바로 들어옵니다.
      ========================================================= -->
@@ -1898,6 +2029,17 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div id="qrBox"></div>
       </div>
 
+      <!-- 교과 출석부 -->
+      <div class="card" id="cardBoard">
+        <span class="eyebrow">교과 출석부</span>
+        <h2>교과 선생님과 출석 나누기</h2>
+        <p class="sub">우리 반에 들어오시는 교과 선생님이 QR을 찍고 출석부 암호를 넣으면,
+        오늘 지각·결석 학생과 사유, 교시별 기록을 보고 자기 교시에 체크할 수 있습니다.</p>
+        <div class="notice">이름·사유·체크 기록은 출석부 암호로 잠근 채 저장됩니다.
+        암호를 모르면 서버에서 출석부를 찾을 수조차 없습니다. 암호는 교과 선생님들께만 알려 주세요.</div>
+        <div id="boardBody"></div>
+      </div>
+
       <!-- 학년도 정리 -->
       <div class="card">
         <span class="eyebrow">정리</span>
@@ -2092,6 +2234,17 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <div class="grid" id="attGrid"></div>
         <div class="board">칠 판</div>
         <p class="sub" id="attNoSeat" style="margin-top:14px;"></p>
+      </div>
+
+      <!-- 교과 선생님들의 교시별 기록 -->
+      <div class="card" id="cardPeriods">
+        <span class="eyebrow">교과 출석부</span>
+        <h2>교시별 기록</h2>
+        <p class="sub" id="periodsSub">교과 선생님이 체크한 도착·결과·조퇴·이석이 여기에 바로 뜹니다.</p>
+        <div id="periodsBody"></div>
+        <div class="btn-row hidden" id="periodsDemoRow" style="margin-top:12px;">
+          <button class="btn sm" id="btnTeacherPreview">교과 선생님 화면 미리보기</button>
+        </div>
       </div>
 
       <!-- 출결 신고서 자동 작성 -->
@@ -2539,6 +2692,7 @@ const store = (() => {
       if(path === "seats" || path.startsWith("seats.")){
         queueSeatSnapshot();
       }
+      boardNotifySave(path);   // 교과 출석부에 올라가는 항목이면 다시 올린다
       if(state.mode === "local"){ LS.set(K_CLASS, state.data); return; }
       if(state.mode !== "cloud" || !fb) return;
       const ref = fb.doc(fb.db, "classes", state.classId);
@@ -2596,6 +2750,7 @@ const store = (() => {
       }
       const last = parts[parts.length - 1];
       if(value === null) delete cur[last]; else cur[last] = value;
+      boardQueueDay(date);     // 교과 출석부의 그날 아침 출결도 갱신
 
       if(state.mode === "local"){ LS.set(K_ATT + date, cache); return; }
       if(state.mode !== "cloud" || !fb) return;
@@ -3021,7 +3176,10 @@ async function initFirebaseAuth(){
     deleteDoc: dbMod.deleteDoc,
     updateDoc: dbMod.updateDoc,
     deleteField: dbMod.deleteField,
-    onSnapshot: dbMod.onSnapshot
+    onSnapshot: dbMod.onSnapshot,
+    collection: dbMod.collection,     // 교과 출석부 — 교시 체크 목록
+    getDocs: dbMod.getDocs,
+    addDoc: dbMod.addDoc
   };
   store.setFirebase(fbRefs);
 
@@ -3367,6 +3525,18 @@ function fillDemoClass(ids, todayStr){
   }
   /* 연속 결석 예시 — 신고서에서 이틀이 한 기간으로 묶이는 것을 볼 수 있다 */
   state.attCache[d].students.s08 = { status:"absent", reason:"가정 사정" };
+
+  /* 교과 출석부 — 가장 최근 평일에 교과 선생님들이 남긴 가상 교시 기록 */
+  board.demo = {};
+  const last = shiftSchoolDay(todayStr, -1);
+  const rec = (ds, hh, o) => Object.assign({ id: "demo" + hh + o.sid, at: `${ds}T${hh}:00:00.000Z` }, o);
+  board.demo[last] = [
+    rec(last, "01", { type:"out",         period:2, sid:"s13", note:"보건실", subject:"수학", teacher:"김수학" }),
+    rec(last, "02", { type:"absentClass", period:3, sid:"s13", note:"",      subject:"국어", teacher:"최국어" }),
+    rec(last, "04", { type:"arrive",      period:4, sid:"s13", note:"",      subject:"영어", teacher:"이영어" }),
+    rec(last, "03", { type:"absentClass", period:4, sid:"s20", note:"",      subject:"영어", teacher:"이영어" }),
+    rec(last, "05", { type:"early",       period:6, sid:"s06", note:"",      subject:"과학", teacher:"박과학" })
+  ];
 }
 
 /* 체험 모드 급식 — 학교를 고르지 않아도 화면이 비지 않게 요일별 가상 메뉴 */
@@ -3402,6 +3572,7 @@ function enterApp(){
   setupFolds();
   if(state.mode === "demo") $("#demoBanner").classList.remove("hidden");
   renderAll();
+  boardResume();   // 교과 출석부가 켜져 있으면 최신 내용을 올리고 교시 체크를 받아 보기 시작
 }
 
 /* ============================================================
@@ -3712,6 +3883,7 @@ function renderAll(){
   renderSchoolPanel();
   renderDash();
   renderPublicPanel();
+  renderBoardPanel();
   $("#inPw").placeholder = state.data.passwordHash
     ? "설정되어 있습니다 (바꾸려면 새로 입력)"
     : "비우면 누구나 볼 수 있습니다";
@@ -4889,6 +5061,7 @@ function renderAtt(){
   $("#btnCloseMeeting").classList.toggle("hidden", viewingHistory || !!doc.closed);
   $("#btnReopen").classList.toggle("hidden", viewingHistory || !doc.closed);
   renderFollow(doc);
+  renderPeriodsCard();
   renderReportList();
   renderDateNav("#attDateNav", "#attHistBar", ds);
 }
@@ -5048,6 +5221,7 @@ $("#dashDateNav").addEventListener("click", e => {
 $("#btnSaveOv").addEventListener("click", async () => {
   const ds = ymd(today());
   const arr = $$("#ovEdit input").map(i => i.value.trim());
+  await store.save(`ovAt.${ds}`, new Date().toISOString());   // 교과 선생님 수정과 어느 쪽이 나중인지 가리는 데 쓴다
   await store.save(`overrides.${ds}`, arr);
   renderDash();
   await autoSync();
@@ -5055,6 +5229,7 @@ $("#btnSaveOv").addEventListener("click", async () => {
 });
 $("#btnClearOv").addEventListener("click", async () => {
   const ds = ymd(today());
+  await store.save(`ovAt.${ds}`, new Date().toISOString());
   await store.save(`overrides.${ds}`, null);
   renderDash();
   await autoSync();
@@ -6074,7 +6249,7 @@ $("#btnCloseLegal").addEventListener("click", () => {
    ③ 서버 동기화면 로그인 화면, 이 기기 저장이면 바로 시작
    ============================================================ */
 function showOnly(id){
-  ["screen-intro","screen-setup","screen-login","screen-app","screen-student"].forEach(x => {
+  ["screen-intro","screen-setup","screen-login","screen-app","screen-student","screen-teacher"].forEach(x => {
     const el = document.getElementById(x);
     if(el) el.classList.toggle("hidden", x !== id);
   });
@@ -6179,6 +6354,773 @@ $("#inRestore").addEventListener("change", async e => {
    ★ 신고서는 화면에서 만들어 인쇄할 뿐 어디에도 저장하지 않는다.
      (학부모 이름 등 새로 입력한 값도 남기지 않는다. 교사·학교 이름만 이 기기에 기억)
    ============================================================ */
+/* ============================================================
+   교과 출석부 — 담임 ↔ 교과 선생님
+   ------------------------------------------------------------
+   ★ 설계
+     · 담임이 정한 출석부 암호(숫자)에서 PBKDF2 로 두 가지를 만든다.
+         ① 문서 ID(boardId)  ② 내용을 잠그는 열쇠(AES-256-GCM)
+       암호를 모르면 문서가 어디 있는지조차 알 수 없고(목록 보기 금지),
+       문서를 손에 넣어도 내용을 읽을 수 없다. 서버에는 잠긴 글자만 있다.
+     · boards/{id}                  반 이름·명단(실명)·기본 시간표   — 담임만 쓴다
+       boards/{id}/days/{날짜}       아침 출결·사유·그날 시간표        — 담임만 쓴다
+       boards/{id}/days/{날짜}/checks 교시 체크·과목 수정             — 누구나 "추가"만
+     · 교과 선생님의 체크는 고치지 않고 "취소 기록"을 덧붙여 되돌린다.
+     · 시간표는 담임이 고친 시각(ovAt)과 교과 선생님이 고친 시각을 비교해 나중 것을 따른다.
+   ============================================================ */
+const K_BOARD = "imdi_board_";   // + 반ID → { id, k }  담임 기기의 출석부 열쇠
+const K_TB    = "imdi_tb_";      // + 반ID → { id, k }  교과 선생님 기기의 출석부 열쇠
+const K_TB_ME = "imdi_tb_me";    // { name, subject }   교과 선생님 성함·교과
+const BOARD_DAYS_BACK = 200;     // 학기 전체 — 오늘부터 거꾸로 이만큼의 날짜를 다룬다
+const CHECK_LABEL = { arrive:"도착", absentClass:"결과", early:"조퇴", out:"이석" };
+const CHECK_SHORT = { arrive:"도", absentClass:"결", early:"조", out:"이" };
+
+const board = { id:null, key:null, unsubs:[], checks:{}, timers:{}, metaTimer:null, demo:{} };
+
+/* ---------- 열쇠·잠그기 ---------- */
+async function boardDerive(classId, pin){
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(String(pin)), "PBKDF2", false, ["deriveBits"]);
+  const bits = new Uint8Array(await crypto.subtle.deriveBits(
+    { name:"PBKDF2", salt: new TextEncoder().encode("imdamim-board|" + classId), iterations: 200000, hash:"SHA-256" },
+    km, 512));
+  const id  = Array.from(bits.slice(0, 16)).map(b => b.toString(16).padStart(2, "0")).join("");
+  const raw = bits.slice(32, 64);   // 앞 절반(ID)과 겹치지 않는 뒤 절반을 열쇠로
+  return { id, key: await boardKeyFromB64(crypt.toB64(raw)), rawB64: crypt.toB64(raw) };
+}
+function boardKeyFromB64(b64){
+  return crypto.subtle.importKey("raw", crypt.fromB64(b64), "AES-GCM", false, ["encrypt","decrypt"]);
+}
+async function sealJson(key, obj){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(obj)));
+  return crypt.toB64(iv) + ":" + crypt.toB64(ct);
+}
+async function openJson(key, blob){
+  const [ivB, ctB] = String(blob).split(":");
+  const pt = await crypto.subtle.decrypt({ name:"AES-GCM", iv: crypt.fromB64(ivB) }, key, crypt.fromB64(ctB));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+/* ---------- 올라가는 내용 ---------- */
+function boardMetaPayload(){
+  return {
+    className: state.data.className || "",
+    periods: state.data.periods || CONFIG.periodsPerDay,
+    timetable: state.data.timetable || {},
+    students: (state.data.students || []).map(s => ({ id: s.id, no: s.no, name: nameOf(s) }))
+  };
+}
+function boardDayPayload(ds){
+  const doc = state.attCache[ds] || { students:{} };
+  const att = {};
+  Object.entries(doc.students || {}).forEach(([id, r]) => {
+    if(r && (r.status === "late" || r.status === "absent")){
+      att[id] = { status: r.status, reason: typeof r.reason === "string" ? r.reason : "" };
+    }
+  });
+  return {
+    att, closed: !!doc.closed,
+    tt: periodsFor(ds).map(p => p.value),
+    ttAt: (state.data.ovAt || {})[ds] || ""
+  };
+}
+
+/* ---------- 담임: 준비 상태 ---------- */
+function boardReady(){
+  const b = state.data && state.data.board;
+  return state.mode === "cloud" && !!fbRefs && !!b && b.on && !!board.key && board.id === b.id;
+}
+async function boardLoadLocalKey(){
+  board.id = null; board.key = null;
+  const b = state.data.board;
+  if(!b || !b.on) return;
+  const saved = LS.get(K_BOARD + state.classId);
+  if(saved && saved.id === b.id){
+    try{ board.id = saved.id; board.key = await boardKeyFromB64(saved.k); }
+    catch(e){ board.id = null; board.key = null; }
+  }
+}
+/* 실명 모드인데 이름 잠금이 걸려 있으면 가린 이름으로 덮어쓰지 않는다 */
+function boardNamesReady(){
+  return state.nameMode === "number" || !!crypt.key || !(state.data.students || []).length;
+}
+
+/* ---------- 담임: 바뀐 것 올리기 (연달아 바뀌면 한 번으로 모은다) ---------- */
+function boardNotifySave(path){
+  if(/^(students|timetable|periods|className)(\.|$)/.test(path)) boardQueueMeta();
+  const m = path.match(/^(overrides|ovAt)\.(\d{4}-\d{2}-\d{2})$/);
+  if(m) boardQueueDay(m[2]);
+  if(path === "timetable" || path === "periods") boardQueueDay(ymd(today()));
+}
+function boardQueueMeta(){
+  if(!boardReady()) return;
+  clearTimeout(board.metaTimer);
+  board.metaTimer = setTimeout(boardPublishMeta, 1200);
+}
+function boardQueueDay(ds){
+  if(state.mode === "demo"){ setTimeout(() => { if(tb.demo && tb.date === ds) tbSetDate(ds); }, 0); return; }
+  if(!boardReady()) return;
+  clearTimeout(board.timers[ds]);
+  board.timers[ds] = setTimeout(() => boardPublishDay(ds), 1200);
+}
+async function boardPublishMeta(target = board){
+  if(!boardNamesReady()) return false;
+  const ref = fbRefs.doc(fbRefs.db, "boards", target.id);
+  try{
+    await fbRefs.setDoc(ref, {
+      ownerUid: state.uid, v: 1,
+      meta: await sealJson(target.key, boardMetaPayload()),
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  }catch(e){ console.warn("교과 출석부 올리기 실패", e); return false; }
+}
+async function boardPublishDay(ds, target = board){
+  await store.loadAtt(ds);
+  const ref = fbRefs.doc(fbRefs.db, "boards", target.id, "days", ds);
+  const body = { ownerUid: state.uid, day: await sealJson(target.key, boardDayPayload(ds)), updatedAt: new Date().toISOString() };
+  /* 서버 응답을 기다리지 않는다 — 오프라인이어도 기기에 쌓였다가 올라간다 */
+  fbRefs.setDoc(ref, body).catch(e => console.warn("교과 출석부 날짜 올리기 실패", ds, e));
+}
+
+/* ---------- 담임: 교시 체크 받아 보기 ---------- */
+function boardStopWatch(){
+  board.unsubs.forEach(u => { try{ u(); }catch(e){} });
+  board.unsubs = [];
+}
+function checksCol(db, id, ds){
+  return fbRefs.collection(db, "boards", id, "days", ds, "checks");
+}
+async function decodeChecks(key, docs){
+  const out = [];
+  for(const d of docs){
+    try{
+      const c = await openJson(key, d.data().c);
+      c.id = d.id;
+      c.at = c.at || d.data().at || "";
+      out.push(c);
+    }catch(e){ /* 다른 열쇠로 잠긴 것(예전 암호)은 건너뛴다 */ }
+  }
+  return out.sort((a, b) => a.at < b.at ? -1 : a.at > b.at ? 1 : 0);
+}
+function boardWatch(ds){
+  if(!boardReady()) return;
+  board.unsubs.push(fbRefs.onSnapshot(checksCol(fbRefs.db, board.id, ds), async snap => {
+    board.checks[ds] = await decodeChecks(board.key, snap.docs);
+    await applySubjectChanges(ds, board.checks[ds]);
+    renderPeriodsCard();
+  }, e => console.warn("교시 체크 받기 실패", e)));
+}
+async function boardLoadChecks(ds){
+  if(state.mode === "demo") return board.demo[ds] || [];
+  if(!boardReady()) return [];
+  if(board.checks[ds]) return board.checks[ds];
+  try{
+    const snap = await fbRefs.getDocs(checksCol(fbRefs.db, board.id, ds));
+    board.checks[ds] = await decodeChecks(board.key, snap.docs);
+  }catch(e){ console.warn(e); board.checks[ds] = []; }
+  return board.checks[ds];
+}
+
+/* 앱에 들어올 때마다 — 최신 내용을 올리고 오늘 체크를 받아 보기 시작한다 */
+async function boardResume(){
+  boardStopWatch();
+  board.checks = {};
+  if(state.mode === "cloud"){
+    await boardLoadLocalKey();
+    if(boardReady()){
+      boardPublishMeta();
+      boardPublishDay(ymd(today()));
+      boardWatch(ymd(today()));
+    }
+  }
+  renderBoardPanel();
+  renderPeriodsCard();
+}
+
+/* ---------- 체크 정리 (담임·교과 화면 공통) ---------- */
+function resolveChecks(list){
+  const cancelled = new Set((list || []).filter(c => c.type === "cancel").map(c => c.ref));
+  const marks = {};      // 학생 → 교시 → 기록(마지막 것)
+  const subjects = {};   // 교시 → 과목 수정 기록(마지막 것)
+  (list || []).forEach(c => {
+    if(c.type === "cancel" || cancelled.has(c.id)) return;
+    if(c.type === "subject"){ subjects[c.period] = c; return; }
+    if(!c.sid || !CHECK_LABEL[c.type]) return;
+    (marks[c.sid] || (marks[c.sid] = {}))[c.period] = c;
+  });
+  return { marks, subjects };
+}
+function effectiveTT(baseTT, ttAt, subjects){
+  const tt = (baseTT || []).slice();
+  Object.values(subjects).forEach(r => { if(!ttAt || r.at > ttAt) tt[r.period - 1] = r.subject; });
+  return tt;
+}
+function ttFromMeta(meta, ds){
+  const base = (meta.timetable || {})[DAY_KEY[parseYmd(ds).getDay()]] || [];
+  const n = meta.periods || CONFIG.periodsPerDay;
+  return Array.from({ length: n }, (_, i) => (base[i] || "").trim());
+}
+
+/* 교과 선생님이 과목을 고쳤으면 담임 쪽 「오늘만 바뀐 시간표」에도 반영한다 (나중에 고친 쪽이 이긴다) */
+async function applySubjectChanges(ds, list){
+  const { subjects } = resolveChecks(list);
+  const ovAt  = (state.data.ovAt || {})[ds] || "";
+  const newer = Object.values(subjects).filter(r => r.at > ovAt);
+  if(!newer.length) return;
+  const arr = periodsFor(ds).map(p => p.value);
+  let latest = ovAt;
+  newer.forEach(r => { arr[r.period - 1] = r.subject; if(r.at > latest) latest = r.at; });
+  await store.save(`ovAt.${ds}`, latest);
+  await store.save(`overrides.${ds}`, arr);
+  renderDash();
+  autoSync();
+  const r = newer[newer.length - 1];
+  toast(`${r.period}교시 과목이 「${r.subject}」(으)로 바뀌었습니다 — ${r.teacher || "교과 선생님"}`);
+}
+
+/* ---------- 학생 × 교시 흐름표 (담임·교과 화면 공통) ---------- */
+function flowTableHtml({ students, att, marks, n, sel, all }){
+  const rows = students.filter(s => all || att[s.id] || marks[s.id]);
+  if(!rows.length){
+    return `<p class="sub">${all ? "명단이 없습니다." : "아직 지각·결석이나 교시 기록이 없습니다."}</p>`;
+  }
+  let head = `<tr><th class="nm">학생</th><th>아침</th>`;
+  for(let p = 1; p <= n; p++) head += `<th>${p}</th>`;
+  head += `</tr>`;
+  const body = rows.map(s => {
+    const a = att[s.id];
+    const mk = marks[s.id] || {};
+    let tds = `<td>${a ? `<span class="pc ${a.status === "absent" ? "absentClass" : "early"}">${a.status === "absent" ? "결석" : "지각"}</span>` : `<span class="pc">·</span>`}</td>`;
+    let gone = a && a.status === "absent";
+    for(let p = 1; p <= n; p++){
+      const r = mk[p];
+      if(r && r.type === "arrive") gone = false;
+      const cls = (r ? r.type : (gone ? "miss" : "")) + (sel === p ? " sel" : "");
+      const txt = r ? CHECK_SHORT[r.type] : (gone ? "–" : "·");
+      const tip = r ? `${p}교시 ${CHECK_LABEL[r.type]}${r.note ? " (" + r.note + ")" : ""} · ${r.subject || ""} ${r.teacher || ""}` : "";
+      tds += `<td><span class="pc ${cls}" title="${escapeHtml(tip)}">${txt}</span></td>`;
+      if(r && r.type === "early") gone = true;
+    }
+    return `<tr class="stu" data-sid="${s.id}"><td class="nm">${s.no}번 ${escapeHtml(s.name)}${a && a.reason ? `<small>${escapeHtml(a.reason)}</small>` : ""}</td>${tds}</tr>`;
+  }).join("");
+  return `<div class="flow-wrap"><table class="flow"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+    <div class="flow-legend"><span><span class="pc arrive">도</span>수업 중 도착</span><span><span class="pc absentClass">결</span>결과</span>
+    <span><span class="pc early">조</span>조퇴</span><span><span class="pc out">이</span>이석</span><span><span class="pc miss">–</span>아직 안 옴</span></div>`;
+}
+
+/* ---------- 담임: 출석 탭 「교시별 기록」 ---------- */
+function renderPeriodsCard(){
+  const card = $("#cardPeriods");
+  if(!card || !state.data) return;
+  const demo = state.mode === "demo";
+  const on = demo || boardReady();
+  card.classList.toggle("hidden", !on);
+  $("#periodsDemoRow").classList.toggle("hidden", !demo);
+  if(!on) return;
+  const ds = state.attDate || ymd(today());
+  const list = demo ? (board.demo[ds] || []) : board.checks[ds];
+  if(list === undefined){
+    $("#periodsBody").innerHTML = `<p class="sub">불러오는 중…</p>`;
+    boardLoadChecks(ds).then(() => { if((state.attDate || ymd(today())) === ds) renderPeriodsCard(); });
+    return;
+  }
+  const { marks, subjects } = resolveChecks(list);
+  const doc = state.attCache[ds] || { students:{} };
+  const att = {};
+  Object.entries(doc.students || {}).forEach(([id, r]) => { if(r && r.status) att[id] = r; });
+  const students = (state.data.students || []).map(s => ({ id: s.id, no: s.no, name: nameOf(s) }));
+  const subjNote = Object.values(subjects).map(r => `${r.period}교시 → ${escapeHtml(r.subject)} (${escapeHtml(r.teacher || "")})`).join(", ");
+  $("#periodsBody").innerHTML =
+    flowTableHtml({ students, att, marks, n: state.data.periods || CONFIG.periodsPerDay, sel: null, all: false }) +
+    (subjNote ? `<p class="sub" style="margin-top:10px;">교과 선생님이 고친 과목: ${subjNote}</p>` : "");
+}
+
+/* 흐름표에서 학생을 누르면 누가 언제 무엇을 체크했는지 보여 준다 */
+$("#periodsBody").addEventListener("click", async e => {
+  const tr = e.target.closest("tr.stu");
+  if(!tr) return;
+  const ds = state.attDate || ymd(today());
+  const list = state.mode === "demo" ? (board.demo[ds] || []) : (board.checks[ds] || []);
+  const { marks } = resolveChecks(list);
+  const s = studentById(tr.dataset.sid);
+  const mk = marks[tr.dataset.sid] || {};
+  const lines = Object.keys(mk).sort((a, b) => a - b).map(p => {
+    const r = mk[p];
+    return `${p}교시 ${CHECK_LABEL[r.type]}${r.note ? " (" + r.note + ")" : ""} — ${r.subject || ""} ${r.teacher || ""} · ${r.at.slice(11, 16)}`;
+  });
+  await confirmBox({ title: `${s.no}번 ${nameOf(s)}`, body: lines.length ? lines.join("\n") : "교시 기록이 없습니다.", ok: "닫기", cancel: "확인" });
+});
+
+/* ---------- 담임: 관리 탭 「교과 출석부」 ---------- */
+function teacherUrl(){
+  return `${location.origin}${location.pathname}#/t/${state.classId}`;
+}
+function renderBoardPanel(){
+  const box = $("#boardBody");
+  if(!box || !state.data) return;
+  const b = state.data.board;
+  if(state.mode === "demo"){
+    box.innerHTML = `<p class="sub">체험 모드에서는 출석 탭의 「교과 선생님 화면 미리보기」로 체험하실 수 있습니다.
+      실제로 쓰실 때는 여기에서 출석부 암호를 정하면 교과 선생님용 QR이 만들어집니다.</p>`;
+    return;
+  }
+  if(state.mode !== "cloud"){
+    box.innerHTML = `<p class="sub">교과 선생님과 나누려면 서버에 올려야 하므로 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다.</p>`;
+    return;
+  }
+  const pinField = (btn, id) => `
+    <label class="field" for="inBoardPin">출석부 암호 (숫자 4~6자리, 6자리 권장)</label>
+    <input type="text" id="inBoardPin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="예: 482915">
+    <div class="btn-row" style="margin-top:10px;"><button class="btn primary" id="${id}">${btn}</button></div>`;
+  if(!b || !b.on){
+    box.innerHTML = pinField("교과 출석부 열기", "btnBoardOn") +
+      `<p class="sub" style="margin-top:10px;">열면 지금까지의 출석부(학기 전체)가 잠긴 채로 함께 올라갑니다.</p>`;
+    return;
+  }
+  if(!boardReady()){
+    box.innerHTML = `<div class="notice">이 기기에서는 아직 출석부 암호를 넣지 않았습니다. 한 번 넣으면 이 기기에서 바뀐 출결도 교과 출석부에 올라갑니다.</div>` +
+      pinField("이 기기에서 열기", "btnBoardHere");
+    return;
+  }
+  box.innerHTML = `
+    ${boardNamesReady() ? "" : `<div class="notice">이름 보호 암호가 잠겨 있어 명단은 올리지 않았습니다. 잠금을 풀면 실명이 함께 올라갑니다.</div>`}
+    <div class="syncline on"><span class="dot"></span><span>교과 출석부가 열려 있습니다</span></div>
+    <div class="linkbox"><code>${escapeHtml(teacherUrl())}</code><button class="btn sm" id="btnBoardCopy">복사</button></div>
+    <div id="boardQr"></div>
+    <p class="sub">QR을 교실 앞에 붙이거나 교과 선생님들께 보내 주세요. 암호는 따로 알려 주세요.</p>
+    <div class="btn-row">
+      <button class="btn sm" id="btnBoardPin">암호 바꾸기</button>
+      <button class="btn danger sm" id="btnBoardOff">교과 출석부 닫기</button>
+    </div>`;
+  if(typeof QRCode !== "undefined"){
+    const cv = document.createElement("canvas");
+    $("#boardQr").appendChild(cv);
+    QRCode.toCanvas(cv, teacherUrl(), { width: 168, margin: 1, color: { dark:"#0F4C81", light:"#ffffff" } }, () => {});
+  }
+}
+
+function readPin(){
+  const v = ($("#inBoardPin") ? $("#inBoardPin").value : "").trim();
+  if(!/^\d{4,6}$/.test(v)){ toast("숫자 4~6자리로 넣어 주세요."); return null; }
+  return v;
+}
+async function pinOk(v){
+  if(v.length >= 6) return true;
+  return confirmBox({
+    title: "6자리를 권합니다",
+    body: "숫자 " + v.length + "자리는 경우의 수가 적어, QR을 가진 사람이 자동으로 대입하면 짧은 시간에 풀릴 수 있습니다. 그래도 이 암호를 쓸까요?",
+    ok: "그대로 쓰기", cancel: "다시 정하기"
+  });
+}
+
+/* 날짜마다 할 일 — 오늘부터 거꾸로 학기 전체 */
+async function boardEachDay(fn){
+  let d = ymd(today());
+  for(let i = 0; i < BOARD_DAYS_BACK; i++){
+    if(![0, 6].includes(parseYmd(d).getDay())) await fn(d);
+    d = addDays(d, -1);
+  }
+}
+
+$("#boardBody").addEventListener("click", async e => {
+  const id = e.target.id;
+  if(id === "btnBoardCopy"){
+    try{ await navigator.clipboard.writeText(teacherUrl()); toast("주소를 복사했습니다."); }
+    catch(err){ toast("주소를 길게 눌러 복사해 주세요."); }
+    return;
+  }
+
+  if(id === "btnBoardOn"){
+    const pin = readPin(); if(!pin || !(await pinOk(pin))) return;
+    toast("출석부를 잠그는 중입니다…");
+    const d = await boardDerive(state.classId, pin);
+    board.id = d.id; board.key = d.key;
+    if(!(await boardPublishMeta())){ board.id = board.key = null; toast("올리지 못했습니다. 인터넷 연결이나 규칙 게시를 확인해 주세요."); return; }
+    LS.set(K_BOARD + state.classId, { id: d.id, k: d.rawB64 });
+    await store.save("board", { id: d.id, on: true, since: new Date().toISOString() });
+    /* 학기 전체 아침 출결을 함께 올린다 (기록이 있는 날만) */
+    await boardEachDay(async ds => {
+      const doc = await store.loadAtt(ds);
+      if(ds === ymd(today()) || Object.keys(doc.students || {}).length) await boardPublishDay(ds);
+    });
+    await boardResume();
+    toast("교과 출석부를 열었습니다.");
+    return;
+  }
+
+  if(id === "btnBoardHere"){
+    const pin = readPin(); if(!pin) return;
+    const d = await boardDerive(state.classId, pin);
+    if(d.id !== state.data.board.id){ toast("암호가 맞지 않습니다."); return; }
+    LS.set(K_BOARD + state.classId, { id: d.id, k: d.rawB64 });
+    await boardResume();
+    toast("이 기기에서도 교과 출석부를 씁니다.");
+    return;
+  }
+
+  if(id === "btnBoardPin" || id === "btnBoardOff"){
+    const change = id === "btnBoardPin";
+    let next = null;
+    if(change){
+      const v = await askText("새 출석부 암호", "숫자 4~6자리 (6자리 권장). 예전 QR 주소는 그대로 쓰고, 예전 암호는 바로 쓸 수 없게 됩니다.", "");
+      if(v === null) return;
+      if(!/^\d{4,6}$/.test(v.trim())){ toast("숫자 4~6자리로 넣어 주세요."); return; }
+      if(!(await pinOk(v.trim()))) return;
+      next = await boardDerive(state.classId, v.trim());
+      if(next.id === board.id){ toast("지금과 같은 암호입니다."); return; }
+    }else{
+      const ok = await confirmBox({ title: "교과 출석부를 닫습니다", body: "올려 둔 출석부와 교과 선생님 체크 기록이 서버에서 모두 지워집니다. 담임 출석부는 그대로 남습니다.", ok: "닫기" });
+      if(!ok) return;
+    }
+    const old = { id: board.id, key: board.key };
+    boardStopWatch();
+    toast(change ? "새 암호로 옮기는 중입니다…" : "지우는 중입니다…");
+    try{
+      if(change && !(await boardPublishMeta(next))) throw new Error("meta");
+      await boardEachDay(async ds => {
+        const snap = await fbRefs.getDocs(checksCol(fbRefs.db, old.id, ds));
+        if(change){
+          const doc = await store.loadAtt(ds);
+          if(ds === ymd(today()) || Object.keys(doc.students || {}).length || !snap.empty) await boardPublishDay(ds, next);
+          /* 교과 선생님 체크도 새 열쇠로 다시 잠가 옮긴다 */
+          for(const c of await decodeChecks(old.key, snap.docs)){
+            const { id: _drop, ...body } = c;
+            await fbRefs.addDoc(checksCol(fbRefs.db, next.id, ds), { c: await sealJson(next.key, body), at: c.at });
+          }
+        }
+        for(const d of snap.docs) await fbRefs.deleteDoc(d.ref);
+        await fbRefs.deleteDoc(fbRefs.doc(fbRefs.db, "boards", old.id, "days", ds)).catch(() => {});
+      });
+      await fbRefs.deleteDoc(fbRefs.doc(fbRefs.db, "boards", old.id));
+    }catch(err){
+      console.error(err);
+      toast("중간에 멈췄습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.");
+      await boardResume();
+      return;
+    }
+    if(change){
+      LS.set(K_BOARD + state.classId, { id: next.id, k: next.rawB64 });
+      await store.save("board", { id: next.id, on: true, since: new Date().toISOString() });
+    }else{
+      LS.del(K_BOARD + state.classId);
+      await store.save("board", { on: false });
+    }
+    await boardResume();
+    toast(change ? "암호를 바꿨습니다. 교과 선생님들께 새 암호를 알려 주세요." : "교과 출석부를 닫았습니다.");
+  }
+});
+
+/* 글 한 줄 묻기 — 확인이면 입력값, 취소면 null */
+function askText(title, body, value){
+  return new Promise(resolve => {
+    const wrap = document.createElement("div");
+    wrap.className = "modal";
+    wrap.innerHTML = `
+      <div class="box" role="dialog" aria-modal="true">
+        <h3></h3><p></p>
+        <input type="text" autocomplete="off" style="margin-bottom:14px;">
+        <div class="btn-row">
+          <button class="btn ghost" data-a="0">취소</button>
+          <button class="btn primary" data-a="1">확인</button>
+        </div>
+      </div>`;
+    $("h3", wrap).textContent = title;
+    $("p", wrap).textContent = body;
+    const inp = $("input", wrap);
+    inp.value = value || "";
+    const done = ok => { wrap.remove(); resolve(ok ? inp.value : null); };
+    wrap.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if(b) done(b.dataset.a === "1"); });
+    inp.addEventListener("keydown", e => { if(e.key === "Enter") done(true); });
+    document.body.appendChild(wrap);
+    inp.focus();
+  });
+}
+
+/* ============================================================
+   교과 선생님 화면 (#/t/{반ID}) — 체험 모드에서는 담임 앱 안에서 미리보기
+   ============================================================ */
+const tb = { classId:null, id:null, key:null, fb:null, meta:null, day:null, checks:[], date:null, period:null, unsubs:[], demo:false, all:false };
+
+/* 체크할 수 있는 날 — 실제로는 오늘만, 체험 모드는 둘러보기 편하도록 어느 날이든 */
+function tbWritable(){ return tb.demo || tb.date === ymd(today()); }
+function tbMe(){ return LS.get(K_TB_ME) || { name:"", subject:"" }; }
+function tbUnwatch(){ tb.unsubs.forEach(u => { try{ u(); }catch(e){} }); tb.unsubs = []; }
+
+async function openTeacherRoute(classId){
+  showOnly("screen-teacher");
+  document.body.style.paddingBottom = "0";
+  tb.classId = classId; tb.demo = false;
+  const me = tbMe();
+  $("#tbName").value = me.name || "";
+  if(!firebaseConfigured()){ $("#tbGateMsg").textContent = "아직 준비되지 않은 출석부입니다."; return; }
+  try{
+    const [{ initializeApp }, dbMod] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-firestore.js`)
+    ]);
+    const app = initializeApp(CONFIG.firebase);
+    tb.fb = {
+      db: dbMod.getFirestore(app), doc: dbMod.doc, getDoc: dbMod.getDoc,
+      collection: dbMod.collection, addDoc: dbMod.addDoc, onSnapshot: dbMod.onSnapshot
+    };
+  }catch(e){
+    console.error(e);
+    $("#tbGateMsg").textContent = "연결하지 못했습니다. 인터넷 연결을 확인해 주세요.";
+    return;
+  }
+  const saved = LS.get(K_TB + classId);
+  if(saved){
+    try{
+      tb.id = saved.id; tb.key = await boardKeyFromB64(saved.k);
+      if(await tbOpen()) return;
+    }catch(e){}
+    LS.del(K_TB + classId);
+    $("#tbGateMsg").textContent = "출석부 암호가 바뀌었습니다. 새 암호를 넣어 주세요.";
+  }
+  $("#tbPin").focus();
+}
+
+async function tbEnter(){
+  const pin = $("#tbPin").value.trim();
+  if(!pin){ $("#tbPin").focus(); return; }
+  $("#tbGateMsg").textContent = "여는 중…";
+  const d = await boardDerive(tb.classId, pin);
+  tb.id = d.id; tb.key = d.key;
+  let ok = false;
+  try{ ok = await tbOpen(); }catch(e){ console.error(e); }
+  if(!ok){
+    $("#tbGateMsg").textContent = "암호가 맞지 않거나, 담임 선생님이 아직 출석부를 열지 않았습니다.";
+    $("#tbPin").value = "";
+    return;
+  }
+  if($("#tbRemember").checked) LS.set(K_TB + tb.classId, { id: d.id, k: d.rawB64 });
+}
+$("#tbEnter").addEventListener("click", tbEnter);
+$("#tbPin").addEventListener("keydown", e => { if(e.key === "Enter") tbEnter(); });
+
+async function tbOpen(){
+  const ref = tb.fb.doc(tb.fb.db, "boards", tb.id);
+  const snap = await tb.fb.getDoc(ref);
+  if(!snap.exists()) return false;
+  tb.meta = await openJson(tb.key, snap.data().meta);
+  /* 명단·기본 시간표가 바뀌면 바로 다시 그린다 */
+  tb.metaUnsub = tb.fb.onSnapshot(ref, async s => {
+    if(!s.exists()) return;
+    try{ tb.meta = await openJson(tb.key, s.data().meta); renderTeacher(); }catch(e){}
+  });
+  $("#tbGate").classList.add("hidden");
+  $("#tbMain").classList.remove("hidden");
+  await tbSetDate(ymd(today()));
+  return true;
+}
+
+async function tbSetDate(ds){
+  tb.date = ds;
+  tbUnwatch();
+  if(tb.demo){
+    await store.loadAtt(ds);
+    tb.meta = boardMetaPayload();
+    tb.day = boardDayPayload(ds);
+    tb.checks = board.demo[ds] || [];
+    renderTeacher();
+    return;
+  }
+  tb.day = null; tb.checks = [];
+  renderTeacher();
+  tb.unsubs.push(tb.fb.onSnapshot(tb.fb.doc(tb.fb.db, "boards", tb.id, "days", ds), async s => {
+    try{ tb.day = s.exists() ? await openJson(tb.key, s.data().day) : null; }catch(e){ tb.day = null; }
+    if(tb.date === ds) renderTeacher();
+  }, e => console.warn(e)));
+  tb.unsubs.push(tb.fb.onSnapshot(tb.fb.collection(tb.fb.db, "boards", tb.id, "days", ds, "checks"), async s => {
+    tb.checks = await decodeChecks(tb.key, s.docs);
+    if(tb.date === ds) renderTeacher();
+  }, e => console.warn(e)));
+}
+
+function renderTeacher(){
+  const meta = tb.meta;
+  if(!meta) return;
+  const ds = tb.date;
+  const isToday = ds === ymd(today());
+  const d = parseYmd(ds);
+  const n = meta.periods || CONFIG.periodsPerDay;
+  $("#tbCls").textContent = meta.className || "";
+  $("#tbDateLabel").textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_LABEL[d.getDay()]})${isToday ? " · 오늘" : ""}`;
+  $("#tbDateNav .dn-next").disabled = isToday;
+  $("#tbToday").classList.toggle("hidden", isToday);
+
+  const { marks, subjects } = resolveChecks(tb.checks);
+  const day = tb.day || { att:{}, tt: ttFromMeta(meta, ds), ttAt:"" };
+  const tt = effectiveTT(day.tt && day.tt.length ? day.tt : ttFromMeta(meta, ds), day.ttAt, subjects);
+  if(tb.period && tb.period > n) tb.period = null;
+
+  /* 교시 버튼 — 교과 선생님이 고친 과목은 누가 고쳤는지 함께 */
+  let pHtml = "";
+  for(let p = 1; p <= n; p++){
+    const r = subjects[p];
+    const by = r && (!day.ttAt || r.at > day.ttAt) ? `<small>${escapeHtml(r.teacher || "")} 수정</small>` : "";
+    pHtml += `<button data-p="${p}" aria-pressed="${tb.period === p}"><b>${p}교시</b><span>${escapeHtml(tt[p - 1] || "—")}</span>${by}</button>`;
+  }
+  $("#tbPeriods").innerHTML = [0, 6].includes(d.getDay()) ? `<p class="sub">주말입니다.</p>` : pHtml;
+  $("#tbFixSubject").disabled = !(tbWritable() && tb.period);
+
+  /* 아침 출결 */
+  const students = (meta.students || []).slice().sort((a, b) => a.no - b.no);
+  const att = day.att || {};
+  const mrows = students.filter(s => att[s.id]).map(s => {
+    const a = att[s.id];
+    return `<div class="mrow"><span class="rp-tag ${a.status}">${a.status === "absent" ? "결석" : "지각"}</span>
+      <div class="who"><b>${s.no}번 ${escapeHtml(s.name)}</b><span class="rsn">${escapeHtml(a.reason || "사유 없음")}</span></div></div>`;
+  });
+  $("#tbMorningHead").textContent = `지각·결석 ${mrows.length}명`;
+  $("#tbMorning").innerHTML = mrows.length ? mrows.join("") :
+    `<p class="sub">${tb.day ? "아침 지각·결석 학생이 없습니다." : "담임 선생님이 아직 아침 출결을 올리지 않았습니다."}</p>`;
+
+  /* 흐름표 */
+  $("#tbFlowSub").textContent = !tbWritable() ? "지난 날짜는 볼 수만 있습니다."
+    : tb.period ? `학생을 누르면 ${tb.period}교시(${tt[tb.period - 1] || "—"})에 체크합니다.`
+    : "먼저 위에서 내 교시를 고르세요.";
+  $("#tbFlow").innerHTML =
+    flowTableHtml({ students, att, marks, n, sel: tb.period, all: tb.all }) +
+    `<div class="btn-row" style="margin-top:10px;"><button class="btn sm ghost" id="tbAll">${tb.all ? "기록 있는 학생만 보기" : "전체 학생 보기"}</button></div>`;
+}
+
+/* 교시 고르기 — 교과명이 비어 있으면 시간표의 과목으로 채운다 */
+$("#tbPeriods").addEventListener("click", e => {
+  const b = e.target.closest("[data-p]");
+  if(!b) return;
+  tb.period = Number(b.dataset.p);
+  const subj = $("span", b).textContent;
+  if(subj && subj !== "—") $("#tbSubject").value = subj;
+  saveTbMe();
+  renderTeacher();
+});
+function saveTbMe(){ LS.set(K_TB_ME, { name: $("#tbName").value.trim(), subject: $("#tbSubject").value.trim() }); }
+$("#tbName").addEventListener("change", saveTbMe);
+$("#tbSubject").addEventListener("change", saveTbMe);
+
+$("#tbDateNav").addEventListener("click", e => {
+  if(e.target.closest(".dn-prev")) tbSetDate(addDays(tb.date, -1));
+  else if(e.target.closest(".dn-next")) tbSetDate(addDays(tb.date, 1));
+  else if(e.target.closest(".dn-today")) tbSetDate(ymd(today()));
+});
+
+async function tbAddCheck(payload){
+  payload.at = new Date().toISOString();
+  if(tb.demo){
+    const list = board.demo[tb.date] || (board.demo[tb.date] = []);
+    list.push(Object.assign({ id: "m" + Math.random().toString(36).slice(2, 10) }, payload));
+    await applySubjectChanges(tb.date, list);
+    tb.checks = list;
+    tb.day = boardDayPayload(tb.date);
+    renderTeacher();
+    return;
+  }
+  try{
+    await tb.fb.addDoc(tb.fb.collection(tb.fb.db, "boards", tb.id, "days", tb.date, "checks"),
+      { c: await sealJson(tb.key, payload), at: payload.at });
+  }catch(e){
+    console.error(e);
+    toast("저장하지 못했습니다. 인터넷 연결을 확인해 주세요.");
+  }
+}
+function tbWho(){
+  const name = $("#tbName").value.trim(), subject = $("#tbSubject").value.trim();
+  if(!name || !subject){ toast("성함과 교과를 먼저 적어 주세요."); (name ? $("#tbSubject") : $("#tbName")).focus(); return null; }
+  return { name, subject };
+}
+
+/* 과목 고치기 (오늘·고른 교시만) */
+$("#tbFixSubject").addEventListener("click", async () => {
+  const who = tbWho(); if(!who || !tb.period) return;
+  const cur = $(`#tbPeriods [data-p="${tb.period}"] span`).textContent;
+  const v = await askText(`${tb.period}교시 과목 고치기`, "교체 수업 등으로 오늘 이 교시 과목이 바뀌었으면 고쳐 주세요. 담임 선생님 시간표에도 반영됩니다.", cur === "—" ? "" : cur);
+  if(v === null || !v.trim() || v.trim() === cur) return;
+  await tbAddCheck({ type:"subject", period: tb.period, subject: v.trim().slice(0, 12), teacher: who.name });
+  $("#tbSubject").value = v.trim().slice(0, 12);
+  saveTbMe();
+  toast("과목을 고쳤습니다.");
+});
+
+/* 학생 누르기 → 내 교시 체크 */
+$("#tbFlow").addEventListener("click", async e => {
+  if(e.target.id === "tbAll"){ tb.all = !tb.all; renderTeacher(); return; }
+  const tr = e.target.closest("tr.stu");
+  if(!tr) return;
+  const sid = tr.dataset.sid;
+  const s = (tb.meta.students || []).find(x => x.id === sid);
+  const { marks } = resolveChecks(tb.checks);
+  const mk = marks[sid] || {};
+  const hist = Object.keys(mk).sort((a, b) => a - b).map(p => {
+    const r = mk[p];
+    return `<div>${p}교시 ${CHECK_LABEL[r.type]}${r.note ? " (" + escapeHtml(r.note) + ")" : ""} — ${escapeHtml(r.subject || "")} ${escapeHtml(r.teacher || "")}</div>`;
+  }).join("");
+  const a = (tb.day && tb.day.att || {})[sid];
+  const canWrite = tbWritable() && !!tb.period;
+  if(canWrite && !tbWho()) return;
+
+  const wrap = document.createElement("div");
+  wrap.className = "modal sheet-pick";
+  wrap.innerHTML = `
+    <div class="box" role="dialog" aria-modal="true">
+      <h3>${s.no}번 ${escapeHtml(s.name)}${canWrite ? ` · ${tb.period}교시` : ""}</h3>
+      <div class="hist">${a ? `<div>아침 ${a.status === "absent" ? "결석" : "지각"} — ${escapeHtml(a.reason || "사유 없음")}</div>` : ""}${hist || (a ? "" : "<div>기록이 없습니다.</div>")}</div>
+      ${canWrite ? `
+      <div class="acts">
+        <button class="btn" data-t="arrive">수업 중 도착</button>
+        <button class="btn danger" data-t="absentClass">결과 (불참)</button>
+        <button class="btn" data-t="early">조퇴</button>
+        <button class="btn" data-t="out">이석</button>
+      </div>
+      <input type="text" id="tbNote" maxlength="20" placeholder="이석 메모 (예: 보건실) — 병명은 적지 마세요" autocomplete="off">
+      ${mk[tb.period] ? `<button class="btn ghost sm" data-t="cancel" style="margin-top:10px;">${tb.period}교시 기록 취소</button>` : ""}` :
+      `<p>${tbWritable() ? "먼저 위에서 내 교시를 고르세요." : "지난 날짜는 볼 수만 있습니다."}</p>`}
+      <div class="btn-row" style="margin-top:12px;"><button class="btn ghost" data-t="close">닫기</button></div>
+    </div>`;
+  document.body.appendChild(wrap);
+  wrap.addEventListener("click", async ev => {
+    const b = ev.target.closest("[data-t]");
+    if(!b) return;
+    const t = b.dataset.t;
+    if(t === "close"){ wrap.remove(); return; }
+    const who = tbWho(); if(!who){ wrap.remove(); return; }
+    if(t === "cancel"){
+      await tbAddCheck({ type:"cancel", ref: mk[tb.period].id, period: tb.period, sid, subject: who.subject, teacher: who.name });
+    }else{
+      const note = t === "out" ? ($("#tbNote", wrap).value || "").trim().slice(0, 20) : "";
+      await tbAddCheck({ type: t, period: tb.period, sid, note, subject: who.subject, teacher: who.name });
+    }
+    wrap.remove();
+    toast(t === "cancel" ? "기록을 취소했습니다." : `${tb.period}교시 ${CHECK_LABEL[t]}로 남겼습니다.`);
+  });
+});
+
+/* 체험 모드 — 담임 앱 안에서 교과 선생님 화면을 연다 (서버 없이 메모리로) */
+$("#btnTeacherPreview").addEventListener("click", async () => {
+  tb.demo = true; tb.classId = "demo"; tb.period = null; tb.all = false;
+  showOnly("screen-teacher");
+  document.body.style.paddingBottom = "0";
+  $("#tbBack").classList.remove("hidden");
+  $("#tbDemoNote").classList.remove("hidden");
+  $("#tbGate").classList.add("hidden");
+  $("#tbMain").classList.remove("hidden");
+  const me = tbMe();
+  $("#tbName").value = me.name || "체험 선생님";
+  $("#tbSubject").value = me.subject || "";
+  window.scrollTo({ top: 0 });
+  await tbSetDate(state.attDate || ymd(today()));
+});
+$("#tbBack").addEventListener("click", () => {
+  tb.demo = false;
+  $("#tbBack").classList.add("hidden");
+  $("#tbDemoNote").classList.add("hidden");
+  showOnly("screen-app");
+  document.body.style.paddingBottom = "";
+  renderAtt();
+  renderDash();
+});
+
 const K_RP_TEACHER = "imdi_rp_teacher";
 const K_RP_SCHOOL  = "imdi_rp_school";
 
@@ -6655,6 +7597,13 @@ ${ck(v.ev_ill2_opinion)} 의사소견서&nbsp; ${ck(v.ev_ill2_diag)} 진단서&n
   if(m){
     state.mode = "cloud";
     openStudentRoute(decodeURIComponent(m[1]));
+    return;
+  }
+
+  /* 교과 출석부 — QR로 들어온 교과 선생님 */
+  const tm = location.hash.match(/^#\/t\/(.+)$/);
+  if(tm){
+    openTeacherRoute(decodeURIComponent(tm[1]));
     return;
   }
 
