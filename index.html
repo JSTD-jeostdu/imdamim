@@ -513,6 +513,16 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .tb-addev summary::-webkit-details-marker{ display:none; }
 .tb-addev[open] summary{ margin-bottom:6px; }
 
+/* ---------- 학생 화면 하단 탭 ---------- */
+.st-tabbar{ z-index:30; }
+.st-tabbar button{ position:relative; }
+.st-tabbar .st-dot{
+  position:absolute; top:10px; left:calc(50% + 10px); width:9px; height:9px; border-radius:50%;
+  background:var(--stamp); box-shadow:0 0 0 2px var(--card);
+}
+.st-tab .st-empty{ text-align:center; padding:28px 0; }
+#previewMount .st-tabbar{ position:sticky; bottom:0; }
+
 /* ---------- 말풍선 공지 ---------- */
 .bubbles{ display:flex; flex-direction:column; gap:8px; }
 .bb-day{ align-self:center; font-size:11.5px; color:var(--ink-45); background:var(--paper); border-radius:999px; padding:2px 10px; margin:4px 0; }
@@ -1833,75 +1843,98 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
   </div>
 
   <main class="wrap hidden" id="studentBody">
-    <div class="card" id="stCardTT">
-      <span class="eyebrow">오늘 시간표</span>
-      <h2 id="stTTHead">시간표</h2>
-      <div class="periods" id="stPeriods"></div>
-    </div>
 
-    <div class="card" id="stCardToday">
-      <span class="eyebrow">오늘 일정</span>
-      <h2>오늘 있는 일</h2>
-      <div class="items" id="stToday"></div>
-    </div>
-
-    <div class="card" id="stCardDday">
-      <span class="eyebrow">D-Day</span>
-      <h2>다가오는 일정</h2>
-      <div class="items" id="stDday"></div>
-    </div>
-
-    <div class="card hidden" id="stCardCal">
-      <span class="eyebrow">일정</span>
-      <div class="mcal-head">
-        <button id="stCalPrev" aria-label="이전 달">◀</button>
-        <h2 id="stCalTitle"></h2>
-        <button id="stCalNext" aria-label="다음 달">▶</button>
+    <!-- ── 오늘 ── -->
+    <section class="st-tab" data-st="today">
+      <div class="card" id="stCardTT">
+        <span class="eyebrow">오늘 시간표</span>
+        <h2 id="stTTHead">시간표</h2>
+        <div class="periods" id="stPeriods"></div>
       </div>
-      <div class="mcal" id="stCalGrid"></div>
-      <div class="items" id="stCalDay" style="margin-top:10px;"></div>
-    </div>
 
-    <div class="card hidden" id="stCardBubble">
-      <span class="eyebrow">선생님 알림</span>
-      <div class="bubbles" id="stBubbles"></div>
-    </div>
+      <div class="card" id="stCardToday">
+        <span class="eyebrow">오늘 일정</span>
+        <h2>오늘 있는 일</h2>
+        <div class="items" id="stToday"></div>
+      </div>
 
-    <div class="card hidden" id="stCardTools">
-      <span class="eyebrow">도구</span>
-      <h2>우리 반 도구 모음</h2>
-      <div class="tools" id="stTools"></div>
-    </div>
+      <div class="card" id="stCardMeal">
+        <span class="eyebrow">급식</span>
+        <h2>오늘 급식</h2>
+        <div id="stMeal"></div>
+      </div>
 
-    <div class="card" id="stCardMeal">
-      <span class="eyebrow">급식</span>
-      <h2>오늘 급식</h2>
-      <div id="stMeal"></div>
-    </div>
+      <div class="card" id="stCardSupply">
+        <span class="eyebrow">준비물</span>
+        <h2>챙겨올 것</h2>
+        <p id="stSupply" style="white-space:pre-wrap; margin:0; font-size:15px;"></p>
+      </div>
 
-    <div class="card" id="stCardSupply">
-      <span class="eyebrow">준비물</span>
-      <h2>챙겨올 것</h2>
-      <p id="stSupply" style="white-space:pre-wrap; margin:0; font-size:15px;"></p>
-    </div>
+      <div class="card" id="stCardDuty">
+        <span class="eyebrow">오늘 당번</span>
+        <h2>당번 · 청소</h2>
+        <div id="stDuty"></div>
+      </div>
+    </section>
 
-    <div class="card" id="stCardNotice">
-      <span class="eyebrow">공지</span>
-      <h2>알립니다</h2>
-      <p id="stNotice" style="white-space:pre-wrap; margin:0; font-size:15px;"></p>
-    </div>
+    <!-- ── 알림 ── -->
+    <section class="st-tab hidden" data-st="notice">
+      <div class="card hidden" id="stCardBubble">
+        <span class="eyebrow">선생님 알림</span>
+        <div class="bubbles" id="stBubbles"></div>
+      </div>
 
-    <div class="card" id="stCardDuty">
-      <span class="eyebrow">오늘 당번</span>
-      <h2>당번 · 청소</h2>
-      <div id="stDuty"></div>
-    </div>
+      <div class="card" id="stCardNotice">
+        <span class="eyebrow">공지</span>
+        <h2>알립니다</h2>
+        <p id="stNotice" style="white-space:pre-wrap; margin:0; font-size:15px;"></p>
+      </div>
+      <p class="sub st-empty">아직 알림이 없습니다.</p>
+    </section>
+
+    <!-- ── 일정 ── -->
+    <section class="st-tab hidden" data-st="cal">
+      <div class="card hidden" id="stCardCal">
+        <span class="eyebrow">일정</span>
+        <div class="mcal-head">
+          <button id="stCalPrev" aria-label="이전 달">◀</button>
+          <h2 id="stCalTitle"></h2>
+          <button id="stCalNext" aria-label="다음 달">▶</button>
+        </div>
+        <div class="mcal" id="stCalGrid"></div>
+        <div class="items" id="stCalDay" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card" id="stCardDday">
+        <span class="eyebrow">D-Day</span>
+        <h2>다가오는 일정</h2>
+        <div class="items" id="stDday"></div>
+      </div>
+      <p class="sub st-empty">아직 올라온 일정이 없습니다.</p>
+    </section>
+
+    <!-- ── 도구 ── -->
+    <section class="st-tab hidden" data-st="tools">
+      <div class="card hidden" id="stCardTools">
+        <span class="eyebrow">도구</span>
+        <h2>우리 반 도구 모음</h2>
+        <div class="tools" id="stTools"></div>
+      </div>
+    </section>
 
     <p class="foot" id="stFoot"></p>
     <footer class="appfoot">
       <a href="#" data-intro-open="1">소개</a><span class="sep">·</span><a href="#" data-legal="privacy">개인정보 처리방침</a><span class="sep">·</span><a href="#" data-legal="terms">이용약관</a>
       <div class="maker">Made by 정우쌤</div>
     </footer>
+
+    <!-- 학생 화면 하단 탭 -->
+    <nav class="tabbar st-tabbar" aria-label="학생 화면 메뉴">
+      <button data-sttab="today"  aria-selected="true"><span class="ic">🌅</span>오늘</button>
+      <button data-sttab="notice" aria-selected="false"><span class="ic">💬</span>알림<i class="st-dot hidden"></i></button>
+      <button data-sttab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
+      <button data-sttab="tools"  aria-selected="false"><span class="ic">🧰</span>도구</button>
+    </nav>
   </main>
 </div>
 
@@ -6612,6 +6645,7 @@ function renderStudent(pub, mount){
   renderStudentCal(pub, root);
   renderStudentTools(pub, root);
   renderStudentBubbles(pub, root);
+  setupStudentTabs(pub, root, !!mount);
 
   const t = pub.updatedAt ? new Date(pub.updatedAt) : null;
   $s("#stFoot").textContent = t
@@ -6626,7 +6660,7 @@ async function openStudentRoute(classId){
   $("#screen-login").classList.add("hidden");
   $("#screen-app").classList.add("hidden");
   $("#screen-student").classList.remove("hidden");
-  document.body.style.paddingBottom = "0";
+  document.body.style.paddingBottom = "";   // 아래 탭 메뉴에 내용이 가리지 않게 기본 여백 유지
 
   let pub = null;
   if(firebaseConfigured()){
@@ -8169,6 +8203,46 @@ function publicBubbles(){
   const rest = list.filter(b => !b.pin).sort((a, b) => a.at.localeCompare(b.at)).slice(-30);
   return [...pins, ...rest].map(b => ({ text: b.text, at: b.at, pin: !!b.pin }));
 }
+/* 학생 화면 탭 — 오늘 / 알림 / 일정 / 도구
+   · 내용이 하나도 없는 묶음은 「아직 없습니다」, 도구가 없으면 도구 탭을 숨긴다
+   · 마지막으로 본 뒤 새 말풍선이 오면 알림 탭에 빨간 점 (미리보기에서는 기억하지 않는다) */
+function setupStudentTabs(pub, root, isPreview){
+  const host = isPreview ? root : document.getElementById("screen-student");   // 지금 탭을 적어 둘 곳
+  const q = sel => root.querySelector(sel);
+  root.querySelectorAll(".st-tab").forEach(sec => {
+    const any = [...sec.querySelectorAll(".card")].some(c => !c.classList.contains("hidden"));
+    const em = sec.querySelector(".st-empty");
+    if(em) em.classList.toggle("hidden", any);
+    sec.dataset.empty = any ? "" : "1";
+  });
+  const toolsBtn = q('[data-sttab="tools"]');
+  const noTools = q('[data-st="tools"]').dataset.empty === "1";
+  toolsBtn.classList.toggle("hidden", noTools);
+
+  const latest = (pub.bubbles || []).reduce((m, b) => (b.at > m ? b.at : m), "");
+  const seenKey = "imdi_st_seen_" + (pub.classId || "");
+  const seen = isPreview ? latest : (LS.get(seenKey) || "");
+  q(".st-dot").classList.toggle("hidden", !(latest && latest > seen));
+
+  const show = tab => {
+    if(tab === "tools" && noTools) tab = "today";
+    root.querySelectorAll(".st-tab").forEach(s => s.classList.toggle("hidden", s.dataset.st !== tab));
+    root.querySelectorAll("[data-sttab]").forEach(b => b.setAttribute("aria-selected", b.dataset.sttab === tab ? "true" : "false"));
+    if(tab === "notice"){
+      q(".st-dot").classList.add("hidden");
+      if(!isPreview && latest) LS.set(seenKey, latest);
+    }
+    host.dataset.stcur = tab;
+    if(!isPreview) window.scrollTo({ top: 0 });
+    else q(".st-tab:not(.hidden)") && q("#studentBody").scrollIntoView({ block: "start" });
+  };
+  q(".st-tabbar").onclick = e => {
+    const b = e.target.closest("[data-sttab]");
+    if(b) show(b.dataset.sttab);
+  };
+  show(host.dataset.stcur || "today");
+}
+
 function renderStudentBubbles(pub, root){
   const list = (pub.bubbles || []).map((b, i) => Object.assign({ id: "p" + i }, b));
   root.querySelector("#stCardBubble").classList.toggle("hidden", !list.length);
