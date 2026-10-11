@@ -285,6 +285,30 @@ service cloud.firestore {
       allow delete: if isMine(classId);
     }
 
+    // ---------- 오늘의 기분 — 친구에게 공개한 것 (이모지만) ----------
+    // 학생이 「친구들에게도 보여 주기」를 켠 경우에만 생긴다. 한 줄 메모는 들어가지 않는다.
+    // 우리 반으로 등록된 기기와 담임만 읽고, 쓰기·지우기는 그 학생 본인과 담임만.
+    match /moodsPub/{classId}/d/{date}/s/{sid} {
+      function pm() {
+        return get(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid)).data;
+      }
+      function pIsMember() {
+        return signedIn()
+          && exists(/databases/$(database)/documents/members/$(classId)/m/$(request.auth.uid))
+          && ( ('k' in pm() && exists(/databases/$(database)/documents/stuKeys/$(pm().k)))
+            || ('bid' in pm() && exists(/databases/$(database)/documents/boards/$(pm().bid))) );
+      }
+      function pIsThisStudent() {
+        return pIsMember() && 'sid' in pm() && pm().sid == sid;
+      }
+      allow read: if isMine(classId) || pIsMember();
+      allow create, update: if (isMine(classId) || pIsThisStudent())
+                            && request.resource.data.keys().hasOnly(['c', 'at'])
+                            && request.resource.data.c is string && request.resource.data.c.size() < 1000
+                            && request.resource.data.at is string;
+      allow delete: if isMine(classId) || pIsThisStudent();
+    }
+
     // ---------- 그 외 전부 차단 ----------
     match /{document=**} {
       allow read, write: if false;

@@ -654,6 +654,14 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .md-row .bd{ flex:1; min-width:0; font-size:14px; }
 .md-row .bd small{ display:block; color:var(--ink-70); font-size:13px; white-space:pre-wrap; word-break:break-word; }
 .md-row.urgent{ border:2px solid var(--stamp); background:#FFF7F5; }
+/* 출석부 자리표 — 이름 위 기분 */
+.seat .smd{ font-size:10.5px; font-weight:700; line-height:1.1; color:var(--ink-70); white-space:nowrap; }
+.seat .smd.neg{ color:var(--stamp); }
+/* 학생 화면 — 공개한 친구들 기분 */
+.md-friends{ display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 1fr)); gap:8px; }
+.md-friends .mf{ position:relative; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.md-friends .mf .e{ position:absolute; top:24px; left:calc(50% + 8px); font-size:20px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.2)); }
+.md-friends .mf small{ font-size:11.5px; color:var(--ink-70); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:64px; }
 .md-week{ width:100%; border-collapse:collapse; font-size:13px; }
 .md-week th{ font-size:11.5px; color:var(--ink-45); font-weight:600; padding:4px 2px; }
 .md-week td{ text-align:center; padding:3px 2px; font-size:18px; border-top:1px solid #EEF2F7; }
@@ -5846,6 +5854,7 @@ function renderAtt(){
   $("#btnCloseMeeting").classList.toggle("hidden", viewingHistory || !!doc.closed);
   $("#btnReopen").classList.toggle("hidden", viewingHistory || !doc.closed);
   renderFollow(doc);
+  mdLoadAtt(ds);   // 자리표에 그날 기분 (처음 한 번 불러오면 다시 그린다)
   renderPeriodsCard();
   renderReportList();
   renderDateNav("#attDateNav", "#attHistBar", ds);
@@ -5860,9 +5869,11 @@ function attCell(s, readonly){
   const mk  = st === "absent" ? "결" : st === "late" ? "지" : "";
   const tag  = readonly ? "div" : "button";
   const attr = readonly ? "" : ` data-att="${s.id}"`;
+  const md = mdForAtt(s.id);   // 오늘의 기분 — 담임 화면이라 공개 여부와 상관없이 보인다
   const seat = `<${tag} class="seat ${cls}${readonly ? " readonly" : ""}"${attr}>
     ${mk ? `<span class="mark">${mk}</span>` : ""}
     <span class="sno">${s.no}</span>
+    ${md ? `<span class="smd ${mdNeg(md.m) ? "neg" : ""}" title="${escapeHtml(MD[md.m].l + (md.note ? " — " + md.note : ""))}">${MD[md.m].e} ${MD[md.m].s}</span>` : ""}
     <span class="snm">${escapeHtml(nameOf(s))}</span>
   </${tag}>`;
 
@@ -9605,7 +9616,7 @@ const wlb = {
 /* ---------- 이름 목록 올리기 (담임) ---------- */
 async function dirPublish(){
   if(!state.data || !(state.mode === "cloud" || state.mode === "demo")) return;
-  if(!(state.data.wall && state.data.wall.on) || !boardNamesReady()) return;
+  if(!((state.data.wall && state.data.wall.on) || state.data.moodOn) || !boardNamesReady()) return;   // 담벼락·친구 기분이 이름을 쓴다
   const ck = await ckQuiet();
   if(!ck) return;
   const body = { c: await sealJson(ck, { students: (state.data.students || []).map(s => ({ sid: s.id, no: s.no, name: nameOf(s) })) }),
@@ -10222,9 +10233,10 @@ async function wallDemoSetup(){
    · 읽기는 담임과 그 학생 본인만(보안 규칙). 하루에 하나, 언제든 바꿀 수 있다.
    · 최근 기록 3번이 연속으로 속상·화남이면 「관심 필요」
    ============================================================ */
-const MD = [ { e:"😄", l:"최고예요" }, { e:"🙂", l:"좋아요" }, { e:"😐", l:"그저 그래요" }, { e:"😢", l:"속상해요" }, { e:"😠", l:"화나요" } ];
+const MD = [ { e:"😄", l:"최고예요", s:"최고" }, { e:"🙂", l:"좋아요", s:"좋아" }, { e:"😐", l:"그저 그래요", s:"보통" },
+             { e:"😢", l:"속상해요", s:"속상" }, { e:"😠", l:"화나요", s:"화남" } ];   // s = 자리표용 짧은 말
 const mdNeg = m => m >= 3;
-const mdMem = { d:{}, watch:{} };
+const mdMem = { d:{}, watch:{}, pub:{}, pwatch:{} };   // pub = 친구에게 공개한 이모지
 
 function mdDemo(){ return state.mode === "demo"; }
 const mdb = {
@@ -10243,6 +10255,25 @@ const mdb = {
     const s = await fb.getDocs(fb.collection(fb.db, "moods", classId, "d", date, "s"));
     return s.docs.map(d => Object.assign({ sid: d.id }, d.data()));
   },
+  /* 친구에게 공개 — 이모지만 담긴 문서 */
+  async putPub(fb, classId, date, sid, c){
+    const body = { c, at: new Date().toISOString() };
+    if(mdDemo()){ (mdMem.pub[date] || (mdMem.pub[date] = {}))[sid] = body; (mdMem.pwatch[date] || new Set()).forEach(f => f()); return; }
+    await fb.setDoc(fb.doc(fb.db, "moodsPub", classId, "d", date, "s", sid), body);
+  },
+  async delPub(fb, classId, date, sid){
+    if(mdDemo()){ delete (mdMem.pub[date] || {})[sid]; (mdMem.pwatch[date] || new Set()).forEach(f => f()); return; }
+    await fb.deleteDoc(fb.doc(fb.db, "moodsPub", classId, "d", date, "s", sid)).catch(() => {});
+  },
+  watchPub(fb, classId, date, cb){
+    if(mdDemo()){
+      const f = () => cb(Object.entries(mdMem.pub[date] || {}).map(([sid, d]) => Object.assign({ sid }, d)));
+      (mdMem.pwatch[date] || (mdMem.pwatch[date] = new Set())).add(f); f();
+      return () => mdMem.pwatch[date].delete(f);
+    }
+    return fb.onSnapshot(fb.collection(fb.db, "moodsPub", classId, "d", date, "s"),
+      s => cb(s.docs.map(d => Object.assign({ sid: d.id }, d.data()))), e => console.warn("친구 기분 받기 실패", e));
+  },
   watch(fb, classId, date, cb){
     if(mdDemo()){
       const f = async () => cb(await mdb.list(fb, classId, date));
@@ -10258,7 +10289,7 @@ async function mdDecode(ck, list){
   for(const x of list){
     try{
       const v = await openJson(ck, x.c);
-      if(Number.isInteger(v.m) && v.m >= 0 && v.m < MD.length) out[x.sid] = { m: v.m, note: String(v.note || "").slice(0, 50), at: x.at };
+      if(Number.isInteger(v.m) && v.m >= 0 && v.m < MD.length) out[x.sid] = { m: v.m, note: String(v.note || "").slice(0, 50), share: !!v.share, at: x.at };
     }catch(e){}
   }
   return out;
@@ -10269,8 +10300,31 @@ function crisisHelpHtml(title){
     <br>문자 상담은 #1388, 위급하면 112·119로 연락하세요.</div>`;
 }
 
+/* ---------- 담임: 출석부 자리표의 기분 ---------- */
+function mdForAtt(sid){
+  if(!state.data || !state.data.moodOn) return null;
+  const ds = state.attDate;
+  const map = ds === mdT.date ? mdT.today : (mdT.byDate[ds] || {});
+  return map[sid] || null;
+}
+/* 사유를 적고 있을 때는 자리표를 다시 그리지 않는다(쓰던 글자가 날아간다) */
+function mdRedrawAtt(){
+  const a = document.activeElement;
+  if(a && a.classList && a.classList.contains("rsn")) return;
+  if(state.tab === "attend" && state.attDate) renderAtt();
+}
+async function mdLoadAtt(ds){
+  if(!state.data || !state.data.moodOn || !ds) return;
+  if(ds === mdT.date || mdT.byDate[ds] !== undefined) return;   // 오늘은 실시간으로 받고 있다
+  mdT.byDate[ds] = {};
+  const ck = await ckQuiet();
+  if(!ck) return;
+  try{ mdT.byDate[ds] = await mdDecode(ck, await mdb.list(fbRefs, state.classId, ds)); }catch(e){ return; }
+  if(state.attDate === ds) mdRedrawAtt();
+}
+
 /* ---------- 담임: 조회 탭 카드 ---------- */
-const mdT = { unsub:null, today:{}, date:null };
+const mdT ={ unsub:null, today:{}, date:null, byDate:{} };   // byDate = 출석부 자리표용 지난 날짜 기분
 async function renderMoodCard(){
   const box = $("#moodBody");
   if(!box || !state.data) return;
@@ -10292,7 +10346,11 @@ async function renderMoodCard(){
   if(!mdT.unsub || mdT.date !== today){
     if(mdT.unsub) mdT.unsub();
     mdT.date = today;
-    mdT.unsub = mdb.watch(fbRefs, state.classId, today, async list => { mdT.today = await mdDecode(ck, list); mdDraw(); });
+    mdT.unsub = mdb.watch(fbRefs, state.classId, today, async list => {
+      mdT.today = await mdDecode(ck, list);
+      mdDraw();
+      if(state.attDate === today) mdRedrawAtt();   // 출석부 자리표에도 바로
+    });
   }
   mdDraw();
 }
@@ -10362,6 +10420,7 @@ $("#moodBody").addEventListener("click", async e => {
     if(!Object.keys(state.data.stuSh || {}).length){ toast("먼저 관리 탭 「학생 개인 코드」에서 코드를 만들어 주세요."); return; }
     if(!(await ckTeacher())) return;
     await store.save("moodOn", true);
+    await dirPublish();   // 친구 기분 옆에 보일 이름 목록 (반 열쇠로 잠김)
     await autoSync();
     renderMoodCard();
     toast("학생 화면 「오늘」 탭에 기분 고르기가 생겼습니다.");
@@ -10406,24 +10465,32 @@ async function stmdRender(){
     <div class="md-pick">${MD.map((d, i) => `<button data-mdm="${i}" aria-pressed="${stmd.sel === i}"><span class="e">${d.e}</span>${d.l}</button>`).join("")}</div>
     <input type="text" id="stMdNote" maxlength="50" placeholder="선생님께만 한 줄 (안 써도 돼요)" autocomplete="off" value="${escapeHtml(mine ? mine.note : "")}">
     <div id="stMdHelp"></div>
-    <div class="btn-row" style="margin-top:8px; align-items:center;">
-      <span class="sub" style="margin:0;">친구들에게는 보이지 않아요. 오늘 안에 언제든 바꿀 수 있어요.</span>
+    <label class="tb-remember" style="margin-top:4px;"><input type="checkbox" id="stMdShare" ${mine && mine.share ? "checked" : ""}> 친구들에게도 내 기분 이모지 보여 주기 (한 줄은 선생님만)</label>
+    <div class="btn-row" style="margin-top:4px; align-items:center;">
+      <span class="sub" style="margin:0;">오늘 안에 언제든 바꿀 수 있어요.</span>
       <button class="btn primary sm" data-mdsave="1" style="margin-left:auto;">${mine ? "바꾸기" : "남기기"}</button>
-    </div>`;
+    </div>
+    <h3 style="font-size:14px; margin:16px 0 6px;">우리 반 오늘 기분 <span class="sub" style="font-weight:400;">(보여 주기를 켠 친구만)</span></h3>
+    <div class="md-friends" id="stMdFriends"><p class="sub" style="margin:0;">불러오는 중…</p></div>`;
   card.querySelector(".md-pick").onclick = e => {
     const b = e.target.closest("[data-mdm]");
     if(!b) return;
     stmd.sel = Number(b.dataset.mdm);
     card.querySelectorAll("[data-mdm]").forEach(x => x.setAttribute("aria-pressed", Number(x.dataset.mdm) === stmd.sel));
   };
+  stmdFriends(card, fb, classId, today, me);
   card.querySelector("#stMdNote").oninput = e => {
     card.querySelector("#stMdHelp").innerHTML = VC_CRISIS.test(e.target.value) ? crisisHelpHtml("혼자 견디지 않아도 돼요.") : "";
   };
   card.querySelector("[data-mdsave]").onclick = async () => {
     if(stmd.sel === null){ toast("오늘 기분을 하나 골라 주세요."); return; }
     const note = card.querySelector("#stMdNote").value.trim().slice(0, 50);
+    const share = card.querySelector("#stMdShare").checked;
     try{
-      await mdb.put(fb, classId, today, me.sid, await sealJson(me.ck, { m: stmd.sel, note }));
+      await mdb.put(fb, classId, today, me.sid, await sealJson(me.ck, { m: stmd.sel, note, share }));
+      /* 친구 공개는 이모지만 담은 별도 문서 — 끄면 지운다 */
+      if(share) await mdb.putPub(fb, classId, today, me.sid, await sealJson(me.ck, { m: stmd.sel }));
+      else await mdb.delPub(fb, classId, today, me.sid);
     }catch(err){ console.error(err); toast("남기지 못했어요. 인터넷 연결을 확인해 주세요."); return; }
     toast("선생님께 전했어요 " + MD[stmd.sel].e);
     const urgent = VC_CRISIS.test(note);
@@ -10432,9 +10499,38 @@ async function stmdRender(){
   };
 }
 
+/* 공개를 켠 친구들의 기분 — 프로필 + 이름 + 이모지 (이름 목록·프로필은 반 열쇠로 잠긴 것을 연다) */
+function stmdFriends(card, fb, classId, date, me){
+  (stmd.unsubs || []).forEach(u => { try{ u(); }catch(e){} });
+  stmd.unsubs = [];
+  const st = { pub:{}, dir:{}, pfs:{} };
+  const draw = () => {
+    const box = stmd.root.querySelector("#stMdFriends");
+    if(!box) return;
+    const ids = Object.keys(st.pub).sort((a, b) => ((st.dir[a] || {}).no || 99) - ((st.dir[b] || {}).no || 99));
+    box.innerHTML = ids.length ? ids.map(sid => {
+      const d = st.dir[sid];
+      return `<div class="mf">${pfHtml(st.pfs[sid] || null, 40, d ? d.name : "?")}<span class="e">${MD[st.pub[sid]].e}</span><small>${d ? escapeHtml(d.name) : ""}</small></div>`;
+    }).join("") : `<p class="sub" style="margin:0;">아직 기분을 보여 준 친구가 없어요.</p>`;
+  };
+  stmd.unsubs.push(mdb.watchPub(fb, classId, date, async list => {
+    st.pub = {};
+    for(const x of list){
+      try{ const v = await openJson(me.ck, x.c); if(Number.isInteger(v.m) && v.m >= 0 && v.m < MD.length) st.pub[x.sid] = v.m; }catch(e){}
+    }
+    draw();
+  }));
+  stmd.unsubs.push(wlb.watchDir({ demo: state.mode === "demo", fb, classId }, async d => {
+    if(!d) return;
+    try{ (await openJson(me.ck, d.c)).students.forEach(s => { st.dir[s.sid] = { no: s.no, name: s.name }; }); }catch(e){}
+    draw();
+  }));
+  stmd.unsubs.push(pfb.watch(classId, async docs => { st.pfs = await pfDecode(me.ck, docs); draw(); }, fb));
+}
+
 /* ---------- 체험 모드 — 최근 7일 예시 ---------- */
 async function moodDemoSetup(){
-  mdMem.d = {}; mdMem.watch = {};
+  mdMem.d = {}; mdMem.watch = {}; mdMem.pub = {}; mdMem.pwatch = {};
   state.data.moodOn = true;
   const ck = pf.ck;
   if(!ck) return;
@@ -10453,7 +10549,9 @@ async function moodDemoSetup(){
       if(s.id === "s13" && di >= days.length - 3){ m = 3; if(day === days[days.length - 1]) note = "요즘 쉬는 시간마다 친구들이 별명으로 놀려서 속상해요"; }
       if(s.id === "s09" && di === days.length - 1){ m = 4; note = "수학 시험 망해서 짜증나요"; }
       if(s.id === "s20" && di === days.length - 1){ m = 0; note = "목표 생겨서 기분 최고!"; }
-      box[s.id] = { c: await sealJson(ck, { m, note }), at: new Date(day + "T08:1" + (s.no % 10) + ":00").toISOString() };
+      const share = s.no % 3 !== 0 && !["s13","s09"].includes(s.id);   // 체험: 3명 중 2명꼴로 친구에게 공개
+      box[s.id] = { c: await sealJson(ck, { m, note, share }), at: new Date(day + "T08:1" + (s.no % 10) + ":00").toISOString() };
+      if(share && day === todayStr) (mdMem.pub[day] || (mdMem.pub[day] = {}))[s.id] = { c: await sealJson(ck, { m }), at: box[s.id].at };
     }
   }
 }
