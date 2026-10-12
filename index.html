@@ -311,6 +311,33 @@ input:focus, select:focus, textarea:focus{ border-color:var(--ink); outline:none
 .tabbar button[aria-selected="true"]{ color:var(--ink); box-shadow:inset 0 3px 0 var(--ink); }
 .tabbar button:disabled{ opacity:.45; }
 
+/* ---------- 우측 상단 ☰ 메뉴 ----------
+   메뉴 칸은 하단 nav 안에 있지만(탭 이동 코드를 그대로 쓰려고) 화면에는 ☰ 바로 아래에 뜬다.
+   top 은 열 때 ☰ 위치로 맞춘다. */
+.hdr-menu{
+  position:relative; flex:none; align-self:center; margin-left:4px;
+  min-width:44px; min-height:44px; border:0; border-radius:var(--r);
+  background:transparent; color:inherit; font-size:22px; line-height:1; cursor:pointer;
+}
+.hdr-menu[aria-expanded="true"], .hdr-menu.cur{ background:rgba(255,255,255,.16); }
+.hdr-menu .tab-dot{ top:8px; left:auto; right:6px; }
+.menu-panel{
+  display:none; position:fixed; right:max(12px, env(safe-area-inset-right)); top:64px;
+  min-width:210px; padding:6px; z-index:40;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow);
+  flex-direction:column; gap:2px;
+}
+.tabbar.menu-open .menu-panel{ display:flex; }
+.tabbar .menu-panel button{
+  flex:none; flex-direction:row; justify-content:flex-start; gap:12px;
+  min-height:50px; padding:0 14px; border-radius:var(--r);
+  font-size:15px; color:var(--text);
+}
+.tabbar .menu-panel button .ic{ font-size:20px; width:24px; text-align:center; }
+.tabbar .menu-panel button[aria-selected="true"]{ background:var(--tint); color:var(--ink); box-shadow:none; }
+.tabbar .menu-panel button:hover{ background:var(--paper); }
+.tabbar .menu-panel .tab-dot, .tabbar .menu-panel .st-dot{ position:static; margin-left:auto; }
+
 /* ---------- 안내 / 경고 문구 ---------- */
 .notice{
   border-left:3px solid var(--ink); background:var(--tint);
@@ -1240,6 +1267,11 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
 }
 #screen-student .stop .wrap{ display:flex; align-items:baseline; gap:10px; }
 #screen-student .stop h1{ font-family:var(--font-display); font-size:20px; margin:0; font-weight:700; }
+#screen-student .stop{ position:sticky; top:0; z-index:25; }   /* ☰ 를 언제든 누를 수 있게 */
+/* 미리보기(#previewStudent)에서도 같은 자리에 오게 id 없이 */
+.stop .wrap{ position:relative; padding-right:60px; }
+.stop .hdr-menu{ position:absolute; right:10px; top:50%; margin:-22px 0 0; }
+.stop .hdr-menu[aria-expanded="true"], .stop .hdr-menu.cur{ background:rgba(15,76,129,.12); }
 #screen-student .stop .d{ margin-left:auto; font-family:var(--font-mono); font-size:12px; }
 #screen-student .card{ background:#fff; }
 #screen-student .foot{
@@ -2055,6 +2087,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
     <div class="wrap">
       <h1 id="stTitle">우리 반</h1>
       <span class="d" id="stDate"></span>
+      <button class="hdr-menu hidden" data-stmenu="1" aria-label="메뉴 더 보기" aria-expanded="false">☰<i class="tab-dot hidden"></i></button>
     </div>
   </header>
 
@@ -2177,13 +2210,16 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
     <!-- 학생 화면 하단 탭 -->
     <nav class="tabbar st-tabbar" aria-label="학생 화면 메뉴">
       <button data-sttab="today"  aria-selected="true"><span class="ic">🌅</span>오늘</button>
-      <button data-sttab="notice" aria-selected="false"><span class="ic">💬</span>알림<i class="st-dot hidden"></i></button>
-      <button data-sttab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
-      <button data-sttab="wall"   aria-selected="false" class="hidden"><span class="ic">📰</span>담벼락</button>
+      <button data-sttab="notice" aria-selected="false"><span class="ic">🔔</span>알림<i class="st-dot hidden"></i></button>
       <button data-sttab="chat"   aria-selected="false" class="hidden"><span class="ic">💬</span>단톡방<i class="st-dot st-cdot hidden"></i></button>
-      <button data-sttab="voice"  aria-selected="false" class="hidden"><span class="ic">💌</span>마음</button>
-      <button data-sttab="me"     aria-selected="false" class="hidden"><span class="ic">🙂</span>나</button>
-      <button data-sttab="tools"  aria-selected="false"><span class="ic">🧰</span>도구</button>
+      <button data-sttab="wall"   aria-selected="false" class="hidden"><span class="ic">📰</span>담벼락</button>
+      <!-- 나머지는 우측 상단 ☰ 메뉴 -->
+      <div class="menu-panel" role="menu" aria-label="더 보기">
+        <button data-sttab="cal"    aria-selected="false" role="menuitem"><span class="ic">📅</span>일정</button>
+        <button data-sttab="voice"  aria-selected="false" role="menuitem" class="hidden"><span class="ic">💌</span>마음의 소리함</button>
+        <button data-sttab="me"     aria-selected="false" role="menuitem" class="hidden"><span class="ic">🙂</span>나 (프로필·코드)</button>
+        <button data-sttab="tools"  aria-selected="false" role="menuitem"><span class="ic">🧰</span>도구</button>
+      </div>
     </nav>
   </main>
 </div>
@@ -2230,6 +2266,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <span class="savebar hidden" id="saveBar" data-s="synced">
         <span class="dot"></span><span id="saveBarTxt">저장됨</span>
       </span>
+      <button class="hdr-menu" id="btnMenu" aria-label="메뉴 더 보기" aria-expanded="false">☰<i class="tab-dot hidden"></i></button>
     </div>
   </header>
 
@@ -2620,7 +2657,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <div class="card" id="cardVoice">
         <span class="eyebrow">마음의 소리함</span>
         <h2>학생 마음 편지</h2>
-        <p class="sub">학생이 학생 화면 「💌 마음」 탭에서 고민·건의·도움 요청·고마움을 담임에게만 보냅니다.
+        <p class="sub">학생이 학생 화면 ☰ 메뉴 「💌 마음의 소리함」에서 고민·건의·도움 요청·고마움을 담임에게만 보냅니다.
         학생은 나눠 준 <b>개인 코드</b>로 본인 확인을 하고, 담임은 비밀 답장을 보낼 수 있습니다.</p>
         <div class="notice">편지는 학생 기기에서 <b>담임만 열 수 있는 자물쇠</b>로 잠가 보냅니다. 서버 관리자·친구·링크를 아는 사람도 읽을 수 없습니다.</div>
         <div id="voiceBody"></div>
@@ -3128,14 +3165,18 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
   </footer>
 
   <!-- 하단 탭바 -->
+  <!-- 하단 탭은 매일 쓰는 3개만. 나머지는 우측 상단 ☰ 를 누르면 펼쳐지는 메뉴(.menu-panel) 안에 있다.
+       같은 nav 안에 두어야 탭 이동·선택 표시가 그대로 동작한다. -->
   <nav class="tabbar">
-    <button data-tab="manage" aria-selected="true"><span class="ic">📋</span>관리<i class="tab-dot hidden" id="manageDot"></i></button>
-    <button data-tab="seat"   aria-selected="false"><span class="ic">🪑</span>자리 배치</button>
     <button data-tab="home"   aria-selected="false"><span class="ic">🌅</span>조회</button>
     <button data-tab="attend" aria-selected="false"><span class="ic">✅</span>출석</button>
     <button data-tab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
-    <button data-tab="wall"   aria-selected="false"><span class="ic">📰</span>담벼락<i class="tab-dot hidden" id="wallDot"></i></button>
-    <button data-tab="chat"   aria-selected="false"><span class="ic">💬</span>단톡방<i class="tab-dot hidden" id="chatDot"></i></button>
+    <div class="menu-panel" role="menu" aria-label="더 보기">
+      <button data-tab="chat"   aria-selected="false" role="menuitem"><span class="ic">💬</span>단톡방<i class="tab-dot hidden" id="chatDot"></i></button>
+      <button data-tab="wall"   aria-selected="false" role="menuitem"><span class="ic">📰</span>담벼락<i class="tab-dot hidden" id="wallDot"></i></button>
+      <button data-tab="seat"   aria-selected="false" role="menuitem"><span class="ic">🪑</span>자리 배치</button>
+      <button data-tab="manage" aria-selected="true"  role="menuitem"><span class="ic">📋</span>관리<i class="tab-dot hidden" id="manageDot"></i></button>
+    </div>
   </nav>
 </div>
 
@@ -4455,6 +4496,8 @@ function enterApp(){
   setupFolds();
   if(state.mode === "demo") $("#demoBanner").classList.remove("hidden");
   renderAll();
+  /* 명단이 있으면 매일 쓰는 「조회」로, 처음이면 준비할 「관리」로 연다 (관리는 ☰ 메뉴 안에 있다) */
+  switchTab((state.data.students || []).length ? "home" : "manage");
   boardResume();   // 교과 출석부가 켜져 있으면 최신 내용을 올리고 교시 체크를 받아 보기 시작
   vcResume().then(pfResume).then(wallResume).then(renderMoodCard).then(chatResume);   // 소리함 · 프로필 · 담벼락 · 기분 · 단톡방
 }
@@ -4834,8 +4877,46 @@ $("#btnDemoReset").addEventListener("click", () => {
 $("#btnBackSetup").addEventListener("click", () => { LS.del(K_SETUP); showOnly("screen-setup"); });
 
 /* 탭 이동 */
-$$(".tabbar button").forEach(b =>
+$$(".tabbar:not(.st-tabbar) button").forEach(b =>
   b.addEventListener("click", () => switchTab(b.dataset.tab)));
+setupMenu($("#btnMenu"), $(".tabbar:not(.st-tabbar)"));
+
+/* ---------- 우측 상단 ☰ 메뉴 (담임·학생 공통) ----------
+   btn: 머리줄의 ☰ / nav: 하단 탭(안에 .menu-panel)
+   · 메뉴 안 탭을 고르면 닫힌다. 바깥을 누르거나 Esc 로도 닫힌다.
+   · 메뉴 안에 빨간 점이 하나라도 켜져 있으면 ☰ 에도 빨간 점
+   · 메뉴 안 탭을 보고 있으면 ☰ 를 살짝 칠해 둔다
+   · 메뉴 안 탭이 모두 숨겨지면 ☰ 도 숨긴다 */
+function setupMenu(btn, nav){
+  if(!btn || !nav || btn.dataset.menuReady) return;
+  btn.dataset.menuReady = "1";
+  const panel = nav.querySelector(".menu-panel");
+  const close = () => { nav.classList.remove("menu-open"); btn.setAttribute("aria-expanded", "false"); };
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    if(nav.classList.contains("menu-open")){ close(); return; }
+    const r = btn.getBoundingClientRect();
+    panel.style.top = Math.round(r.bottom + 6) + "px";
+    nav.classList.add("menu-open");
+    btn.setAttribute("aria-expanded", "true");
+  });
+  panel.addEventListener("click", e => { if(e.target.closest("button")) close(); });
+  document.addEventListener("click", e => {
+    if(nav.classList.contains("menu-open") && !panel.contains(e.target) && e.target !== btn) close();
+  });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") close(); });
+  window.addEventListener("scroll", close, { passive: true });
+
+  const sync = () => {
+    const items = [...panel.querySelectorAll("button")];
+    btn.classList.toggle("hidden", !items.some(b => !b.classList.contains("hidden")));
+    btn.classList.toggle("cur", items.some(b => b.getAttribute("aria-selected") === "true"));
+    btn.querySelector(".tab-dot").classList.toggle("hidden",
+      ![...panel.querySelectorAll(".tab-dot, .st-dot")].some(d => !d.classList.contains("hidden")));
+  };
+  new MutationObserver(sync).observe(panel, { subtree: true, attributes: true, attributeFilter: ["class", "aria-selected"] });
+  sync();
+}
 
 /* 반 이름 */
 $("#btnSaveClassName").addEventListener("click", async () => {
@@ -5532,7 +5613,7 @@ function dutyReason(){
   const D = state.data.duty || {};
   if(!D.enabled)  return "당번 순환이 꺼져 있습니다.";
   if(!D.start)    return "「순환을 시작한 날」을 정해 주세요.";
-  if(!(state.data.students || []).length) return "먼저 관리 화면에서 학생 명단을 등록해 주세요.";
+  if(!(state.data.students || []).length) return "먼저 ☰ 관리에서 학생 명단을 등록해 주세요.";
   if(!(D.groups || []).length)            return "당번 종류를 하나 이상 추가해 주세요.";
   const need = (D.groups || []).filter(g => g.mode === "members" && !(g.members || []).length).map(g => g.name);
   if(need.length) return `${need.join(", ")} 당번에 「학생 뽑기」로 학생을 골라 주세요.`;
@@ -5856,7 +5937,7 @@ async function renderMeal(){
   }
   if(!sc){
     card.classList.remove("hidden");
-    $("#mealBody").innerHTML = `<p class="sub">관리 화면에서 학교를 고르면 급식이 매일 저절로 뜹니다.</p>`;
+    $("#mealBody").innerHTML = `<p class="sub">☰ 관리에서 학교를 고르면 급식이 매일 저절로 뜹니다.</p>`;
     return;
   }
   const myReq = ++mealReq;
@@ -5943,7 +6024,7 @@ function renderAtt(){
     html = students.map(s => attCell(s, viewingHistory)).join("");
     $("#attNoSeat").textContent = students.length
       ? "자리 배치를 하면 실제 교실 모양대로 볼 수 있습니다."
-      : "먼저 관리 화면에서 학생 명단을 등록해 주세요.";
+      : "먼저 ☰ 관리에서 학생 명단을 등록해 주세요.";
   }
   grid.innerHTML = html;
 
@@ -8330,9 +8411,9 @@ async function renderCalTab(){
   const sc = state.data.school;
   const g  = parseGradeClass(state.data.className).grade;
   $("#calSchoolNote").textContent = state.mode === "demo"
-    ? "체험용 가상 학사일정이 함께 보입니다. 실제로는 관리 탭에서 고른 학교의 학사일정을 나이스에서 불러옵니다."
+    ? "체험용 가상 학사일정이 함께 보입니다. 실제로는 ☰ 관리에서 고른 학교의 학사일정을 나이스에서 불러옵니다."
     : sc ? `${sc.name} 학사일정을 나이스에서 불러옵니다${g ? ` (${g}학년 행사만)` : ""}.`
-         : "관리 탭에서 급식 학교를 고르면 학교 학사일정이 함께 뜹니다.";
+         : "☰ 관리에서 급식 학교를 고르면 학교 학사일정이 함께 뜹니다.";
   const pend = (state.data.ddays || []).filter(x => x.src === "t" && x.date >= ymd(today()))
     .sort((a, b) => a.date.localeCompare(b.date));
   $("#calPendingCard").classList.toggle("hidden", !pend.length);
@@ -8648,7 +8729,7 @@ async function vcUnwrapPriv(key, blob){
 async function vcTeacherKey(){
   if(vc.vk) return vc.vk;
   if(state.nameMode !== "number" || state.mode === "demo"){
-    if(!crypt.key){ toast("관리 탭에서 이름 보호 암호를 먼저 풀어 주세요."); return null; }
+    if(!crypt.key){ toast("☰ 관리에서 이름 보호 암호를 먼저 풀어 주세요."); return null; }
     return (vc.vk = crypt.key);
   }
   const v = state.data.voice || {};
@@ -8668,7 +8749,7 @@ async function vcTeacherKey(){
 /* ---------- 담임: 켜기 · 개인 코드 ---------- */
 async function vcTurnOn(){
   if(state.mode === "local"){ toast("학생 화면으로 받는 기능이라 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다."); return; }
-  if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+  if(state.mode === "cloud" && !state.data.published){ toast("먼저 ☰ 관리 「학생 화면」에서 반영을 눌러 주세요."); return; }
   const vk = await vcTeacherKey();
   if(!vk) return;
   const old = state.data.voice;
@@ -8770,7 +8851,7 @@ function vcBadges(){
   $("#voiceDashHead").textContent = `읽지 않은 마음 편지 ${unread.length}개`;
   $("#voiceDashSub").textContent = urg.length
     ? `그중 ${urg.length}개에 도움이 필요해 보이는 낱말이 있습니다. 먼저 확인해 주세요.`
-    : "관리 탭 「마음의 소리함」에서 읽고 답장할 수 있습니다.";
+    : "☰ 관리 「마음의 소리함」에서 읽고 답장할 수 있습니다.";
   $("#manageDot").classList.toggle("hidden", !unread.length);
 }
 $("#btnVoiceDash").addEventListener("click", () => {
@@ -8826,7 +8907,7 @@ async function vcShowCodes(){
   if(!codes) return;
   const list = (state.data.students || []).slice().sort((a, b) => a.no - b.no);
   $("#stuCodesList").innerHTML = `
-    ${state.mode === "demo" ? `<div class="notice">체험해 보기: 관리 탭 「학생 화면 → 미리보기」를 열고 💌 마음·🙂 나 탭에서 아래 코드 중 하나를 넣어 보세요.</div>` : ""}
+    ${state.mode === "demo" ? `<div class="notice">체험해 보기: ☰ 관리 「학생 화면 → 미리보기」를 열고 ☰ 메뉴의 💌 마음의 소리함·🙂 나에서 아래 코드 중 하나를 넣어 보세요.</div>` : ""}
     <div class="vc-codes">${list.map(s => `<div><span>${s.no}번 ${escapeHtml(nameOf(s))}</span><code>${escapeHtml(codes[s.id] || "—")}</code>
       <button data-vcre="${s.id}">다시 만들기</button></div>`).join("")}</div>`;
 }
@@ -9319,7 +9400,7 @@ $("#codesBody").addEventListener("click", async e => {
   if(!b) return;
   const a = b.dataset.cd;
   if(a === "issue"){
-    if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+    if(state.mode === "cloud" && !state.data.published){ toast("먼저 ☰ 관리 「학생 화면」에서 반영을 눌러 주세요."); return; }
     if(!(await ckTeacher())) return;
     const n = await vcIssueCodes(false);
     renderCodesPanel(); await vcResume(); pfResume();
@@ -10171,7 +10252,7 @@ function renderWallTab(){
   const hours = (sel) => Array.from({ length: 24 }, (_, h) => `<option value="${h}" ${sel === h ? "selected" : ""}>${h}시</option>`).join("");
   if(!w.on){
     set.innerHTML = `
-      ${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 관리 탭 「학생 개인 코드」에서 코드를 만들어 나눠 주세요. 학생은 코드로 들어와 담벼락을 씁니다.</div>`}
+      ${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 ☰ 관리 「학생 개인 코드」에서 코드를 만들어 나눠 주세요. 학생은 코드로 들어와 담벼락을 씁니다.</div>`}
       <button class="btn primary" data-wset="on">📰 담벼락 열기</button>`;
     $("#wallHome").innerHTML = "";
     return;
@@ -10193,7 +10274,7 @@ $("#wallSet").addEventListener("click", async e => {
   const b = e.target.closest("[data-wset]");
   if(!b) return;
   if(b.dataset.wset === "on"){
-    if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+    if(state.mode === "cloud" && !state.data.published){ toast("먼저 ☰ 관리 「학생 화면」에서 반영을 눌러 주세요."); return; }
     if(!(await ckTeacher())) return;
     await store.save("wall", Object.assign({ qFrom: 22, qTo: 7 }, state.data.wall || {}, { on: true }));
     await dirPublish();
@@ -10456,7 +10537,7 @@ async function renderMoodCard(){
     if(mdT.unsub){ mdT.unsub(); mdT.unsub = null; }
     box.innerHTML = `<p class="sub">학생이 학생 화면 「🌅 오늘」 탭에서 오늘 기분을 고르고, 선생님께만 한 줄을 남깁니다.
       친구들에게는 보이지 않습니다. 속상·화남이 이어지는 학생을 놓치지 않게 알려 드립니다.</p>
-      ${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 관리 탭 「학생 개인 코드」에서 코드를 나눠 주세요.</div>`}
+      ${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 ☰ 관리 「학생 개인 코드」에서 코드를 나눠 주세요.</div>`}
       <button class="btn primary sm" data-md="on">오늘의 기분 받기 시작</button>`;
     return;
   }
@@ -10536,8 +10617,8 @@ $("#moodBody").addEventListener("click", async e => {
   if(!b) return;
   const a = b.dataset.md;
   if(a === "on"){
-    if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
-    if(!Object.keys(state.data.stuSh || {}).length){ toast("먼저 관리 탭 「학생 개인 코드」에서 코드를 만들어 주세요."); return; }
+    if(state.mode === "cloud" && !state.data.published){ toast("먼저 ☰ 관리 「학생 화면」에서 반영을 눌러 주세요."); return; }
+    if(!Object.keys(state.data.stuSh || {}).length){ toast("먼저 ☰ 관리 「학생 개인 코드」에서 코드를 만들어 주세요."); return; }
     if(!(await ckTeacher())) return;
     await store.save("moodOn", true);
     await dirPublish();   // 친구 기분 옆에 보일 이름 목록 (반 열쇠로 잠김)
@@ -10570,8 +10651,8 @@ async function stmdRender(){
   const me = await stIdentity(classId);
   if(!me || !me.ck){
     card.innerHTML = `<span class="eyebrow">오늘의 기분</span><h2>오늘 기분은 어때요?</h2>
-      <p class="sub">선생님께 받은 개인 코드를 「🙂 나」 탭에서 넣으면 오늘 기분을 남길 수 있어요.</p>
-      <button class="btn sm" data-mdgo="1">🙂 나 탭으로</button>`;
+      <p class="sub">선생님께 받은 개인 코드를 ☰ 메뉴 「🙂 나」에서 넣으면 오늘 기분을 남길 수 있어요.</p>
+      <button class="btn sm" data-mdgo="1">🙂 코드 넣으러 가기</button>`;
     card.querySelector("[data-mdgo]").onclick = () => stmd.root.querySelector('[data-sttab="me"]').click();
     return;
   }
@@ -10953,7 +11034,7 @@ function renderChatTab(){
   if(state.mode === "local"){ set.innerHTML = `<p class="sub">학생과 함께 쓰는 기능이라 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다.</p>`; $("#chatHome").innerHTML = ""; return; }
   const hours = sel => Array.from({ length: 24 }, (_, h) => `<option value="${h}" ${sel === h ? "selected" : ""}>${h}시</option>`).join("");
   if(!c.on){
-    set.innerHTML = `${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 관리 탭 「학생 개인 코드」에서 코드를 만들어 나눠 주세요.</div>`}
+    set.innerHTML = `${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 ☰ 관리 「학생 개인 코드」에서 코드를 만들어 나눠 주세요.</div>`}
       <button class="btn primary" data-chs="on">💬 단톡방 열기</button>`;
     $("#chatHome").innerHTML = "";
     return;
@@ -10970,7 +11051,7 @@ $("#chatSet").addEventListener("click", async e => {
   const b = e.target.closest("[data-chs]");
   if(!b) return;
   if(b.dataset.chs === "on"){
-    if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+    if(state.mode === "cloud" && !state.data.published){ toast("먼저 ☰ 관리 「학생 화면」에서 반영을 눌러 주세요."); return; }
     if(!(await ckTeacher())) return;
     await store.save("chat", Object.assign({ qFrom: 22, qTo: 7 }, state.data.chat || {}, { on: true }));
     await dirPublish(); await autoSync(); boardQueueMeta();
@@ -11199,6 +11280,7 @@ function setupStudentTabs(pub, root, isPreview){
     const b = e.target.closest("[data-sttab]");
     if(b) show(b.dataset.sttab);
   };
+  setupMenu(q("[data-stmenu]"), q(".st-tabbar"));   // 우측 상단 ☰ — 일정·마음·나·도구
   show(host.dataset.stcur || "today");
 }
 
@@ -11395,7 +11477,7 @@ $("#dashTools").addEventListener("click", async e => {
   const b = e.target.closest("[data-copyroster]");
   if(!b) return;
   const list = [...(state.data.students || [])].sort((x, y) => x.no - y.no);
-  if(!list.length){ toast("먼저 관리 탭에서 학생 명단을 등록해 주세요."); return; }
+  if(!list.length){ toast("먼저 ☰ 관리에서 학생 명단을 등록해 주세요."); return; }
   if(state.nameMode !== "number" && !crypt.key){ toast("이름 보호 암호를 풀어야 실명 명단을 복사할 수 있습니다."); return; }
   const text = list.map(s => `${s.no}\t${nameOf(s)}`).join("\n");
   try{
@@ -11469,7 +11551,7 @@ const jh = { data:null, key:null, view:"table", sort:{ k:"no", dir:1 } };
 async function jhKey(){
   if(state.mode === "demo") return null;                    // 체험은 저장하지 않는다
   if(state.nameMode !== "number"){
-    if(!crypt.key){ toast("관리 탭에서 이름 보호 암호를 먼저 풀어 주세요."); return undefined; }
+    if(!crypt.key){ toast("☰ 관리에서 이름 보호 암호를 먼저 풀어 주세요."); return undefined; }
     return crypt.key;
   }
   if(jh.key) return jh.key;
@@ -12083,7 +12165,7 @@ function openPicker({ title, students, isAway, awayLabel, key, photo }){
 /* 담임 — 조회 탭 */
 $("#btnPicker").addEventListener("click", async () => {
   const students = (state.data.students || []).map(s => ({ id: s.id, no: s.no, name: nameOf(s) })).sort((a, b) => a.no - b.no);
-  if(!students.length){ toast("먼저 관리 탭에서 학생 명단을 등록해 주세요."); return; }
+  if(!students.length){ toast("먼저 ☰ 관리에서 학생 명단을 등록해 주세요."); return; }
   const ds = ymd(today());
   const doc = await store.loadAtt(ds);
   openPicker({
