@@ -668,6 +668,37 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .md-week td.nm{ text-align:left; font-size:13px; font-weight:600; white-space:nowrap; }
 .md-week tr.concern td.nm{ color:var(--stamp); }
 
+/* ---------- 우리 반 단톡방 ---------- */
+.ch-box{ background:#E8EEF6; border-radius:var(--r-lg); border:1px solid var(--line); overflow:hidden; display:flex; flex-direction:column; }
+.ch-bar{ display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--card); border-bottom:1px solid var(--line); font-size:13px; color:var(--ink-70); }
+.ch-bar .sp{ margin-left:auto; }
+.ch-notice{ background:#FDF3D6; color:#8A6D12; font-size:12.5px; font-weight:600; padding:6px 12px; text-align:center; }
+.ch-list{ height:min(62vh, 560px); overflow-y:auto; padding:12px 10px; display:flex; flex-direction:column; gap:6px; }
+.ch-day{ align-self:center; font-size:11.5px; color:var(--ink-45); background:rgba(255,255,255,.7); border-radius:999px; padding:2px 10px; margin:6px 0; }
+.ch-m{ display:flex; gap:6px; align-items:flex-start; max-width:86%; }
+.ch-m.me{ align-self:flex-end; flex-direction:row-reverse; }
+.ch-m .col{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.ch-m.me .col{ align-items:flex-end; }
+.ch-m .nm{ font-size:12px; color:var(--ink-70); font-weight:600; }
+.ch-m .row{ display:flex; align-items:flex-end; gap:4px; }
+.ch-m.me .row{ flex-direction:row-reverse; }
+.ch-m .bub{ background:#fff; border-radius:4px 16px 16px 16px; padding:8px 12px; font-size:14.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; cursor:pointer; }
+.ch-m.me .bub{ background:var(--ink); color:#fff; border-radius:16px 4px 16px 16px; }
+.ch-m .bub img{ display:block; max-width:220px; max-height:260px; border-radius:10px; margin:2px 0; }
+.ch-m .bub.held, .ch-m .bub.hid{ background:#FFFCF2; color:#8A6D12; border:1.5px dashed #C9A227; }
+.ch-m .bub.gone{ background:transparent; color:var(--ink-45); border:1px dashed var(--ink-45); font-size:13px; }
+.ch-m .meta{ display:flex; flex-direction:column; align-items:flex-end; font-size:10.5px; color:var(--ink-45); flex:none; }
+.ch-m.me .meta{ align-items:flex-start; }
+.ch-m .meta .ur{ color:#C9A227; font-weight:800; font-size:11px; }
+.ch-m .rx{ font-size:12px; background:#fff; border:1px solid var(--line); border-radius:999px; padding:0 6px; }
+.ch-in{ display:flex; gap:6px; padding:8px; background:var(--card); border-top:1px solid var(--line); align-items:flex-end; }
+.ch-in textarea{ flex:1; min-height:44px; max-height:120px; font-family:inherit; font-size:15px; resize:none; }
+.ch-in .ph{ min-width:44px; }
+.ch-quiet{ padding:10px 12px; background:var(--card); border-top:1px solid var(--line); font-size:13px; color:var(--ink-70); text-align:center; }
+.ch-rxpick{ display:flex; gap:6px; justify-content:center; margin-bottom:8px; }
+.ch-rxpick button{ font-size:24px; min-width:48px; min-height:48px; border-radius:12px; border:1.5px solid var(--line); background:#fff; }
+.ch-rxpick button[aria-pressed="true"]{ border-color:var(--ink); background:var(--tint); }
+
 /* ---------- 학생 화면 하단 탭 ---------- */
 .st-tabbar{ z-index:30; }
 .st-tabbar button{ position:relative; }
@@ -1971,6 +2002,10 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
         <p class="sub" id="tbFlowSub">학생을 누르면 고른 교시에 도착·결과·조퇴를 남길 수 있습니다.</p>
         <div id="tbFlow"></div>
       </div>
+      <div class="card hidden" id="tbChatCard">
+        <span class="eyebrow">우리 반 단톡방</span>
+        <div id="tbChat"></div>
+      </div>
       <div class="card hidden" id="tbWallCard">
         <span class="eyebrow">우리 반 담벼락</span>
         <div id="tbWall"></div>
@@ -2073,6 +2108,11 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <p class="sub st-empty">아직 올라온 일정이 없습니다.</p>
     </section>
 
+    <!-- ── 단톡방 ── -->
+    <section class="st-tab hidden" data-st="chat">
+      <div id="stChat"></div>
+    </section>
+
     <!-- ── 담벼락 ── -->
     <section class="st-tab hidden" data-st="wall">
       <div id="stWall"></div>
@@ -2109,6 +2149,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       <button data-sttab="notice" aria-selected="false"><span class="ic">💬</span>알림<i class="st-dot hidden"></i></button>
       <button data-sttab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
       <button data-sttab="wall"   aria-selected="false" class="hidden"><span class="ic">📰</span>담벼락</button>
+      <button data-sttab="chat"   aria-selected="false" class="hidden"><span class="ic">💬</span>단톡방<i class="st-dot st-cdot hidden"></i></button>
       <button data-sttab="voice"  aria-selected="false" class="hidden"><span class="ic">💌</span>마음</button>
       <button data-sttab="me"     aria-selected="false" class="hidden"><span class="ic">🙂</span>나</button>
       <button data-sttab="tools"  aria-selected="false"><span class="ic">🧰</span>도구</button>
@@ -2895,6 +2936,17 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
       </div>
     </section>
 
+    <!-- ─────────── 탭 7: 단톡방 ─────────── -->
+    <section id="tab-chat" class="hidden">
+      <div class="card" id="chatSetCard">
+        <span class="eyebrow">우리 반 단톡방</span>
+        <h2>우리 반만 쓰는 대화방</h2>
+        <p class="sub">학생·담임·교과 선생님이 함께 쓰는 방입니다. 메시지와 사진은 반 열쇠로 잠겨 우리 반만 볼 수 있습니다.</p>
+        <div id="chatSet"></div>
+      </div>
+      <div id="chatHome"></div>
+    </section>
+
     <!-- ─────────── 탭 6: 담벼락 ─────────── -->
     <section id="tab-wall" class="hidden">
       <div class="card" id="wallSetCard">
@@ -3044,6 +3096,7 @@ details.fold .inner{ padding:0 13px 14px; border-top:1px solid var(--line); }
     <button data-tab="attend" aria-selected="false"><span class="ic">✅</span>출석</button>
     <button data-tab="cal"    aria-selected="false"><span class="ic">📅</span>일정</button>
     <button data-tab="wall"   aria-selected="false"><span class="ic">📰</span>담벼락<i class="tab-dot hidden" id="wallDot"></i></button>
+    <button data-tab="chat"   aria-selected="false"><span class="ic">💬</span>단톡방<i class="tab-dot hidden" id="chatDot"></i></button>
   </nav>
 </div>
 
@@ -4228,6 +4281,7 @@ async function startDemo(){
   await vcDemoSetup();   // 마음의 소리함 — 체험용 열쇠·개인 코드·편지 예시
   await wallDemoSetup(); // 담벼락 — 예시 글
   await moodDemoSetup(); // 오늘의 기분 — 최근 7일 예시
+  await chatDemoSetup(); // 단톡방 — 예시 대화
 
   $("#demoBanner").classList.remove("hidden");
   enterApp();
@@ -4349,7 +4403,7 @@ function enterApp(){
   if(state.mode === "demo") $("#demoBanner").classList.remove("hidden");
   renderAll();
   boardResume();   // 교과 출석부가 켜져 있으면 최신 내용을 올리고 교시 체크를 받아 보기 시작
-  vcResume().then(pfResume).then(wallResume).then(renderMoodCard);   // 소리함 · 프로필 · 담벼락 · 오늘의 기분
+  vcResume().then(pfResume).then(wallResume).then(renderMoodCard).then(chatResume);   // 소리함 · 프로필 · 담벼락 · 기분 · 단톡방
 }
 
 /* ============================================================
@@ -4696,18 +4750,19 @@ function switchTab(tab){
   state.pickedStudent = null;
   state.seatDate = null;    // 탭에 새로 들어올 때마다 오늘로 되돌린다
   state.dashDate = null;
-  ["manage","seat","home","attend","cal","wall"].forEach(t => {
+  ["manage","seat","home","attend","cal","wall","chat"].forEach(t => {
     $("#tab-" + t).classList.toggle("hidden", t !== tab);
   });
   $$(".tabbar button").forEach(b =>
     b.setAttribute("aria-selected", b.dataset.tab === tab ? "true" : "false"));
   $("#hdrTitle").textContent =
-    ({ manage:"관리", seat:"자리 배치", home:"조회", attend:"출석", cal:"일정", wall:"담벼락" })[tab];
+    ({ manage:"관리", seat:"자리 배치", home:"조회", attend:"출석", cal:"일정", wall:"담벼락", chat:"단톡방" })[tab];
   if(tab === "seat")   renderSeats();
   if(tab === "home")   renderDash();
   if(tab === "attend") openAttendance();
   if(tab === "cal")    renderCalTab();
   if(tab === "wall")   renderWallTab();
+  if(tab === "chat")   renderChatTab();
   window.scrollTo({ top:0 });
 }
 
@@ -6702,6 +6757,7 @@ function buildPublicDoc(){
   /* 개인 코드를 나눠 준 반이면 학생 화면에 「🙂 나」 탭을 연다 (코드·명단은 넣지 않는다) */
   doc.codes = Object.keys(state.data.stuSh || {}).length > 0;
   doc.mood  = !!state.data.moodOn;   // 오늘의 기분 고르기 (기록은 따로, 담임만 읽음)
+  doc.chat  = state.data.chat && state.data.chat.on ? { qFrom: state.data.chat.qFrom ?? 22, qTo: state.data.chat.qTo ?? 7 } : null;   // 단톡방 쓰기 쉬는 시간
   /* 담벼락 — 열려 있으면 학생 쓰기 쉬는 시간만 (글은 반 열쇠로 잠긴 채 따로 있다) */
   doc.wall = state.data.wall && state.data.wall.on ? { qFrom: state.data.wall.qFrom ?? 22, qTo: state.data.wall.qTo ?? 7 } : null;
   if(P.supplies) doc.supplies = state.data.supplies || "";
@@ -6902,6 +6958,7 @@ function renderStudent(pub, mount){
   renderStudentVoice(pub, root);
   renderStudentMe(pub, root);
   renderStudentWall(pub, root);
+  renderStudentChat(pub, root);
   renderStudentMood(pub, root);
   setupStudentTabs(pub, root, !!mount);
 
@@ -7255,7 +7312,8 @@ function boardMetaPayload(){
     grade: parseGradeClass(state.data.className).grade || "",
     /* 반 열쇠 — 교과 선생님도 학생 프로필(랜덤 뽑기 사진)을 볼 수 있게. 이 문서 자체가 출석부 열쇠로 잠겨 있다 */
     ck: pf.ckRaw ? crypt.toB64(pf.ckRaw) : "",
-    wallOn: !!(state.data.wall && state.data.wall.on)
+    wallOn: !!(state.data.wall && state.data.wall.on),
+    chatOn: !!(state.data.chat && state.data.chat.on)
   };
 }
 function boardDayPayload(ds){
@@ -7798,6 +7856,7 @@ async function tbOpen(){
   tb.meta = await openJson(tb.key, snap.data().meta);
   tbPfWatch();
   tbWallMount();
+  tbChatMount();
   /* 명단·기본 시간표가 바뀌면 바로 다시 그린다 */
   tb.metaUnsub = tb.fb.onSnapshot(ref, async s => {
     if(!s.exists()) return;
@@ -8001,6 +8060,7 @@ $("#btnTeacherPreview").addEventListener("click", async () => {
   tb.events = board.demoEvents;
   tb.pf = pf.data;
   setTimeout(tbWallMount, 0);
+  setTimeout(tbChatMount, 0);
   showOnly("screen-teacher");
   document.body.style.paddingBottom = "0";
   $("#tbBack").classList.remove("hidden");
@@ -9102,6 +9162,7 @@ function stRerenderAll(){
   if(stm.root) stmRender();
   if(stw.root) stwRender();
   if(stmd.root) stmdRender();
+  if(stc.root) stcRender();
 }
 
 /* ============================================================
@@ -9616,7 +9677,7 @@ const wlb = {
 /* ---------- 이름 목록 올리기 (담임) ---------- */
 async function dirPublish(){
   if(!state.data || !(state.mode === "cloud" || state.mode === "demo")) return;
-  if(!((state.data.wall && state.data.wall.on) || state.data.moodOn) || !boardNamesReady()) return;   // 담벼락·친구 기분이 이름을 쓴다
+  if(!((state.data.wall && state.data.wall.on) || state.data.moodOn || (state.data.chat && state.data.chat.on)) || !boardNamesReady()) return;   // 담벼락·친구 기분·단톡방이 이름을 쓴다
   const ck = await ckQuiet();
   if(!ck) return;
   const body = { c: await sealJson(ck, { students: (state.data.students || []).map(s => ({ sid: s.id, no: s.no, name: nameOf(s) })) }),
@@ -10554,6 +10615,401 @@ async function moodDemoSetup(){
       if(share && day === todayStr) (mdMem.pub[day] || (mdMem.pub[day] = {}))[s.id] = { c: await sealJson(ck, { m }), at: box[s.id].at };
     }
   }
+}
+
+/* ============================================================
+   우리 반 단톡방 — 방 하나, 학생·담임·교과 선생님
+   ------------------------------------------------------------
+   · chats/{반}               { frozen, muted:{글쓴이: 끝나는 ms} } — 담임만 (서버 규칙으로 막힘)
+   · chats/{반}/msgs/{메시지}  { c(반 열쇠: text·img·tn), au, aid, at, st(ok·held·hidden), rx, rp }
+   · chats/{반}/reads/{로그인ID} { at, aid } — 읽음 표시
+   · 욕설은 held(보낸 사람·담임만 보임), 신고 3건이면 가려짐, 쉬는 시간·도배(10초 5개)는 앱에서 막음
+   ============================================================ */
+const CH_PAGE = 100, CH_MAX = 500, CH_BURST = 5, CH_BURST_MS = 10000;
+const CH_RX = ["❤️","👍","😂","😮","😢"];
+const chMem = { msgs:{}, reads:{}, meta:{}, w:new Set(), rw:new Set(), mw:new Set() };
+const chMemFire = set => set.forEach(f => f());
+
+const chb = {
+  watchMsgs(ctx, n, cb){
+    if(ctx.demo){ const f = () => cb(Object.values(chMem.msgs).sort((a, b) => a.at.localeCompare(b.at)).slice(-n).map(clone)); chMem.w.add(f); f(); return () => chMem.w.delete(f); }
+    const f = ctx.fb;
+    return f.onSnapshot(f.query(f.collection(f.db, "chats", ctx.classId, "msgs"), f.orderBy("at", "desc"), f.limit(n)),
+      s => cb(s.docs.map(d => Object.assign({ id: d.id }, d.data())).reverse()),
+      e => { console.warn("단톡방 받기 실패", e); if(ctx.onError) ctx.onError(e); });
+  },
+  async add(ctx, body){
+    if(ctx.demo){ const id = "h" + Math.random().toString(36).slice(2, 10); chMem.msgs[id] = Object.assign({ id }, body); chMemFire(chMem.w); return; }
+    const f = ctx.fb; await f.addDoc(f.collection(f.db, "chats", ctx.classId, "msgs"), body);
+  },
+  async update(ctx, id, patch){
+    if(ctx.demo){ if(chMem.msgs[id]) wlApply(chMem.msgs[id], patch); chMemFire(chMem.w); return; }
+    const f = ctx.fb; await f.updateDoc(f.doc(f.db, "chats", ctx.classId, "msgs", id), wlFbPatch(f, patch));
+  },
+  async del(ctx, id){
+    if(ctx.demo){ delete chMem.msgs[id]; chMemFire(chMem.w); return; }
+    const f = ctx.fb; await f.deleteDoc(f.doc(f.db, "chats", ctx.classId, "msgs", id));
+  },
+  watchReads(ctx, cb){
+    if(ctx.demo){ const f = () => cb(clone(chMem.reads)); chMem.rw.add(f); f(); return () => chMem.rw.delete(f); }
+    const f = ctx.fb;
+    return f.onSnapshot(f.collection(f.db, "chats", ctx.classId, "reads"),
+      s => { const o = {}; s.docs.forEach(d => { o[d.id] = d.data(); }); cb(o); }, e => console.warn(e));
+  },
+  async setRead(ctx, at){
+    if(ctx.demo){ chMem.reads[ctx.uid] = { at, aid: ctx.aid }; chMemFire(chMem.rw); return; }
+    const f = ctx.fb; await f.setDoc(f.doc(f.db, "chats", ctx.classId, "reads", ctx.uid), { at, aid: ctx.aid });
+  },
+  watchMeta(ctx, cb){
+    if(ctx.demo){ const f = () => cb(clone(chMem.meta)); chMem.mw.add(f); f(); return () => chMem.mw.delete(f); }
+    const f = ctx.fb;
+    return f.onSnapshot(f.doc(f.db, "chats", ctx.classId), s => cb(s.exists() ? s.data() : {}), e => console.warn(e));
+  },
+  async setMeta(ctx, patch){
+    if(ctx.demo){ wlApply(chMem.meta, patch); chMemFire(chMem.mw); return; }
+    const f = ctx.fb; const ref = f.doc(f.db, "chats", ctx.classId);
+    try{ await f.updateDoc(ref, wlFbPatch(f, patch)); }
+    catch(e){ const body = {}; wlApply(body, Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== WL_DEL))); await f.setDoc(ref, body); }
+  }
+};
+
+/* 지금 쓸 수 없는 이유 (없으면 null) — 담임은 늘 쓸 수 있다 */
+function chBlocked(ctx){
+  if(ctx.moderator) return null;
+  const m = ctx.meta || {};
+  if(m.frozen) return "선생님이 단톡방을 잠시 멈췄어요. 읽기만 할 수 있어요.";
+  const until = (m.muted || {})[ctx.aid] || 0;
+  if(until > Date.now()) return `선생님이 잠시 말하기를 멈췄어요 (${Math.ceil((until - Date.now()) / 60000)}분 남음).`;
+  if(ctx.kind === "student" && wlQuietNow(ctx.quiet)) return `지금은 쓰기 쉬는 시간이에요 (밤 ${ctx.quiet.qFrom}시 ~ 아침 ${ctx.quiet.qTo}시).`;
+  return null;
+}
+
+async function chDecode(ctx, x){
+  const key = x.id + "|" + x.c.length;
+  if(ctx.dec[x.id] && ctx.dec[x.id].key === key) return ctx.dec[x.id].v;
+  let v;
+  try{ v = await openJson(ctx.ck, x.c); }catch(e){ v = { text: "(열 수 없는 메시지)" }; }
+  if(v.img && !/^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(v.img)) delete v.img;
+  ctx.dec[x.id] = { key, v };
+  return v;
+}
+
+async function chRenderList(ctx){
+  const list = ctx.root.querySelector(".ch-list");
+  if(!list) return;
+  const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+  const reads = ctx.reads || {};
+  let html = "", day = "";
+  for(const x of ctx.msgs){
+    const mine = x.au === ctx.uid;
+    const rpN = Object.keys(x.rp || {}).length;
+    const d = ymd(new Date(x.at));
+    if(d !== day){ day = d; html += `<span class="ch-day">${dayHead(d)}</span>`; }
+    const v = await chDecode(ctx, x);
+    const a = wlAuthor(ctx, x.aid, v.tn);
+    const hiddenForMe = !ctx.moderator && !mine && (x.st === "held" || x.st === "hidden" || rpN >= 3);
+    let bub;
+    if(hiddenForMe) bub = `<div class="bub gone">${x.st === "held" ? "가려진 메시지예요" : "선생님이 가린 메시지예요"}</div>`;
+    else{
+      const flag = x.st === "held" ? "🟡 선생님 확인 중 · " : x.st === "hidden" ? "🙈 가림 · " : rpN && ctx.moderator ? `🚩 신고 ${rpN} · ` : "";
+      bub = `<div class="bub ${x.st === "held" ? "held" : x.st === "hidden" || rpN >= 3 ? "hid" : ""}" data-chm="${x.id}">${flag ? `<small>${flag}</small>` : ""}${
+        v.img ? `<img src="${v.img}" alt="" data-chimg="1">` : ""}${escapeHtml(v.text || "")}</div>`;
+    }
+    const unread = Object.entries(reads).filter(([uid, r]) => uid !== x.au && (r.at || "") < x.at).length;
+    const rxs = Object.values(x.rx || {});
+    const rxHtml = rxs.length ? `<span class="rx">${[...new Set(rxs)].join("")} ${rxs.length}</span>` : "";
+    html += `<div class="ch-m ${mine ? "me" : ""}">
+      ${mine ? "" : pfHtml(a.p, 34, a.label || a.name)}
+      <div class="col">${mine ? "" : `<span class="nm">${escapeHtml(a.name)}</span>`}
+        <div class="row">${bub}<span class="meta">${unread ? `<span class="ur">${unread}</span>` : ""}<span>${bubbleTime(x.at)}</span></span></div>
+        ${rxHtml}</div></div>`;
+  }
+  list.innerHTML = html || `<p class="sub" style="text-align:center; margin:auto;">첫 메시지를 보내 보세요 👋</p>`;
+  if(nearBottom || !ctx.scrolled){ list.scrollTop = list.scrollHeight; ctx.scrolled = true; }
+  chMarkRead(ctx);
+}
+
+/* 화면에 보이고 있으면 「여기까지 읽음」 */
+function chMarkRead(ctx){
+  const last = ctx.msgs[ctx.msgs.length - 1];
+  const myRead = ((ctx.reads || {})[ctx.uid] || {}).at || "";
+  const unread = ctx.msgs.filter(x => x.au !== ctx.uid && x.at > myRead).length;
+  const visible = ctx.root.offsetParent !== null && !document.hidden;
+  if(ctx.onUnread) ctx.onUnread(visible ? 0 : unread);
+  if(!last || !visible || last.at <= myRead) return;
+  clearTimeout(ctx.readT);
+  ctx.readT = setTimeout(() => chb.setRead(ctx, last.at).catch(e => console.warn(e)), 800);
+}
+
+function chRenderBar(ctx){
+  const m = ctx.meta || {};
+  const bar = ctx.root.querySelector(".ch-bar");
+  const why = chBlocked(ctx);
+  const mutedN = Object.values(m.muted || {}).filter(t => t > Date.now()).length;
+  bar.innerHTML = `<span>💬 우리 반 단톡방</span>
+    ${ctx.moderator ? `<span class="sp"></span>${mutedN ? `<span>말하기 멈춤 ${mutedN}명</span>` : ""}
+      <button class="btn sm ${m.frozen ? "primary" : "ghost"}" data-chf="1">${m.frozen ? "❄️ 얼림 풀기" : "❄️ 방 얼리기"}</button>` : ""}`;
+  const notice = ctx.root.querySelector(".ch-notice");
+  notice.classList.toggle("hidden", !(m.frozen));
+  notice.textContent = m.frozen ? "❄️ 선생님이 단톡방을 잠시 멈췄어요" : "";
+  const inp = ctx.root.querySelector(".ch-inwrap");
+  inp.innerHTML = why ? `<div class="ch-quiet">🌙 ${escapeHtml(why)}</div>` : `
+    <div class="ch-in">
+      <button class="btn sm ph" data-cha="photo" aria-label="사진 보내기">📷</button>
+      <textarea maxlength="${CH_MAX}" rows="1" placeholder="메시지 보내기" data-cht="1">${escapeHtml(ctx.draft || "")}</textarea>
+      <button class="btn primary sm" data-cha="send">보내기</button>
+    </div>`;
+}
+
+async function chSend(ctx, img){
+  const ta = ctx.root.querySelector("[data-cht]");
+  const text = ta ? ta.value.trim().slice(0, CH_MAX) : "";
+  if(!text && !img) return;
+  const why = chBlocked(ctx);
+  if(why){ toast(why); return; }
+  const now = Date.now();
+  ctx.sent = (ctx.sent || []).filter(t => now - t < CH_BURST_MS);
+  if(!ctx.moderator && ctx.sent.length >= CH_BURST){ toast("너무 빨리 보내고 있어요. 잠깐 쉬었다가 보내 주세요."); return; }
+  const held = WL_BAD.test(text);
+  const body = { text };
+  if(img) body.img = img;
+  if(ctx.kind === "teacher") body.tn = ctx.myName;
+  try{
+    await chb.add(ctx, { c: await sealJson(ctx.ck, body), au: ctx.uid, aid: ctx.aid, at: new Date().toISOString(), st: held ? "held" : "ok", rx: {}, rp: {} });
+  }catch(e){ console.error(e); toast("보내지 못했어요. 인터넷 연결이나 말하기 멈춤을 확인해 주세요."); return; }
+  ctx.sent.push(now);
+  if(ta && !img){ ta.value = ""; ctx.draft = ""; }
+  if(held) toast("욕설·비하 낱말이 있어 친구들에게는 가려져요. 선생님이 확인해요.");
+}
+
+function chMenu(ctx, id){
+  const x = ctx.msgs.find(m => m.id === id);
+  if(!x) return;
+  const mine = x.au === ctx.uid;
+  return new Promise(resolve => {
+    const mods = ctx.moderator ? [
+      x.st === "held" ? ["ok", "✅ 확인했어요 — 보이기"] : null,
+      x.st === "hidden" ? ["ok", "👁 다시 보이기"] : ["hide", "🙈 가리기"],
+      Object.keys(x.rp || {}).length ? ["clearrp", "🧹 신고 지우기"] : null,
+      x.aid !== "home" ? ["mute10", "🔇 이 사람 10분 말하기 멈춤"] : null,
+      x.aid !== "home" ? ["mute60", "🔇 1시간 멈춤"] : null,
+      x.aid !== "home" && ((ctx.meta || {}).muted || {})[x.aid] > Date.now() ? ["unmute", "🔈 말하기 멈춤 풀기"] : null
+    ].filter(Boolean) : [];
+    const wrap = document.createElement("div");
+    wrap.className = "modal";
+    wrap.style.zIndex = 80;
+    const myRx = (x.rx || {})[ctx.uid];
+    wrap.innerHTML = `<div class="box" role="dialog" aria-modal="true" style="max-width:340px;">
+      <div class="ch-rxpick">${CH_RX.map(e => `<button data-k="rx:${e}" aria-pressed="${myRx === e}">${e}</button>`).join("")}</div>
+      <div class="wl-menu">
+        ${mods.map(([k, l]) => `<button class="btn" data-k="${k}">${l}</button>`).join("")}
+        ${mine || ctx.moderator ? `<button class="btn danger" data-k="del">🗑 지우기</button>` : ""}
+        ${!mine && !ctx.moderator ? `<button class="btn" data-k="report">${(x.rp || {})[ctx.uid] ? "🚩 이미 선생님께 알렸어요" : "🚩 선생님께 알리기"}</button>` : ""}
+        <button class="btn ghost" data-k="">닫기</button></div></div>`;
+    wrap.addEventListener("click", async e => {
+      const b = e.target.closest("[data-k]");
+      if(!b && e.target !== wrap) return;
+      wrap.remove();
+      const k = b ? b.dataset.k : "";
+      try{
+        if(k.startsWith("rx:")){ const em = k.slice(3); await chb.update(ctx, id, { [`rx.${ctx.uid}`]: myRx === em ? WL_DEL : em }); }
+        if(k === "ok") await chb.update(ctx, id, { st: "ok" });
+        if(k === "hide") await chb.update(ctx, id, { st: "hidden" });
+        if(k === "clearrp") await chb.update(ctx, id, { rp: {} });
+        if(k === "mute10" || k === "mute60") await chb.setMeta(ctx, { [`muted.${x.aid}`]: Date.now() + (k === "mute10" ? 10 : 60) * 60000 });
+        if(k === "unmute") await chb.setMeta(ctx, { [`muted.${x.aid}`]: WL_DEL });
+        if(k === "del" && await confirmBox({ title: "메시지를 지울까요?", body: "모두의 화면에서 사라져요.", ok: "지우기" })) await chb.del(ctx, id);
+        if(k === "report" && !(x.rp || {})[ctx.uid] && await confirmBox({ title: "선생님께 알릴까요?", body: "누가 알렸는지는 친구들에게 보이지 않아요. 3명이 알리면 바로 가려져요.", ok: "알리기" })){
+          await chb.update(ctx, id, { [`rp.${ctx.uid}`]: true });
+          toast("선생님께 알렸어요.");
+        }
+      }catch(err){ console.error(err); toast("처리하지 못했어요."); }
+      resolve();
+    });
+    document.body.appendChild(wrap);
+  });
+}
+
+/* 단톡방 붙이기 — ctx: { classId, fb, demo, ck, uid, aid, kind, moderator, myName?, quiet, dirFromState?, pfs?, onUnread? } */
+function chMount(container, ctx){
+  if(container._ch) container._ch.unmount();
+  Object.assign(ctx, { root: container, msgs: [], dec: {}, reads: {}, meta: {}, unsubs: [], draft: "" });
+  container.innerHTML = `<div class="ch-box"><div class="ch-bar"></div><div class="ch-notice hidden"></div>
+    <div class="ch-list"><p class="sub" style="margin:auto;">불러오는 중…</p></div><div class="ch-inwrap"></div></div>`;
+  if(ctx.dirFromState) (state.data.students || []).forEach(s => { ctx.dir = ctx.dir || {}; ctx.dir[s.id] = { no: s.no, name: nameOf(s) }; });
+  ctx.dir = ctx.dir || {};
+  if(!ctx.dirFromState){
+    ctx.unsubs.push(wlb.watchDir(ctx, async d => {
+      if(!d) return;
+      try{ (await openJson(ctx.ck, d.c)).students.forEach(s => { ctx.dir[s.sid] = { no: s.no, name: s.name }; }); }catch(e){}
+      chRenderList(ctx);
+    }));
+  }
+  if(!ctx.pfs){
+    let pfs = {};
+    ctx.pfs = () => pfs;
+    ctx.unsubs.push(pfb.watch(ctx.classId, async docs => { pfs = await pfDecode(ctx.ck, docs); chRenderList(ctx); }, ctx.fb));
+  }
+  chRenderBar(ctx);
+  ctx.unsubs.push(chb.watchMeta(ctx, m => { ctx.meta = m || {}; const ta = container.querySelector("[data-cht]"); if(ta) ctx.draft = ta.value; chRenderBar(ctx); chRenderList(ctx); }));
+  ctx.unsubs.push(chb.watchReads(ctx, r => { ctx.reads = r; chRenderList(ctx); }));
+  ctx.unsubs.push(chb.watchMsgs(ctx, CH_PAGE, m => { ctx.msgs = m; chRenderList(ctx); }));
+  ctx.onError = () => { const l = container.querySelector(".ch-list"); if(l) l.innerHTML = `<p class="sub" style="margin:auto;">단톡방을 열지 못했어요. 이 기기가 우리 반으로 등록되지 않았거나 인터넷이 끊겼어요.</p>`; };
+  const onVis = () => chMarkRead(ctx);
+  document.addEventListener("visibilitychange", onVis);
+  ctx.unsubs.push(() => document.removeEventListener("visibilitychange", onVis));
+
+  container.onclick = async e => {
+    const t = e.target;
+    let b;
+    if((b = t.closest("[data-chimg]"))){ e.stopPropagation(); const lb = document.createElement("div"); lb.className = "wl-light"; lb.innerHTML = `<img src="${b.getAttribute("src")}" alt="">`; lb.onclick = () => lb.remove(); document.body.appendChild(lb); return; }
+    if((b = t.closest("[data-chm]"))) return chMenu(ctx, b.dataset.chm);
+    if((b = t.closest("[data-chf]"))){ await chb.setMeta(ctx, { frozen: !(ctx.meta || {}).frozen }); return; }
+    if((b = t.closest("[data-cha]"))){
+      if(b.dataset.cha === "send") return chSend(ctx);
+      if(b.dataset.cha === "photo"){
+        if(!ctx.photoOk && !(await confirmBox({ title: "사진을 보내기 전에", body: "다른 친구 얼굴이 나오는 사진이라면 그 친구에게 먼저 물어봤나요? 우리 반 모두가 보게 돼요.", ok: "네, 괜찮아요", cancel: "다시 생각할게요" }))) return;
+        ctx.photoOk = true;
+        const [f] = await wlPickFiles();
+        const img = f ? await pfLoadImage(f) : null;
+        if(!img) return;
+        const r = await wlCompress(img);
+        URL.revokeObjectURL(img.src);
+        return chSend(ctx, r.dataUrl);
+      }
+    }
+  };
+  container.onkeydown = e => {
+    if(e.target.dataset && e.target.dataset.cht && e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); chSend(ctx); }
+  };
+  container._ch = { ctx, unmount(){ container._ch = null; ctx.unsubs.forEach(u => { try{ u(); }catch(e){} }); } };
+  return ctx;
+}
+
+/* ---------- 담임: 「단톡방」 탭 ---------- */
+function renderChatTab(){
+  const set = $("#chatSet");
+  if(!set || !state.data) return;
+  const c = state.data.chat || {};
+  if(state.mode === "local"){ set.innerHTML = `<p class="sub">학생과 함께 쓰는 기능이라 「학교 승인 후 동기화」 방식에서만 쓸 수 있습니다.</p>`; $("#chatHome").innerHTML = ""; return; }
+  const hours = sel => Array.from({ length: 24 }, (_, h) => `<option value="${h}" ${sel === h ? "selected" : ""}>${h}시</option>`).join("");
+  if(!c.on){
+    set.innerHTML = `${Object.keys(state.data.stuSh || {}).length ? "" : `<div class="notice">먼저 관리 탭 「학생 개인 코드」에서 코드를 만들어 나눠 주세요.</div>`}
+      <button class="btn primary" data-chs="on">💬 단톡방 열기</button>`;
+    $("#chatHome").innerHTML = "";
+    return;
+  }
+  set.innerHTML = `<div class="btn-row" style="align-items:center;">
+      <span class="sub" style="margin:0;">학생 쓰기 쉬는 시간</span>
+      <select id="chQFrom" style="width:auto; min-height:40px;">${hours(c.qFrom ?? 22)}</select><span class="sub" style="margin:0;">~</span>
+      <select id="chQTo" style="width:auto; min-height:40px;">${hours(c.qTo ?? 7)}</select>
+      <button class="btn danger sm" data-chs="off" style="margin-left:auto;">단톡방 닫기</button></div>
+    <p class="sub" style="margin:8px 0 0;">메시지를 누르면 공감·가리기·말하기 멈춤(10분·1시간)·지우기를 할 수 있습니다. 위 「방 얼리기」를 누르면 담임 말고는 아무도 보낼 수 없습니다.</p>`;
+  chatResume();
+}
+$("#chatSet").addEventListener("click", async e => {
+  const b = e.target.closest("[data-chs]");
+  if(!b) return;
+  if(b.dataset.chs === "on"){
+    if(state.mode === "cloud" && !state.data.published){ toast("먼저 관리 탭 「학생 화면」에서 반영을 눌러 주세요."); return; }
+    if(!(await ckTeacher())) return;
+    await store.save("chat", Object.assign({ qFrom: 22, qTo: 7 }, state.data.chat || {}, { on: true }));
+    await dirPublish(); await autoSync(); boardQueueMeta();
+    renderChatTab();
+    toast("단톡방을 열었습니다. 학생 화면에 💬 단톡방 탭이 생깁니다.");
+  }else{
+    if(!(await confirmBox({ title: "단톡방을 닫을까요?", body: "학생 화면에서 단톡방 탭이 사라집니다. 메시지는 지워지지 않습니다.", ok: "닫기" }))) return;
+    await store.save("chat", Object.assign({}, state.data.chat, { on: false }));
+    await autoSync(); boardQueueMeta();
+    if($("#chatHome")._ch) $("#chatHome")._ch.unmount();
+    renderChatTab();
+  }
+});
+$("#chatSet").addEventListener("change", async e => {
+  if(e.target.id !== "chQFrom" && e.target.id !== "chQTo") return;
+  await store.save("chat", Object.assign({}, state.data.chat, { qFrom: Number($("#chQFrom").value), qTo: Number($("#chQTo").value) }));
+  await autoSync();
+  toast("쓰기 쉬는 시간을 바꿨습니다.");
+});
+async function chatResume(){
+  const box = $("#chatHome");
+  if(!box || !state.data) return;
+  const c = state.data.chat;
+  if(!c || !c.on || !(state.mode === "cloud" || state.mode === "demo")) return;
+  if(box._ch){ chMarkRead(box._ch.ctx); return; }
+  const ck = await ckQuiet();
+  if(!ck){ box.innerHTML = `<div class="notice">단톡방을 보려면 이름 보호 암호를 풀어 주세요.</div>`; return; }
+  await dirPublish();
+  chMount(box, {
+    classId: state.classId, fb: fbRefs, demo: state.mode === "demo", ck,
+    uid: state.mode === "demo" ? "demo-home" : state.uid, aid: "home", kind: "home", moderator: true,
+    dirFromState: true, pfs: () => pf.data, quiet: c,
+    onUnread: n => { const d = $("#chatDot"); if(d) d.classList.toggle("hidden", !n); }
+  });
+}
+
+/* ---------- 학생 화면: 💬 단톡방 탭 ---------- */
+const stc = { root:null, pub:null };
+function renderStudentChat(pub, root){
+  const btn = root.querySelector('[data-sttab="chat"]');
+  const on = !!(pub.chat && pub.codes);
+  btn.classList.toggle("hidden", !on);
+  if(!on) return;
+  stc.root = root; stc.pub = pub;
+  stcRender();
+}
+async function stcRender(){
+  const box = stc.root.querySelector("#stChat");
+  const classId = stc.pub.classId;
+  const me = await stIdentity(classId);
+  if(!me){ box.innerHTML = `<div class="card"></div>`; stCodeForm(box.firstChild, "단톡방", "우리 반 단톡방", "우리 반 친구들과 선생님만 있는 대화방이에요.", classId, stRerenderAll); return; }
+  if(!me.ck){ box.innerHTML = `<div class="card"><p class="sub">선생님이 아직 단톡방을 준비하지 않았어요.</p></div>`; return; }
+  if(me.claimError){ box.innerHTML = `<div class="card"><p class="sub">이 기기를 우리 반으로 등록하지 못했어요. 잠시 뒤 다시 열어 주세요.</p></div>`; return; }
+  const dot = stc.root.querySelector(".st-cdot");
+  chMount(box, {
+    classId, fb: fbRefs || stuFb, demo: state.mode === "demo", ck: me.ck,
+    uid: state.mode === "demo" ? "demo-" + me.sid : (fbRefs ? state.uid : me.uid),
+    aid: me.sid, kind: "student", moderator: false, quiet: stc.pub.chat,
+    onUnread: n => { if(dot) dot.classList.toggle("hidden", !n); }
+  });
+}
+
+/* ---------- 교과 출석부: 단톡방 카드 ---------- */
+async function tbChatMount(){
+  const card = $("#tbChatCard");
+  if(!tb.meta || !tb.meta.ck || !tb.meta.chatOn){ card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  const box = $("#tbChat");
+  if(box._ch && box._ch.ctx.classId === tb.classId) return;
+  let uid;
+  try{ uid = await tbClaim(); }catch(e){ box.innerHTML = `<p class="sub">단톡방에 연결하지 못했습니다.</p>`; return; }
+  const ck = await crypto.subtle.importKey("raw", crypt.fromB64(tb.meta.ck), "AES-GCM", false, ["encrypt","decrypt"]);
+  chMount(box, {
+    classId: tb.classId, fb: tb.fb, demo: tb.demo, ck, uid, aid: "t:" + uid, kind: "teacher", moderator: false,
+    get myName(){ return $("#tbName").value.trim() || "교과"; },
+    quiet: null, pfs: tb.demo ? () => pf.data : undefined
+  });
+}
+
+/* ---------- 체험 모드 — 예시 대화 ---------- */
+async function chatDemoSetup(){
+  Object.assign(chMem, { msgs:{}, reads:{}, meta:{}, w:new Set(), rw:new Set(), mw:new Set() });
+  state.data.chat = { on: true, qFrom: 22, qTo: 7 };
+  const ck = pf.ck;
+  if(!ck) return;
+  const at = (mm) => { const d = new Date(); d.setMinutes(d.getMinutes() - mm); return d.toISOString(); };
+  const put = async (id, aid, au, ago, body, extra) => {
+    chMem.msgs[id] = Object.assign({ id, c: await sealJson(ck, body), au, aid, at: at(ago), st: "ok", rx: {}, rp: {} }, extra || {});
+  };
+  await put("m1", "home", "demo-home", 95, { text: "내일 체육대회 반티 꼭 입고 오세요! 👕" }, { rx: { "demo-s02": "❤️", "demo-s05": "👍", "demo-s07": "❤️" } });
+  await put("m2", "s02", "demo-s02", 90, { text: "넵!! 신발은 운동화 맞죠?" });
+  await put("m3", "home", "demo-home", 88, { text: "네, 운동화 신고 와요 😊" });
+  await put("m4", "t:demo-t", "demo-t", 60, { text: "수학 수행평가 예시 문항 담벼락에 올려 두었어요.", tn: "김수학" }, { rx: { "demo-s13": "👍" } });
+  await put("m5", "s09", "demo-s09", 40, { text: "아 ㅅㅂ 수학 어렵다" }, { st: "held" });
+  await put("m6", "s14", "demo-s14", 20, { text: "오늘 급식 뭐야??" });
+  await put("m7", "s05", "demo-s05", 18, { text: "탕수육이래 😋" }, { rx: { "demo-s14": "😂" } });
+  chMem.reads = { "demo-s02": { at: at(85), aid: "s02" }, "demo-s05": { at: at(15), aid: "s05" }, "demo-s07": { at: at(30), aid: "s07" },
+                  "demo-s13": { at: at(50), aid: "s13" }, "demo-s14": { at: at(15), aid: "s14" }, "demo-t": { at: at(55), aid: "t:demo-t" } };
 }
 
 /* ============================================================
