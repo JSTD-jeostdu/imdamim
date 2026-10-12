@@ -374,6 +374,19 @@ service cloud.firestore {
       }
     }
 
+    // ---------- 말풍선 읽음 표시 ----------
+    // bubReads/{반}/s/{학생칸} = { at: 본 말풍선 중 최근 것의 시각, t: 본 시각 }
+    // 담임만 읽는다. 쓰기는 그 학생으로 등록된 기기(자기 칸만)와 담임.
+    match /bubReads/{classId}/s/{sid} {
+      allow read: if isMine(classId);
+      allow create, update: if (isMine(classId)
+                              || ( isClassMember(classId) && 'sid' in memDoc(classId) && memDoc(classId).sid == sid ))
+                            && request.resource.data.keys().hasOnly(['at', 't'])
+                            && request.resource.data.at is string && request.resource.data.at.size() < 40
+                            && request.resource.data.t is string && request.resource.data.t.size() < 40;
+      allow delete: if isMine(classId);
+    }
+
     // ---------- 그 외 전부 차단 ----------
     match /{document=**} {
       allow read, write: if false;

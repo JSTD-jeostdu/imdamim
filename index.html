@@ -720,6 +720,14 @@ i.c-rec  { border:1px dashed var(--ink-45); }
 .bb .msg a{ color:#FFE58A; text-decoration:underline; }
 .bb .t{ font-size:11px; color:var(--ink-45); flex:none; }
 .bb .x{ border:0; background:transparent; color:var(--ink-45); min-width:32px; min-height:32px; font-size:16px; flex:none; }
+.bb-meta{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; flex:none; }
+.bb-read{
+  border:0; background:transparent; padding:2px 0; min-height:28px; cursor:pointer;
+  font:inherit; font-size:11.5px; color:var(--ink-70); text-align:left; white-space:nowrap;
+}
+.bb-read b{ color:var(--stamp); }
+.bb-unread{ display:flex; flex-wrap:wrap; gap:6px; }
+.bb-unread span{ padding:6px 10px; border-radius:999px; background:var(--tint); font-size:14px; }
 .bb.pin .msg{ background:var(--highlight); color:var(--ink); border-radius:18px; }
 .bb.pin .msg a{ color:var(--ink); }
 .bb.pin .msg::before{ content:"📌 "; }
@@ -9213,6 +9221,7 @@ function stRerenderAll(){
   if(stw.root) stwRender();
   if(stmd.root) stmdRender();
   if(stc.root) stcRender();
+  if(stb.root) stbRender();
 }
 
 /* ============================================================
@@ -11098,13 +11107,16 @@ function bubblesHtml(list, canDel, limit){
 }
 function bubbleRow(b, canDel){
   return `<div class="bb ${b.pin ? "pin" : ""}"><div class="msg">${linkify(b.text)}</div>
-    <span class="t">${bubbleTime(b.at)}</span>
+    ${canDel && bbReadOn()
+      ? `<span class="bb-meta">${bbReadLine(b)}<span class="t">${bubbleTime(b.at)}</span></span>`
+      : `<span class="t">${bubbleTime(b.at)}</span>`}
     ${canDel ? `<button class="x" data-bbdel="${escapeHtml(b.id)}" aria-label="말풍선 지우기">×</button>` : ""}</div>`;
 }
 
 function renderBubbles(){
   if(!state.data || !$("#bubbleList")) return;
   const list = state.data.bubbles || [];
+  if(bbReadOn()) bbWatch();   // 첫 연결이면 받은 뒤 다시 그린다
   $("#bubbleList").innerHTML = list.length
     ? bubblesHtml(list, true, 8)
     : `<p class="sub" style="margin:0;">아직 보낸 말풍선이 없습니다.</p>`;
@@ -11122,6 +11134,8 @@ $("#btnBubbleSend").addEventListener("click", async () => {
   toast(state.data.published ? "학생 화면에 보냈습니다." : "저장했습니다. 학생 화면을 반영하면 함께 올라갑니다.");
 });
 $("#bubbleList").addEventListener("click", async e => {
+  const rd = e.target.closest("[data-bbread]");
+  if(rd){ bbOpenUnread(rd.dataset.bbread); return; }
   const b = e.target.closest("[data-bbdel]");
   if(!b) return;
   if(!(await confirmBox({ title: "말풍선을 지울까요?", body: "학생 화면에서도 사라집니다.", ok: "지우기" }))) return;
@@ -11175,6 +11189,7 @@ function setupStudentTabs(pub, root, isPreview){
     if(tab === "notice"){
       q(".st-dot").classList.add("hidden");
       if(!isPreview && latest) LS.set(seenKey, latest);
+      bbMarkRead(pub);   // 담임에게 읽음 표시 (코드를 넣은 기기만)
     }
     host.dataset.stcur = tab;
     if(!isPreview) window.scrollTo({ top: 0 });
@@ -11187,10 +11202,115 @@ function setupStudentTabs(pub, root, isPreview){
   show(host.dataset.stcur || "today");
 }
 
+/* ---------- 말풍선 — 학생 화면 ----------
+   개인 코드를 발급한 반은 코드를 넣어야 말풍선이 보인다(누가 읽었는지 알아야 하므로).
+   코드를 안 만든 반은 예전처럼 바로 보인다. */
+const stb = { root:null, pub:null };
 function renderStudentBubbles(pub, root){
+  stb.root = root; stb.pub = pub;
+  stbRender();
+}
+async function stbRender(){
+  const root = stb.root, pub = stb.pub;
   const list = (pub.bubbles || []).map((b, i) => Object.assign({ id: "p" + i }, b));
-  root.querySelector("#stCardBubble").classList.toggle("hidden", !list.length);
-  root.querySelector("#stBubbles").innerHTML = bubblesHtml(list, false, 0);
+  const card = root.querySelector("#stCardBubble");
+  card.classList.toggle("hidden", !list.length);
+  if(!list.length) return;
+  const box = root.querySelector("#stBubbles");
+  if(pub.codes){
+    const me = await stIdentity(pub.classId);
+    if(!me){
+      stCodeForm(box, "", "선생님 말풍선", "선생님이 보낸 알림을 보려면", pub.classId, () => stRerenderAll());
+      box.querySelector(".eyebrow").remove();   // 카드에 이미 「선생님 알림」이 있다
+      return;
+    }
+  }
+  box.innerHTML = bubblesHtml(list, false, 0);
+  const sec = root.querySelector('[data-st="notice"]');
+  if(sec && !sec.classList.contains("hidden")) bbMarkRead(pub);
+}
+
+/* ---------- 말풍선 읽음 표시 ----------
+   bubReads/{반}/s/{학생칸} = { at: 본 말풍선 중 가장 최근 것의 시각, t: 본 시각 }
+   학생이 「알림」 탭을 열어 말풍선이 화면에 뜨면 저절로 남긴다. 담임만 읽는다(규칙). */
+const bbMem = { reads:{}, w:new Set(), seeded:false };
+const bbR = { reads:{}, unsub:null };
+const bbLastSent = {};   // 같은 값을 거듭 쓰지 않게
+
+async function bbMarkRead(pub){
+  if(!pub.codes) return;
+  const latest = (pub.bubbles || []).reduce((m, b) => (b.at > m ? b.at : m), "");
+  if(!latest) return;
+  const demo = state.mode === "demo";
+  if(!demo && (fbRefs || !stuFb)) return;   // 담임 미리보기에서는 남기지 않는다
+  const me = await stIdentity(pub.classId);
+  if(!me) return;
+  const k = pub.classId + "|" + me.sid;
+  if(bbLastSent[k] >= latest) return;
+  bbLastSent[k] = latest;
+  const body = { at: latest, t: new Date().toISOString() };
+  try{
+    if(demo){ bbMem.reads[me.sid] = body; bbMem.w.forEach(f => f()); return; }
+    await stuFb.setDoc(stuFb.doc(stuFb.db, "bubReads", pub.classId, "s", me.sid), body);
+  }catch(e){ bbLastSent[k] = ""; console.warn("말풍선 읽음 표시 실패", e); }
+}
+
+/* 담임 화면 — 읽음 기록 받기 (한 번만 연결) */
+function bbWatch(){
+  if(bbR.unsub) return;
+  const cb = r => { bbR.reads = r; renderBubbles(); };
+  if(state.mode === "demo"){
+    if(!bbMem.seeded){   // 체험 — 대부분은 최신 말풍선까지, 몇 명은 예전 것까지만, 몇 명은 아직
+      bbMem.seeded = true;
+      const bs = (state.data.bubbles || []).map(b => b.at).sort();
+      const last = bs[bs.length - 1], prev = bs[bs.length - 2] || "";
+      (state.data.students || []).forEach((s, i) => {
+        if(i % 6 === 5) return;
+        bbMem.reads[s.id] = { at: (i % 6 === 2 && prev) ? prev : last, t: new Date().toISOString() };
+      });
+    }
+    const f = () => cb(clone(bbMem.reads));
+    bbMem.w.add(f); bbR.unsub = () => bbMem.w.delete(f); f();
+    return;
+  }
+  if(state.mode !== "cloud" || !fbRefs) return;
+  const f = fbRefs;
+  bbR.unsub = f.onSnapshot(f.collection(f.db, "bubReads", state.classId, "s"),
+    s => { const o = {}; s.docs.forEach(d => { o[d.id] = d.data(); }); cb(o); },
+    e => console.warn("말풍선 읽음 받기 실패", e));
+}
+function bbReadOn(){ return !!(state.data && Object.keys(state.data.stuSh || {}).length) && (state.mode === "demo" || state.mode === "cloud"); }
+function bbUnread(b){
+  return (state.data.students || []).filter(s => !(bbR.reads[s.id] && bbR.reads[s.id].at >= b.at))
+    .sort((a, c) => a.no - c.no);
+}
+function bbReadLine(b){
+  const all = (state.data.students || []).length;
+  const un = bbUnread(b).length;
+  return `<button class="bb-read" data-bbread="${escapeHtml(b.id)}">${un ? `👀 읽음 ${all - un} · <b>안 읽음 ${un}</b>` : `👀 모두 읽음`}</button>`;
+}
+function bbOpenUnread(id){
+  const b = (state.data.bubbles || []).find(x => x.id === id);
+  if(!b) return;
+  const un = bbUnread(b);
+  const wrap = document.createElement("div");
+  wrap.className = "modal";
+  wrap.innerHTML = `<div class="box" role="dialog" aria-modal="true" aria-label="안 읽은 학생" style="max-width:420px; max-height:92vh; overflow:auto;">
+    <h3>아직 안 읽은 학생 ${un.length}명</h3>
+    <p class="sub" style="margin:0 0 10px; white-space:pre-wrap;">「${escapeHtml(b.text.length > 40 ? b.text.slice(0, 40) + "…" : b.text)}」</p>
+    ${un.length ? `<div class="bb-unread">${un.map(s => `<span>${s.no} ${escapeHtml(nameOf(s))}</span>`).join("")}</div>` : `<p>모두 읽었습니다. 👏</p>`}
+    <p class="sub" style="margin-top:10px;">학생 화면 「알림」 탭을 열면 읽음으로 바뀝니다. 개인 코드를 아직 안 넣은 학생도 여기에 들어갑니다.</p>
+    <div class="btn-row">${un.length ? `<button class="btn" data-bbx="copy">번호 복사</button>` : ""}<button class="btn primary" data-bbx="close" style="margin-left:auto;">닫기</button></div>
+  </div>`;
+  document.body.appendChild(wrap);
+  wrap.addEventListener("click", async e => {
+    const a = e.target === wrap ? "close" : (e.target.closest("[data-bbx]") || {}).dataset?.bbx;
+    if(a === "close") wrap.remove();
+    if(a === "copy"){
+      try{ await navigator.clipboard.writeText(`말풍선 안 읽은 학생: ${un.map(s => s.no + "번").join(", ")}`); toast("번호를 복사했습니다."); }
+      catch(_){ toast("복사하지 못했습니다."); }
+    }
+  });
 }
 
 /* ============================================================
